@@ -74,7 +74,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ([__TURBOPACK__imported__module__$5b$externals$5d2f$axios__$5b$external$5d$__$28$axios$2c$__esm_import$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__);
 ;
 // Base URL of backend
-const API_URL = ("TURBOPACK compile-time value", "http://localhost:5002/api") || 'http://localhost:5002/api';
+const API_URL = ("TURBOPACK compile-time value", "http://localhost:5002/") || 'http://localhost:5002/';
 const api = __TURBOPACK__imported__module__$5b$externals$5d2f$axios__$5b$external$5d$__$28$axios$2c$__esm_import$29$__["default"].create({
     baseURL: API_URL,
     timeout: 5000,
@@ -84,7 +84,7 @@ const api = __TURBOPACK__imported__module__$5b$externals$5d2f$axios__$5b$externa
 });
 const loginUser = async (email, password)=>{
     try {
-        const response = await api.post('/auth/login', {
+        const response = await api.post('api/auth/login', {
             email,
             password
         });

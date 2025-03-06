@@ -1,8 +1,8 @@
 // tests/auth.test.js
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../app');
-const User = require('../models/User');
+const app = require('../backend');
+const User = require('../backend/models/User');
 
 // Use a separate MongoDB URI for testing
 const mongoTestURI = 'mongodb://localhost:27017/secure-note-test';

@@ -562,7 +562,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/node_modules/axios/lib/axios.js [client] (ecmascript)");
 ;
 // Base URL of backend
-const API_URL = ("TURBOPACK compile-time value", "http://localhost:5002/api") || 'http://localhost:5002/api';
+const API_URL = ("TURBOPACK compile-time value", "http://localhost:5002/") || 'http://localhost:5002/';
 const api = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$client$5d$__$28$ecmascript$29$__["default"].create({
     baseURL: API_URL,
     timeout: 5000,
@@ -572,7 +572,7 @@ const api = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axio
 });
 const loginUser = async (email, password)=>{
     try {
-        const response = await api.post('/auth/login', {
+        const response = await api.post('api/auth/login', {
             email,
             password
         });

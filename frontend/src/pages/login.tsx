@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginUser } from '../services/api';
+import { loginUser } from '../services/auth';
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>('');
@@ -9,36 +9,22 @@ const LoginPage = () => {
         e.preventDefault();
         try {
             const data = await loginUser(email, password);
-            console.log('Login successful:', data);
-            // Save JWT token in localStorage or cookies
             // @ts-ignore
             localStorage.setItem('token', data.token);
+            alert('Login successful!');
+            window.location.href = '/dashboard'; // Redirect after login
         } catch (error: any) {
-            alert(error.message);
+            alert(error.response?.data?.message || 'Login failed');
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <form onSubmit={handleLogin} className="w-full max-w-md bg-white shadow-md rounded-lg p-8">
-                <h1 className="text-2xl font-bold mb-4">Login</h1>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 mb-4 border rounded"
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2 mb-4 border rounded"
-                />
-                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-                    Login
-                </button>
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl mb-4">Login</h1>
+            <form onSubmit={handleLogin} className="space-y-4">
+                <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} className="border p-2 w-full" />
+                <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="border p-2 w-full" />
+                <button type="submit" className="bg-blue-500 text-white p-2 w-full">Login</button>
             </form>
         </div>
     );
