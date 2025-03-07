@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const passport = require('passport');
+require('./config/passport');
 
 const app = express();
 
@@ -10,12 +12,12 @@ app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 1000, message: "Too many requests..." }));
 app.use(express.json());
+app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/notes', require('./routes/notes'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/admin-dashboard', require('./routes/adminDashboard'));
 app.use('/api/totp', require('./routes/totp'));
 app.use('/api/sharing', require('./routes/sharing'));
 app.use('/api/export', require('./routes/export'));

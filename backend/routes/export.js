@@ -11,7 +11,7 @@ router.use(authenticate);
 
 // Export a Note
 router.get(
-    '/export/:noteId',
+    '/:noteId',
     [
         query('format')
             .optional()

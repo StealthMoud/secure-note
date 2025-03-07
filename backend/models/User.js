@@ -57,6 +57,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Private key is required for decryption'],
     },
+    verificationToken: {
+        type: String
+    },
 }, {
     timestamps: true,
 });
