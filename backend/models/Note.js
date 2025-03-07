@@ -5,6 +5,7 @@ const NoteSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Title is required'],
         trim: true,
+        maxlength: [100, 'Title cannot exceed 100 characters'],
     },
     content: {
         type: String,
@@ -12,8 +13,8 @@ const NoteSchema = new mongoose.Schema({
     },
     format: {
         type: String,
-        enum: ['plain', 'markdown', 'pdf'],
-        default: 'plain',
+        enum: ['plain', 'markdown'],
+        default: 'markdown',
     },
     encrypted: {
         type: Boolean,
@@ -27,11 +28,16 @@ const NoteSchema = new mongoose.Schema({
     sharedWith: [
         {
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            permission: { type: String, enum: ['viewer', 'editor', 'admin'], default: 'viewer' }
-        }
+            permission: { type: String, enum: ['viewer', 'editor', 'admin'], default: 'viewer' },
+            encryptedContent: { type: String },
+        },
     ],
 }, {
     timestamps: true,
 });
+
+// Indexes for better query performance
+NoteSchema.index({ owner: 1 });
+NoteSchema.index({ 'sharedWith.user': 1 });
 
 module.exports = mongoose.models.Note || mongoose.model('Note', NoteSchema);

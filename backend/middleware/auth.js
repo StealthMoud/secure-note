@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * Middleware to authenticate the user using JWT.
- * Expects an Authorization header in the format: "Bearer <token>"
- */
+// Check JWT_SECRET at startup
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be defined in environment variables');
+}
+
 const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -14,24 +15,21 @@ const authenticate = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        // Verify the token with the secret key from the environment variables.
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Attach user information to the request object.
         req.user = {
             id: decoded.id,
-            role: decoded.role || 'user'
+            role: decoded.role || 'user',
         };
-        next(); // Proceed to the next middleware/route handler.
+        next();
     } catch (err) {
         console.error('Authentication error:', err);
-        return res.status(401).json({ error: 'Invalid or expired token' });
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: 'Token has expired, please log in again' });
+        }
+        return res.status(401).json({ error: 'Invalid token' });
     }
 };
 
-/**
- * Middleware to authorize only admin users.
- * Should be used after the authenticate middleware.
- */
 const authorizeAdmin = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
         return next();

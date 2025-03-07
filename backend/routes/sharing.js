@@ -5,16 +5,13 @@ const { authenticate } = require('../middleware/auth');
 const requireVerified = require('../middleware/verification');
 const Note = require('../models/Note');
 const User = require('../models/User');
+const { encryptText, decryptText } = require('../utils/encryption');
+const SecurityLog = require('../models/SecurityLog');
 
-// Protect all endpoints with authentication.
 router.use(authenticate);
 router.use(requireVerified);
 
-/**
- * 1. Share a Note
- * POST /share
- * Body: { noteId, recipientEmail, permission }
- */
+// Share a Note
 router.post(
     '/share',
     [
@@ -31,20 +28,16 @@ router.post(
 
         const { noteId, recipientEmail, permission } = req.body;
         try {
-            // Find note by ID.
             const note = await Note.findById(noteId);
             if (!note) return res.status(404).json({ error: 'Note not found' });
 
-            // Only the owner can share the note.
             if (note.owner.toString() !== req.user.id) {
                 return res.status(403).json({ error: 'Only the owner can share this note' });
             }
 
-            // Find the recipient by email.
             const recipient = await User.findOne({ email: recipientEmail });
             if (!recipient) return res.status(404).json({ error: 'Recipient user not found' });
 
-            // Ensure the note isn’t already shared with this user.
             const alreadyShared = note.sharedWith.some(
                 entry => entry.user.toString() === recipient._id.toString()
             );
@@ -52,14 +45,26 @@ router.post(
                 return res.status(400).json({ error: 'Note is already shared with this user' });
             }
 
-            // Add the recipient to the sharedWith array.
-            note.sharedWith.push({
-                user: recipient._id,
-                permission: permission || 'viewer',
-            });
+            const owner = await User.findById(req.user.id);
+            if (note.encrypted && note.content) {
+                const decryptedContent = decryptText(note.content, owner.privateKey);
+                const recipientEncryptedContent = encryptText(decryptedContent, recipient.publicKey);
+                note.sharedWith.push({
+                    user: recipient._id,
+                    permission: permission || 'viewer',
+                    encryptedContent: recipientEncryptedContent,
+                });
+            } else {
+                note.sharedWith.push({
+                    user: recipient._id,
+                    permission: permission || 'viewer',
+                });
+            }
             await note.save();
+            await SecurityLog.create({ event: 'note_shared', user: req.user.id, details: { noteId: noteId, recipient: recipient._id } });
 
-            res.json({ message: 'Note shared successfully', note });
+            const populatedNote = await Note.findById(noteId).populate('sharedWith.user', 'username email');
+            res.json({ message: 'Note shared successfully', note: populatedNote });
         } catch (err) {
             console.error('Error sharing note:', err);
             res.status(500).json({ error: 'Failed to share note' });
@@ -67,11 +72,7 @@ router.post(
     }
 );
 
-/**
- * 2. Update Sharing Permissions
- * PUT /share/:noteId/:userId
- * Body: { permission }
- */
+// Update Sharing Permissions
 router.put(
     '/share/:noteId/:userId',
     [
@@ -90,12 +91,10 @@ router.put(
             const note = await Note.findById(noteId);
             if (!note) return res.status(404).json({ error: 'Note not found' });
 
-            // Only the owner can update sharing permissions.
             if (note.owner.toString() !== req.user.id) {
                 return res.status(403).json({ error: 'Only the owner can update sharing permissions' });
             }
 
-            // Find the shared entry.
             const sharedEntry = note.sharedWith.find(
                 entry => entry.user.toString() === userId
             );
@@ -105,7 +104,8 @@ router.put(
 
             sharedEntry.permission = permission;
             await note.save();
-            res.json({ message: 'Sharing permissions updated', note });
+            const populatedNote = await Note.findById(noteId).populate('sharedWith.user', 'username email');
+            res.json({ message: 'Sharing permissions updated', note: populatedNote });
         } catch (err) {
             console.error('Error updating sharing permissions:', err);
             res.status(500).json({ error: 'Failed to update sharing permissions' });
@@ -113,17 +113,13 @@ router.put(
     }
 );
 
-/**
- * 3. Remove a Shared User
- * DELETE /share/:noteId/:userId
- */
+// Remove a Shared User
 router.delete('/share/:noteId/:userId', async (req, res) => {
     const { noteId, userId } = req.params;
     try {
         const note = await Note.findById(noteId);
         if (!note) return res.status(404).json({ error: 'Note not found' });
 
-        // Only the owner can remove shared users.
         if (note.owner.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Only the owner can remove shared users' });
         }
@@ -136,22 +132,43 @@ router.delete('/share/:noteId/:userId', async (req, res) => {
             return res.status(404).json({ error: 'Shared user not found' });
         }
         await note.save();
-        res.json({ message: 'Shared user removed successfully', note });
+        const populatedNote = await Note.findById(noteId).populate('sharedWith.user', 'username email');
+        res.json({ message: 'Shared user removed successfully', note: populatedNote });
     } catch (err) {
         console.error('Error removing shared user:', err);
         res.status(500).json({ error: 'Failed to remove shared user' });
     }
 });
 
-/**
- * 4. Get Notes Shared With Me
- * GET /shared-with-me
- */
+// Get Notes Shared With Me
 router.get('/shared-with-me', async (req, res) => {
     try {
-        // Find notes where the authenticated user's ID is in the sharedWith array.
-        const notes = await Note.find({ 'sharedWith.user': req.user.id });
-        res.json(notes);
+        const user = await User.findById(req.user.id);
+        let notes = await Note.find({ 'sharedWith.user': req.user.id })
+            .populate('owner', 'username email')
+            .populate('sharedWith.user', 'username email');
+
+        notes = notes.map(note => {
+            const noteObj = note.toObject();
+            if (noteObj.encrypted) {
+                const sharedEntry = noteObj.sharedWith.find(
+                    entry => entry.user._id.toString() === req.user.id
+                );
+                if (sharedEntry && sharedEntry.encryptedContent) {
+                    try {
+                        noteObj.content = decryptText(sharedEntry.encryptedContent, user.privateKey);
+                    } catch (error) {
+                        console.error('Error decrypting shared note:', error);
+                        noteObj.content = '[Encrypted content unavailable]';
+                    }
+                } else {
+                    noteObj.content = '[Encrypted content unavailable]';
+                }
+            }
+            return noteObj;
+        });
+
+        res.json({ message: 'Shared notes retrieved', notes });
     } catch (err) {
         console.error('Error fetching shared notes:', err);
         res.status(500).json({ error: 'Failed to fetch shared notes' });

@@ -5,36 +5,31 @@ const Note = require('../models/Note');
 const { authenticate } = require('../middleware/auth');
 const User = require('../models/User');
 const { encryptText, decryptText } = require('../utils/encryption');
+const SecurityLog = require('../models/SecurityLog');
 
-// Apply authentication middleware to all routes.
 router.use(authenticate);
 
 // Create a Note
 router.post(
     '/',
     [
-        // Validate that title is not empty.
         body('title').notEmpty().withMessage('Title is required'),
-        // Validate that if format is provided, it must be either 'plain' or 'markdown'
         body('format')
             .optional()
-            .isIn(['plain', 'markdown', 'pdf'])
+            .isIn(['plain', 'markdown'])
             .withMessage('Format must be either plain or markdown'),
-        // Optionally, validate content if you have specific requirements:
         body('content')
             .optional()
             .isString()
             .withMessage('Content must be a string'),
     ],
     async (req, res) => {
-        // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
         try {
-            // Check the user's verification status
             const user = await User.findById(req.user.id);
             const noteCount = await Note.countDocuments({ owner: req.user.id });
             if (!user.verified && noteCount >= 1) {
@@ -43,17 +38,16 @@ router.post(
                 });
             }
 
-            // Ensure that the note is associated with the authenticated user.
             const noteData = { ...req.body, owner: req.user.id };
-
-            // If encryption is enabled and content is provided, encrypt the content
             if (noteData.encrypted && noteData.content) {
-                noteData.content = encryptText(noteData.content);
+                // Encrypt with the user's public key
+                noteData.content = encryptText(noteData.content, user.publicKey);
             }
 
             const newNote = new Note(noteData);
             await newNote.save();
-            res.status(201).json(newNote);
+            await SecurityLog.create({ event: 'note_created', user: req.user.id, details: { noteId: newNote._id } });
+            res.status(201).json({ message: 'Note created', note: newNote });
         } catch (err) {
             console.error('Error creating note:', err);
             res.status(500).json({ error: err.message });
@@ -64,28 +58,47 @@ router.post(
 // Get User's Notes
 router.get('/', async (req, res) => {
     try {
-        let notes = await Note.find({ owner: req.user.id });
+        const user = await User.findById(req.user.id); // Fetch user for private key
+        let notes = await Note.find({
+            $or: [
+                { owner: req.user.id },
+                { 'sharedWith.user': req.user.id },
+            ],
+        })
+            .populate('owner', 'username email')
+            .populate('sharedWith.user', 'username email');
 
-        // Decrypt content for notes that are marked as encrypted
         notes = notes.map(note => {
             const noteObj = note.toObject();
             if (noteObj.encrypted && noteObj.content) {
                 try {
-                    noteObj.content = decryptText(noteObj.content);
+                    // Decrypt with the user's private key if owner
+                    if (noteObj.owner._id.toString() === req.user.id) {
+                        noteObj.content = decryptText(noteObj.content, user.privateKey);
+                    } else {
+                        // For shared notes, use encryptedContent from sharedWith (handled in sharing.js)
+                        const sharedEntry = noteObj.sharedWith.find(
+                            entry => entry.user._id.toString() === req.user.id
+                        );
+                        if (sharedEntry && sharedEntry.encryptedContent) {
+                            noteObj.content = decryptText(sharedEntry.encryptedContent, user.privateKey);
+                        } else {
+                            noteObj.content = '[Encrypted content unavailable]';
+                        }
+                    }
                 } catch (error) {
                     console.error('Error decrypting note:', error);
-                    // Optionally, handle decryption failures (e.g., leave content as-is or notify the client)
+                    noteObj.content = '[Encrypted content unavailable]';
                 }
             }
             return noteObj;
         });
 
-        res.json(notes);
+        res.json({ message: 'Notes retrieved', notes });
     } catch (err) {
         console.error('Error fetching notes:', err);
         res.status(500).json({ error: err.message });
     }
 });
-
 
 module.exports = router;

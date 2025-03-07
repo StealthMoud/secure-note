@@ -1,33 +1,38 @@
 const crypto = require('crypto');
 
-// Ensure your RSA keys are defined in your environment variables (PEM format).
-const publicKey = process.env.RSA_PUBLIC_KEY;
-const privateKey = process.env.RSA_PRIVATE_KEY;
-
-if (!publicKey || !privateKey) {
-    throw new Error('RSA_PUBLIC_KEY and RSA_PRIVATE_KEY must be defined in the environment variables.');
-}
-
 /**
- * Encrypts a given text using the RSA public key.
+ * Encrypts text using a provided RSA public key.
  * @param {string} text - The plain text to encrypt.
+ * @param {string} publicKey - The RSA public key in PEM format.
  * @returns {string} - The encrypted text in base64 encoding.
  */
-function encryptText(text) {
-    const buffer = Buffer.from(text, 'utf8');
-    const encrypted = crypto.publicEncrypt(publicKey, buffer);
-    return encrypted.toString('base64');
+function encryptText(text, publicKey) {
+    if (Buffer.byteLength(text, 'utf8') > 200) {
+        throw new Error('Content too large for RSA encryption (max 200 bytes)');
+    }
+    try {
+        const buffer = Buffer.from(text, 'utf8');
+        const encrypted = crypto.publicEncrypt(publicKey, buffer);
+        return encrypted.toString('base64');
+    } catch (error) {
+        throw new Error('Encryption failed: ' + error.message);
+    }
 }
 
 /**
- * Decrypts a given encrypted text using the RSA private key.
+ * Decrypts text using a provided RSA private key.
  * @param {string} encryptedText - The encrypted text in base64 encoding.
+ * @param {string} privateKey - The RSA private key in PEM format.
  * @returns {string} - The decrypted plain text.
  */
-function decryptText(encryptedText) {
-    const buffer = Buffer.from(encryptedText, 'base64');
-    const decrypted = crypto.privateDecrypt(privateKey, buffer);
-    return decrypted.toString('utf8');
+function decryptText(encryptedText, privateKey) {
+    try {
+        const buffer = Buffer.from(encryptedText, 'base64');
+        const decrypted = crypto.privateDecrypt(privateKey, buffer);
+        return decrypted.toString('utf8');
+    } catch (error) {
+        throw new Error('Decryption failed: ' + error.message);
+    }
 }
 
 module.exports = { encryptText, decryptText };
