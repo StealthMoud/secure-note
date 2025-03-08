@@ -1,12 +1,13 @@
+'use client';
 import React, { useEffect, useState } from 'react';
-import { getCurrentUser } from '../services/auth';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation'; // Updated for App Router
+import { getCurrentUser } from '@/services/auth'; // Updated import
 
 interface Props {
     children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<Props> = ({ children }) => {
+export default function ProtectedRoute({ children }: Props) {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
 
@@ -14,23 +15,21 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
         const checkAuth = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                await router.push('/login');
+                router.push('/login');
                 return;
             }
             try {
-                await getCurrentUser(token);
+                await getCurrentUser(token); // Verify token
                 setLoading(false);
             } catch (error) {
                 localStorage.removeItem('token');
-                await router.push('/login');
+                router.push('/login');
             }
         };
         checkAuth();
     }, [router]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="text-center mt-10">Loading...</div>;
 
     return <>{children}</>;
-};
-
-export default ProtectedRoute;
+}

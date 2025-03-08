@@ -1,1 +1,10 @@
-{}
+{
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/register/page": "app/register/page.js",
+  "/verify-email/page": "app/verify-email/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/verify/page": "app/admin/verify/page.js"
+}

@@ -41,15 +41,15 @@ exports.registerUser = async (req, res) => {
 
         await SecurityLog.create({ event: 'register', user: newUser._id, details: { ip: req.ip } });
 
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+        /*const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
         await transporter.sendMail({
             from: `"Secure Note" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Verify Your Email',
             html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
-        });
+        });*/
 
-        res.status(201).json({ message: 'User registered. Check your email to verify.' });
+        res.status(201).json({ message: 'User registered successfully!.' });
     } catch (err) {
         console.error('Register Error:', err);
         res.status(500).json({ error: 'Registration failed' });
@@ -86,25 +86,6 @@ exports.loginUser = async (req, res) => {
     } catch (err) {
         console.error('Login Error:', err);
         res.status(500).json({ error: 'Login failed' });
-    }
-};
-
-exports.verifyEmail = async (req, res) => {
-    try {
-        const { token } = req.query;
-        const user = await User.findOne({ verificationToken: token });
-        if (!user) return res.status(400).json({ error: 'Invalid or expired verification token' });
-
-        user.verified = true;
-        user.verificationToken = null;
-        await user.save();
-
-        await SecurityLog.create({ event: 'email_verified', user: user._id, details: { ip: req.ip } });
-
-        res.json({ message: 'Email verified successfully' });
-    } catch (err) {
-        console.error('Email Verification Error:', err);
-        res.status(500).json({ error: 'Failed to verify email' });
     }
 };
 
@@ -166,6 +147,94 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
+exports.requestVerification = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (user.verified) return res.status(400).json({ error: 'Email already verified' });
+        if (user.verificationPending) return res.status(400).json({ error: 'Verification already requested' });
+
+        user.verificationPending = true; // Mark as pending
+        await user.save();
+
+        await transporter.sendMail({
+            from: `"Secure Note" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Verification Request Received',
+            html: `<p>Your verification request has been received. An admin will review it soon.</p>`,
+        });
+
+        res.json({ message: 'Verification request sent. Awaiting admin approval.' });
+    } catch (err) {
+        console.error('Request Verification Error:', err);
+        res.status(500).json({ error: 'Failed to request verification' });
+    }
+};
+
+exports.approveVerification = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user.verificationPending) return res.status(400).json({ error: 'No pending verification request' });
+
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        user.verificationToken = verificationToken;
+        user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        user.verificationPending = false; // Clear pending
+        await user.save();
+
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+        await transporter.sendMail({
+            from: `"Secure Note" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Email Verification Approved',
+            html: `<p>An admin has approved your request. Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
+        });
+
+        res.json({ message: 'User verification approved. Email sent to user.' });
+    } catch (err) {
+        console.error('Approve Verification Error:', err);
+        res.status(500).json({ error: 'Failed to approve verification' });
+    }
+};
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+        const user = await User.findOne({
+            verificationToken: token,
+            verificationExpires: { $gt: Date.now() } // Check expiration
+        });
+        if (!user) return res.status(400).json({ error: 'Invalid or expired verification token' });
+
+        user.verified = true;            // Fully verify the user
+        user.verificationToken = null;   // Clear token
+        user.verificationExpires = null; // Clear expiration
+        await user.save();
+
+        await SecurityLog.create({ event: 'email_verified', user: user._id, details: { ip: req.ip } });
+
+        res.json({ message: 'Email verified successfully' });
+    } catch (err) {
+        console.error('Email Verification Error:', err);
+        res.status(500).json({ error: 'Failed to verify email' });
+    }
+};
+
+exports.getPendingUsers = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+        const pendingUsers = await User.find({ verificationPending: true }).select('username email');
+        res.json(pendingUsers);
+    } catch (err) {
+        console.error('Get Pending Users Error:', err);
+        res.status(500).json({ error: 'Failed to fetch pending users' });
+    }
+};
+
 exports.googleCallback = async (req, res) => {
     try {
         const token = jwt.sign({ id: req.user._id, role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -186,15 +255,4 @@ exports.githubCallback = async (req, res) => {
         console.error('GitHub Callback Error:', err);
         res.status(500).json({ error: 'OAuth login failed' });
     }
-};
-
-module.exports = {
-    registerUser,
-    loginUser,
-    verifyEmail,
-    getCurrentUser,
-    requestPasswordReset,
-    resetPassword,
-    googleCallback,
-    githubCallback,
 };

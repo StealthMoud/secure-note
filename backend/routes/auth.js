@@ -11,6 +11,9 @@ const {
     resetPassword,
     googleCallback,
     githubCallback,
+    requestVerification,
+    approveVerification,
+    getPendingUsers,
 } = require('../controllers/authController');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
@@ -70,6 +73,10 @@ router.post('/reset-password', [
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     resetPassword(req, res);
 });
+
+router.post('/request-verification', authenticate, requestVerification);
+router.post('/approve-verification', authenticate, approveVerification);
+router.get('/users/pending', authenticate, getPendingUsers);
 
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

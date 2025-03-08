@@ -6,8 +6,9 @@ const SecurityLogSchema = new mongoose.Schema({
         required: [true, 'Event type is required'],
         enum: [
             'login', 'logout', 'register', 'note_created', 'note_shared',
-            'user_verified', 'user_deactivated', 'user_deleted', 'failed_login'
-        ], // Add more as needed
+            'user_verified', 'user_deactivated', 'user_deleted', 'failed_login',
+            'email_verified'
+        ],
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,

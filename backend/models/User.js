@@ -60,6 +60,12 @@ const UserSchema = new mongoose.Schema({
     verificationToken: {
         type: String
     },
+    verificationExpires: {
+        type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000)
+    },
+    verificationPending: {
+        type: Boolean, default: false
+    },
 }, {
     timestamps: true,
 });

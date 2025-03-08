@@ -1,22 +1,103 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5002/api';
+// Define response types
+interface User {
+    _id: string;
+    username: string;
+    email: string;
+    role: string;
+}
+
+interface LoginResponse {
+    token: string;
+    user: User;
+}
+
+interface RegisterResponse {
+    message: string;
+}
+
+interface UserResponse {
+    user: User;
+    role: string;
+}
+
+interface VerifyEmailResponse {
+    message: string;
+}
 
 // Register User
-export const registerUser = async (name: string, email: string, password: string) => {
-    return axios.post(`${API_URL}/auth/register`, {name, email, password});
+export const registerUser = async (
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+): Promise<RegisterResponse> => {
+    try {
+        const response = await api.post<RegisterResponse>('/auth/register', {
+            username,
+            email,
+            password,
+            confirmPassword,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Registration failed');
+    }
 };
 
 // Login User
-export const loginUser = async (email: string, password: string) => {
-    const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-    return response.data;
+export const loginUser = async (identifier: string, password: string): Promise<LoginResponse> => {
+    try {
+        const response = await api.post<LoginResponse>('/auth/login', { identifier, password });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Login failed');
+    }
+};
+
+// Verify Email
+export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
+    try {
+        const response = await api.get<VerifyEmailResponse>(`/auth/verify-email?token=${token}`);
+        return response.data; // Typed as VerifyEmailResponse
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Email verification failed');
+    }
 };
 
 // Get Current User
-export const getCurrentUser = async (token: string) => {
-    const response = await axios.get(`${API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+export const getCurrentUser = async (token: string): Promise<UserResponse> => {
+    try {
+        const response = await api.get<UserResponse>('/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to fetch user');
+    }
+};
+
+export const requestVerification = async (): Promise<{ message: string }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await api.post<{ message: string }>('/auth/request-verification', {}, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to request verification');
+    }
+};
+
+export const approveVerification = async (userId: string): Promise<{ message: string }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await api.post<{ message: string }>('/auth/approve-verification', { userId }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to approve verification');
+    }
 };
