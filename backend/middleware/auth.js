@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 // Check JWT_SECRET at startup
 if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET must be defined in environment variables');
 }
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -16,10 +17,15 @@ const authenticate = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select('-password -privateKey');
+        if (!user) return res.status(401).json({ error: 'User not found' });
+
         req.user = {
-            id: decoded.id,
-            role: decoded.role || 'user',
+            id: user._id,
+            role: user.role || 'user',
+            verified: user.verified, // Include verified field
         };
+        console.log('Authenticated user:', { id: req.user.id, role: req.user.role, verified: req.user.verified });
         next();
     } catch (err) {
         console.error('Authentication error:', err);

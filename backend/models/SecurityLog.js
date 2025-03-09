@@ -7,7 +7,7 @@ const SecurityLogSchema = new mongoose.Schema({
         enum: [
             'login', 'logout', 'register', 'note_created', 'note_shared',
             'user_verified', 'user_deactivated', 'user_deleted', 'failed_login',
-            'email_verified'
+            'email_verified', 'note_updated', 'note_deleted'
         ],
     },
     user: {
