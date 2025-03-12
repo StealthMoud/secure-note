@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -61,11 +60,23 @@ const UserSchema = new mongoose.Schema({
         type: String
     },
     verificationExpires: {
-        type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000)
+        type: Date,
+        default: () => new Date(Date.now() + 24 * 60 * 60 * 1000)
     },
     verificationPending: {
-        type: Boolean, default: false
+        type: Boolean,
+        default: false
     },
+    friends: [{
+        user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'} // Only accepted friends, no status field
+    }],
+    friendRequests: [{
+        sender: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}, // Who sent the request
+        receiver: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}, // Who received the request
+        status: {type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending'},
+        createdAt: {type: Date, default: Date.now}, // When the request was made
+        updatedAt: {type: Date, default: Date.now} // When the status last changed
+    }]
 }, {
     timestamps: true,
 });
@@ -89,13 +100,15 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
 UserSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;
-    delete obj.privateKey; // Don’t expose private key in responses
-    delete obj.totpSecret; // Keep TOTP secret hidden
+    delete obj.privateKey;
+    delete obj.totpSecret;
     return obj;
 };
 
 // Indexes for performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ username: 1 });
+UserSchema.index({email: 1});
+UserSchema.index({username: 1});
+UserSchema.index({'friendRequests.sender': 1});
+UserSchema.index({'friendRequests.receiver': 1});
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

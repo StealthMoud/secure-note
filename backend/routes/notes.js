@@ -51,4 +51,22 @@ router.put(
 // Delete a Note
 router.delete('/:noteId', deleteNote);
 
+// Share a Note
+router.post(
+    '/:noteId/share',
+    [
+        body('userId').notEmpty().withMessage('User ID is required'),
+        body('permission')
+            .isIn(['viewer', 'editor'])
+            .withMessage('Permission must be either viewer or editor'),
+    ],
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        shareNote(req, res);
+    }
+);
+
 module.exports = router;

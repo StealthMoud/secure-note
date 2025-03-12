@@ -6,8 +6,9 @@ interface Note {
     content: string;
     format: 'plain' | 'markdown';
     encrypted: boolean;
-    owner: string;
+    owner: string | { _id: string; username: string }; // Union for flexibility
     createdAt: string;
+    sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedContent?: string }[];
 }
 
 interface NotesResponse {
@@ -60,5 +61,17 @@ export const deleteNote = async (noteId: string): Promise<{ message: string }> =
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Failed to delete note');
+    }
+};
+
+export const shareNote = async (noteId: string, userId: string, permission: 'viewer' | 'editor'): Promise<{ message: string; note: Note }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await api.post<{ message: string; note: Note }>(`/notes/${noteId}/share`, { userId, permission }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to share note');
     }
 };

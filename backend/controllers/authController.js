@@ -40,16 +40,7 @@ exports.registerUser = async (req, res) => {
         await newUser.save();
 
         await SecurityLog.create({ event: 'register', user: newUser._id, details: { ip: req.ip } });
-
-        /*const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-        await transporter.sendMail({
-            from: `"Secure Note" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'Verify Your Email',
-            html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
-        });*/
-
-        res.status(201).json({ message: 'User registered successfully!.' });
+        res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {
         console.error('Register Error:', err);
         res.status(500).json({ error: 'Registration failed' });
@@ -86,17 +77,6 @@ exports.loginUser = async (req, res) => {
     } catch (err) {
         console.error('Login Error:', err);
         res.status(500).json({ error: 'Login failed' });
-    }
-};
-
-exports.getCurrentUser = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password -privateKey -totpSecret');
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        res.json({ user, role: req.user.role });
-    } catch (err) {
-        console.error('Get Current User Error:', err);
-        res.status(500).json({ error: 'Failed to fetch current user' });
     }
 };
 

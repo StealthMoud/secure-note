@@ -114,3 +114,56 @@ exports.deleteNote = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.shareNote = async (req, res) => {
+    try {
+        if (!req.user.verified) return res.status(403).json({ error: 'Email verification required to share notes' });
+
+        const { noteId } = req.params;
+        const { userId, permission } = req.body;
+
+        // Validate inputs
+        if (!userId || !['viewer', 'editor'].includes(permission)) {
+            return res.status(400).json({ error: 'userId and valid permission (viewer or editor) are required' });
+        }
+
+        // Check note ownership
+        const note = await Note.findOne({ _id: noteId, owner: req.user.id });
+        if (!note) return res.status(404).json({ error: 'Note not found or you do not own it' });
+
+        // Check target user exists
+        const targetUser = await User.findById(userId);
+        if (!targetUser) return res.status(400).json({ error: 'Target user not found' });
+
+        // Check if already shared with this user
+        const alreadyShared = note.sharedWith.some(entry => entry.user.toString() === userId);
+        if (alreadyShared) return res.status(400).json({ error: 'Note already shared with this user' });
+
+        // Encrypt content for the target user if note is encrypted
+        let encryptedContent = '';
+        if (note.encrypted && note.content) {
+            const owner = await User.findById(req.user.id);
+            const decryptedContent = decryptText(note.content, owner.privateKey);
+            encryptedContent = encryptText(decryptedContent, targetUser.publicKey);
+        }
+
+        // Add to sharedWith
+        note.sharedWith.push({
+            user: userId,
+            permission,
+            encryptedContent: note.encrypted ? encryptedContent : undefined,
+        });
+
+        await note.save();
+        await SecurityLog.create({
+            event: 'note_shared',
+            user: req.user.id,
+            details: { noteId, sharedWith: userId, permission },
+        });
+
+        res.json({ message: 'Note shared', note });
+    } catch (err) {
+        console.error('Error sharing note:', err);
+        res.status(500).json({ error: err.message });
+    }
+};

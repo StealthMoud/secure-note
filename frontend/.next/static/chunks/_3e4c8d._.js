@@ -74,7 +74,7 @@ const verifyEmail = async (token)=>{
 };
 const getCurrentUser = async (token)=>{
     try {
-        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get('/auth/me', {
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get('/users/me', {
             headers: {
                 Authorization: `Bearer ${token}`
             }

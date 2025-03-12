@@ -7,13 +7,14 @@ const SecurityLogSchema = new mongoose.Schema({
         enum: [
             'login', 'logout', 'register', 'note_created', 'note_shared',
             'user_verified', 'user_deactivated', 'user_deleted', 'failed_login',
-            'email_verified', 'note_updated', 'note_deleted'
+            'email_verified', 'note_updated', 'note_deleted', 'friend_request_sent',
+            'friend_request_accepted', 'friend_request_rejected',
         ],
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'User is required for security logs'], // Made required
+        required: [true, 'User is required for security logs'],
     },
     timestamp: {
         type: Date,
@@ -23,10 +24,10 @@ const SecurityLogSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed, // Allows flexible key-value pairs
         default: {},
     },
-}, { timestamps: true }); // Adds createdAt/updatedAt
+}, { timestamps: true });
 
 // Indexes for performance
-SecurityLogSchema.index({ timestamp: -1 }); // For sorting by recency
-SecurityLogSchema.index({ user: 1 }); // For filtering by user
+SecurityLogSchema.index({ timestamp: -1 });
+SecurityLogSchema.index({ user: 1 });
 
 module.exports = mongoose.models.SecurityLog || mongoose.model('SecurityLog', SecurityLogSchema);
