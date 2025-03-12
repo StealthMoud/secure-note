@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const SecurityLog = require('../models/SecurityLog');
+const { logSecurityEvent } = require('../utils/logger');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -39,7 +39,25 @@ exports.registerUser = async (req, res) => {
         });
         await newUser.save();
 
-        await SecurityLog.create({ event: 'register', user: newUser._id, details: { ip: req.ip } });
+        await logSecurityEvent({
+            event: 'register',
+            user: newUser._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: newUser.email,
+                username: newUser.username,
+                role: newUser.role,
+                verified: newUser.verified,
+                isActive: newUser.isActive,
+                isTotpEnabled: newUser.isTotpEnabled,
+                verificationToken: newUser.verificationToken,
+                verificationExpires: newUser.verificationExpires,
+            }
+        });
+
         res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {
         console.error('Register Error:', err);
