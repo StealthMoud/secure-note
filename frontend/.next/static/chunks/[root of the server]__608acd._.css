@@ -454,6 +454,18 @@ img, video {
   height: 1.5rem;
 }
 
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-7 {
+  height: 1.75rem;
+}
+
+.h-16 {
+  height: 4rem;
+}
+
 .min-h-\[18px\] {
   min-height: 18px;
 }
@@ -480,6 +492,10 @@ img, video {
 
 .w-full {
   width: 100%;
+}
+
+.w-7 {
+  width: 1.75rem;
 }
 
 .max-w-4xl {
