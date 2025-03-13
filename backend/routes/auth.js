@@ -48,6 +48,14 @@ router.post('/login', [
     loginUser(req, res);
 });
 
+// Google OAuth
+router.get('/google', passport.authenticate('google', {scope: ['profile', 'email']}));
+router.get('/google/callback', passport.authenticate('google', {session: false}), googleCallback);
+
+// GitHub OAuth
+router.get('/github', passport.authenticate('github', {scope: ['user:email']}));
+router.get('/github/callback', passport.authenticate('github', {session: false}), githubCallback);
+
 // Request Password Reset
 router.post('/request-password-reset', resetPasswordLimiter, [
     body('email').isEmail().withMessage('A valid email is required'),
@@ -72,13 +80,5 @@ router.get('/verify-email', verifyEmail);
 router.post('/request-verification', authenticate, requestVerification);
 router.post('/approve-verification', authenticate, approveVerification);
 router.get('/users/pending', authenticate, getPendingUsers);
-
-// Google OAuth
-router.get('/google', passport.authenticate('google', {scope: ['profile', 'email']}));
-router.get('/google/callback', passport.authenticate('google', {session: false}), googleCallback);
-
-// GitHub OAuth
-router.get('/github', passport.authenticate('github', {scope: ['user:email']}));
-router.get('/github/callback', passport.authenticate('github', {session: false}), githubCallback);
 
 module.exports = router;

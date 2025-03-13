@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { loginUser } from '@/services/auth';
+import { loginUser, initiateOAuthLogin } from '@/services/auth';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
     CheckCircleIcon,
     EyeIcon,
@@ -10,10 +11,15 @@ import {
     LockClosedIcon,
     UserIcon,
     XCircleIcon,
-    XMarkIcon
+    XMarkIcon,
+    GlobeAltIcon, // For Google
+    CodeBracketIcon // For GitHub
 } from '@heroicons/react/24/outline';
 
 export default function LoginPage() {
+    const searchParams = useSearchParams();
+    const token = searchParams.get('token');
+
     const [identifier, setIdentifier] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [rememberMe, setRememberMe] = useState(false);
@@ -97,6 +103,16 @@ export default function LoginPage() {
         }
     };
 
+    const handleOAuthLogin = async (provider: 'google' | 'github') => {
+        try {
+            setLoading(true);
+            await initiateOAuthLogin(provider);
+        } catch (err: any) {
+            setError(err.message || `Failed to initiate ${provider} login`);
+            setLoading(false);
+        }
+    };
+
     const dismissFieldError = (field: string) => {
         setFieldErrorVisibility((prev) => ({ ...prev, [field]: false }));
         setTimeout(() => {
@@ -107,6 +123,14 @@ export default function LoginPage() {
             });
         }, 500);
     };
+
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem('token', token);
+            setMessage('OAuth login successful! Redirecting...');
+            setTimeout(() => window.location.href = '/dashboard', 1000);
+        }
+    }, [token]);
 
     useEffect(() => {
         if (error && !isExitingError) {
@@ -222,26 +246,47 @@ export default function LoginPage() {
                         ) : null}
                         Login
                     </button>
-
-                    {error && (
-                        <p className={`bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingError ? 'opacity-0' : 'opacity-100'}`}>
-                            <XCircleIcon className="h-5 w-5 mr-2 text-red-800 dark:text-red-200" />
-                            {error}
-                            <button onClick={() => setError('')} className="ml-auto">
-                                <XMarkIcon className="h-5 w-5 text-red-800 dark:text-red-200" />
-                            </button>
-                        </p>
-                    )}
-                    {message && (
-                        <p className={`bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingMessage ? 'opacity-0' : 'opacity-100'}`}>
-                            <CheckCircleIcon className="h-5 w-5 mr-2 text-green-800 dark:text-green-200" />
-                            {message}
-                            <button onClick={() => setMessage('')} className="ml-auto">
-                                <XMarkIcon className="h-5 w-5 text-green-800 dark:text-green-200" />
-                            </button>
-                        </p>
-                    )}
                 </form>
+
+                {/* OAuth Buttons */}
+                <div className="mt-6 space-y-4">
+                    <button
+                        onClick={() => handleOAuthLogin('google')}
+                        disabled={loading}
+                        className={`w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200 flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        <GlobeAltIcon className="h-5 w-5 mr-2" />
+                        Login with Google
+                    </button>
+                    <button
+                        onClick={() => handleOAuthLogin('github')}
+                        disabled={loading}
+                        className={`w-full bg-gray-800 dark:bg-gray-600 text-white dark:text-gray-100 p-3 rounded-md hover:bg-gray-700 dark:hover:bg-gray-500 transition duration-200 flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        <CodeBracketIcon className="h-5 w-5 mr-2" />
+                        Login with GitHub
+                    </button>
+                </div>
+
+                {error && (
+                    <p className={`bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingError ? 'opacity-0' : 'opacity-100'}`}>
+                        <XCircleIcon className="h-5 w-5 mr-2 text-red-800 dark:text-red-200" />
+                        {error}
+                        <button onClick={() => setError('')} className="ml-auto">
+                            <XMarkIcon className="h-5 w-5 text-red-800 dark:text-red-200" />
+                        </button>
+                    </p>
+                )}
+                {message && (
+                    <p className={`bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingMessage ? 'opacity-0' : 'opacity-100'}`}>
+                        <CheckCircleIcon className="h-5 w-5 mr-2 text-green-800 dark:text-green-200" />
+                        {message}
+                        <button onClick={() => setMessage('')} className="ml-auto">
+                            <XMarkIcon className="h-5 w-5 text-green-800 dark:text-gray-200" />
+                        </button>
+                    </p>
+                )}
+
                 <p className="mt-4 text-sm text-gray-900 dark:text-gray-100">
                     Don’t have an account?{' '}
                     <Link href="/register" className="text-slate-600 dark:text-slate-500 hover:text-slate-400 dark:hover:text-slate-300 hover:underline transition duration-200">

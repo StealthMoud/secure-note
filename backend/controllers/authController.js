@@ -279,28 +279,54 @@ exports.getPendingUsers = async (req, res) => {
 
 exports.googleCallback = async (req, res) => {
     try {
-        const token = jwt.sign({id: req.user._id, role: req.user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
-        await SecurityLog.create({event: 'login_google', user: req.user._id, details: {ip: req.ip}});
-        res.json({
-            token,
-            user: {_id: req.user._id, username: req.user.username, email: req.user.email, role: req.user.role}
+        const token = jwt.sign({ id: req.user._id, role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        await logSecurityEvent({
+            event: 'login_google',
+            user: req.user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: req.user.email,
+                username: req.user.username,
+                role: req.user.role,
+            }
         });
+
+        // Redirect to frontend with token in query string
+        res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
     } catch (err) {
         console.error('Google Callback Error:', err);
-        res.status(500).json({error: 'OAuth login failed'});
+        res.status(500).json({ error: 'OAuth login failed' });
     }
 };
 
 exports.githubCallback = async (req, res) => {
     try {
-        const token = jwt.sign({id: req.user._id, role: req.user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
-        await SecurityLog.create({event: 'login_github', user: req.user._id, details: {ip: req.ip}});
-        res.json({
-            token,
-            user: {_id: req.user._id, username: req.user.username, email: req.user.email, role: req.user.role}
+        if (!req.user) {
+            throw new Error('GitHub authentication failed');
+        }
+        const token = jwt.sign({ id: req.user._id, role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        await logSecurityEvent({
+            event: 'login_github',
+            user: req.user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: req.user.email,
+                username: req.user.username,
+                role: req.user.role,
+            }
         });
+
+        res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
     } catch (err) {
-        console.error('GitHub Callback Error:', err);
-        res.status(500).json({error: 'OAuth login failed'});
+        console.error('GitHub Callback Error:', err.message);
+        res.status(500).json({ error: err.message || 'OAuth login failed' });
     }
 };

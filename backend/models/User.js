@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Email is required'],
         unique: true,
+        sparse: true, // sparse allows null values
         trim: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'Please use a valid email address'],
@@ -33,6 +34,11 @@ const UserSchema = new mongoose.Schema({
     verified: {
         type: Boolean,
         default: false,
+    },
+    githubId: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     totpSecret: {
         type: String,

@@ -70,8 +70,16 @@ export const loginUser = async (identifier: string, password: string): Promise<L
     }
 };
 
+export const initiateOAuthLogin = async (provider: 'google' | 'github'): Promise<void> => {
+    // Since this is a redirect, we don’t need to handle the response here
+    // The browser will handle the redirect to the backend OAuth endpoint
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/${provider}`;
+};
 
-export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+
+
+
+    export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
     try {
         const response = await api.post<{ message: string }>('/auth/request-password-reset', { email });
         return response.data;
