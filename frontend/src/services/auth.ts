@@ -53,12 +53,19 @@ export const registerUser = async (
 };
 
 
-// Login User
+
 export const loginUser = async (identifier: string, password: string): Promise<LoginResponse> => {
     try {
         const response = await api.post<LoginResponse>('/auth/login', {identifier, password});
         return response.data;
     } catch (error: any) {
+        if (error.response?.data?.errors) {
+            const fieldErrors: Record<string, string> = {};
+            error.response.data.errors.forEach((err: any) => {
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw { fieldErrors };
+        }
         throw new Error(error.response?.data?.error || 'Login failed');
     }
 };

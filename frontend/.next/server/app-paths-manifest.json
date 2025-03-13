@@ -3,5 +3,8 @@
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/login/page": "app/login/page.js",
   "/register/page": "app/register/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/verify/page": "app/admin/verify/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js"
 }

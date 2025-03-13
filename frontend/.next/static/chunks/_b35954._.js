@@ -50,6 +50,15 @@ const registerUser = async (username, email, password, confirmPassword)=>{
         });
         return response.data;
     } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
         throw new Error(error.response?.data?.error || 'Registration failed');
     }
 };
@@ -61,6 +70,15 @@ const loginUser = async (identifier, password)=>{
         });
         return response.data;
     } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
         throw new Error(error.response?.data?.error || 'Login failed');
     }
 };
