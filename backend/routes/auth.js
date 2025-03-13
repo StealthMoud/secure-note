@@ -49,7 +49,7 @@ router.post('/login', [
 });
 
 // Request Password Reset
-router.post('/request-reset', resetPasswordLimiter, [
+router.post('/request-password-reset', resetPasswordLimiter, [
     body('email').isEmail().withMessage('A valid email is required'),
 ], (req, res) => {
     const errors = validationResult(req);

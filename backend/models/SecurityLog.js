@@ -8,7 +8,8 @@ const SecurityLogSchema = new mongoose.Schema({
             'login', 'logout', 'register', 'note_created', 'note_shared',
             'user_verified', 'user_deactivated', 'user_deleted', 'failed_login',
             'email_verified', 'note_updated', 'note_deleted', 'friend_request_sent',
-            'friend_request_accepted', 'friend_request_rejected',
+            'friend_request_accepted', 'friend_request_rejected', 'password_reset_request',
+            'password_reset'
         ],
     },
     user: {

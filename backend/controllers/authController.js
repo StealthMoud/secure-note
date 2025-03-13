@@ -133,6 +133,20 @@ exports.requestPasswordReset = async (req, res) => {
             text: `Click here to reset your password:\n${resetURL}\nIf you didn’t request this, ignore this email.`,
         });
 
+        await logSecurityEvent({
+            event: 'password_reset_request',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+            }
+        });
+
         res.json({message: 'Password reset email sent'});
     } catch (err) {
         console.error('Request Reset Error:', err);
@@ -153,6 +167,20 @@ exports.resetPassword = async (req, res) => {
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
+
+        await logSecurityEvent({
+            event: 'password_reset',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+            }
+        });
 
         res.json({message: 'Password has been reset'});
     } catch (err) {

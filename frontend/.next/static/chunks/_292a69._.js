@@ -86,7 +86,7 @@ const loginUser = async (identifier, password)=>{
 };
 const requestPasswordReset = async (email)=>{
     try {
-        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/request-reset', {
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/request-password-reset', {
             email
         });
         return response.data;

@@ -73,7 +73,7 @@ export const loginUser = async (identifier: string, password: string): Promise<L
 
 export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
     try {
-        const response = await api.post<{ message: string }>('/auth/request-reset', { email });
+        const response = await api.post<{ message: string }>('/auth/request-password-reset', { email });
         return response.data;
     } catch (error: any) {
         if (error.response?.data?.errors) {

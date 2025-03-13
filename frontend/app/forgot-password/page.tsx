@@ -19,6 +19,7 @@ export default function ForgotPasswordPage() {
 
     const [email, setEmail] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -61,6 +62,8 @@ export default function ForgotPasswordPage() {
         const newErrors: Record<string, string> = {};
         if (!newPassword) newErrors.newPassword = 'Password is required';
         else if (newPassword.length < 6) newErrors.newPassword = 'Password must be at least 6 characters';
+        if (!confirmPassword) newErrors.confirmPassword = 'Confirm Password is required';
+        else if (newPassword !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -268,6 +271,38 @@ export default function ForgotPasswordPage() {
                                 <p id="newPassword-error" className={`min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.newPassword ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`}>
                                     {errors.newPassword}
                                     <button onClick={() => dismissFieldError('newPassword')} className="ml-2">
+                                        <XMarkIcon className="h-4 w-4 text-red-500" />
+                                    </button>
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Confirm Password Field */}
+                        <div className="space-y-1">
+                            <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+                            <div className="relative">
+                                <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                <input
+                                    id="confirmPassword"
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Confirm Password"
+                                    className="w-full pl-10 pr-10 p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-500 transition duration-200"
+                                    aria-describedby="confirmPassword-error"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                >
+                                    {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                                </button>
+                            </div>
+                            {errors.confirmPassword && (
+                                <p id="confirmPassword-error" className={`min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.confirmPassword ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`}>
+                                    {errors.confirmPassword}
+                                    <button onClick={() => dismissFieldError('confirmPassword')} className="ml-2">
                                         <XMarkIcon className="h-4 w-4 text-red-500" />
                                     </button>
                                 </p>

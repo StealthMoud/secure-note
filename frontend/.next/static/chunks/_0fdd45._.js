@@ -86,7 +86,7 @@ const loginUser = async (identifier, password)=>{
 };
 const requestPasswordReset = async (email)=>{
     try {
-        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/request-reset', {
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/request-password-reset', {
             email
         });
         return response.data;
@@ -209,6 +209,7 @@ function ForgotPasswordPage() {
     const token = searchParams.get('token');
     const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [newPassword, setNewPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [confirmPassword, setConfirmPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [showPassword, setShowPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [errors, setErrors] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
@@ -252,6 +253,8 @@ function ForgotPasswordPage() {
         const newErrors = {};
         if (!newPassword) newErrors.newPassword = 'Password is required';
         else if (newPassword.length < 6) newErrors.newPassword = 'Password must be at least 6 characters';
+        if (!confirmPassword) newErrors.confirmPassword = 'Confirm Password is required';
+        else if (newPassword !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             const visibility = {};
@@ -425,14 +428,14 @@ function ForgotPasswordPage() {
                             className: "h-6 w-6 mr-2 text-gray-400"
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 198,
+                            lineNumber: 201,
                             columnNumber: 21
                         }, this),
                         token ? 'Reset Password' : 'Forgot Password'
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 197,
+                    lineNumber: 200,
                     columnNumber: 17
                 }, this),
                 !token ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -449,7 +452,7 @@ function ForgotPasswordPage() {
                                     children: "Email"
                                 }, void 0, false, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 206,
+                                    lineNumber: 209,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -459,7 +462,7 @@ function ForgotPasswordPage() {
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 208,
+                                            lineNumber: 211,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -472,13 +475,13 @@ function ForgotPasswordPage() {
                                             "aria-describedby": "email-error"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 209,
+                                            lineNumber: 212,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 207,
+                                    lineNumber: 210,
                                     columnNumber: 29
                                 }, this),
                                 errors.email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -493,24 +496,24 @@ function ForgotPasswordPage() {
                                                 className: "h-4 w-4 text-red-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                                lineNumber: 223,
+                                                lineNumber: 226,
                                                 columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 222,
+                                            lineNumber: 225,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 220,
+                                    lineNumber: 223,
                                     columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 205,
+                            lineNumber: 208,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -533,7 +536,7 @@ function ForgotPasswordPage() {
                                             strokeWidth: "4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 236,
+                                            lineNumber: 239,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -542,26 +545,26 @@ function ForgotPasswordPage() {
                                             d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 237,
+                                            lineNumber: 240,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 235,
+                                    lineNumber: 238,
                                     columnNumber: 33
                                 }, this) : null,
                                 "Send Reset Link"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 229,
+                            lineNumber: 232,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 203,
+                    lineNumber: 206,
                     columnNumber: 21
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                     onSubmit: handleResetPassword,
@@ -577,7 +580,7 @@ function ForgotPasswordPage() {
                                     children: "New Password"
                                 }, void 0, false, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 247,
+                                    lineNumber: 250,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -587,7 +590,7 @@ function ForgotPasswordPage() {
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 249,
+                                            lineNumber: 252,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -600,7 +603,7 @@ function ForgotPasswordPage() {
                                             "aria-describedby": "newPassword-error"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 250,
+                                            lineNumber: 253,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -611,24 +614,24 @@ function ForgotPasswordPage() {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                                lineNumber: 264,
+                                                lineNumber: 267,
                                                 columnNumber: 53
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeIcon$3e$__["EyeIcon"], {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                                lineNumber: 264,
+                                                lineNumber: 267,
                                                 columnNumber: 92
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 259,
+                                            lineNumber: 262,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 248,
+                                    lineNumber: 251,
                                     columnNumber: 29
                                 }, this),
                                 errors.newPassword && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -643,24 +646,119 @@ function ForgotPasswordPage() {
                                                 className: "h-4 w-4 text-red-500"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                                lineNumber: 271,
+                                                lineNumber: 274,
                                                 columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 270,
+                                            lineNumber: 273,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 268,
+                                    lineNumber: 271,
                                     columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 246,
+                            lineNumber: 249,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "space-y-1",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    htmlFor: "confirmPassword",
+                                    className: "sr-only",
+                                    children: "Confirm Password"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 282,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$LockClosedIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LockClosedIcon$3e$__["LockClosedIcon"], {
+                                            className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 284,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            id: "confirmPassword",
+                                            type: showPassword ? 'text' : 'password',
+                                            value: confirmPassword,
+                                            onChange: (e)=>setConfirmPassword(e.target.value),
+                                            placeholder: "Confirm Password",
+                                            className: "w-full pl-10 pr-10 p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-500 transition duration-200",
+                                            "aria-describedby": "confirmPassword-error"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 285,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            type: "button",
+                                            onClick: ()=>setShowPassword(!showPassword),
+                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
+                                            children: showPassword ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeSlashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeSlashIcon$3e$__["EyeSlashIcon"], {
+                                                className: "h-5 w-5"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 299,
+                                                columnNumber: 53
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeIcon$3e$__["EyeIcon"], {
+                                                className: "h-5 w-5"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 299,
+                                                columnNumber: 92
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 294,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 283,
+                                    columnNumber: 29
+                                }, this),
+                                errors.confirmPassword && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    id: "confirmPassword-error",
+                                    className: `min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.confirmPassword ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`,
+                                    children: [
+                                        errors.confirmPassword,
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>dismissFieldError('confirmPassword'),
+                                            className: "ml-2",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                                className: "h-4 w-4 text-red-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 306,
+                                                columnNumber: 41
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 305,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 303,
+                                    columnNumber: 33
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 281,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -683,7 +781,7 @@ function ForgotPasswordPage() {
                                             strokeWidth: "4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 284,
+                                            lineNumber: 319,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -692,26 +790,26 @@ function ForgotPasswordPage() {
                                             d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         }, void 0, false, {
                                             fileName: "[project]/app/forgot-password/page.tsx",
-                                            lineNumber: 285,
+                                            lineNumber: 320,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/forgot-password/page.tsx",
-                                    lineNumber: 283,
+                                    lineNumber: 318,
                                     columnNumber: 33
                                 }, this) : null,
                                 "Reset Password"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 277,
+                            lineNumber: 312,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 244,
+                    lineNumber: 247,
                     columnNumber: 21
                 }, this),
                 error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -721,7 +819,7 @@ function ForgotPasswordPage() {
                             className: "h-5 w-5 mr-2 text-red-800 dark:text-red-200"
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 295,
+                            lineNumber: 330,
                             columnNumber: 25
                         }, this),
                         error,
@@ -732,18 +830,18 @@ function ForgotPasswordPage() {
                                 className: "h-5 w-5 text-red-800 dark:text-red-200"
                             }, void 0, false, {
                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                lineNumber: 298,
+                                lineNumber: 333,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 297,
+                            lineNumber: 332,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 294,
+                    lineNumber: 329,
                     columnNumber: 21
                 }, this),
                 message && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -753,7 +851,7 @@ function ForgotPasswordPage() {
                             className: "h-5 w-5 mr-2 text-green-800 dark:text-green-200"
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 304,
+                            lineNumber: 339,
                             columnNumber: 25
                         }, this),
                         message,
@@ -764,18 +862,18 @@ function ForgotPasswordPage() {
                                 className: "h-5 w-5 text-green-800 dark:text-green-200"
                             }, void 0, false, {
                                 fileName: "[project]/app/forgot-password/page.tsx",
-                                lineNumber: 307,
+                                lineNumber: 342,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 306,
+                            lineNumber: 341,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 303,
+                    lineNumber: 338,
                     columnNumber: 21
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -789,28 +887,28 @@ function ForgotPasswordPage() {
                             children: "Login"
                         }, void 0, false, {
                             fileName: "[project]/app/forgot-password/page.tsx",
-                            lineNumber: 314,
+                            lineNumber: 349,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/forgot-password/page.tsx",
-                    lineNumber: 312,
+                    lineNumber: 347,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/forgot-password/page.tsx",
-            lineNumber: 196,
+            lineNumber: 199,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/forgot-password/page.tsx",
-        lineNumber: 195,
+        lineNumber: 198,
         columnNumber: 9
     }, this);
 }
-_s(ForgotPasswordPage, "IGrINNnmj+tsaWhxT5Jp6tBBOxo=", false, function() {
+_s(ForgotPasswordPage, "PVb7j+uWCvYXUcd/CAfBE16ErIM=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]
     ];
