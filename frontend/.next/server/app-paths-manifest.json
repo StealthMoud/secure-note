@@ -6,5 +6,6 @@
   "/dashboard/page": "app/dashboard/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/admin/verify/page": "app/admin/verify/page.js",
-  "/forgot-password/page": "app/forgot-password/page.js"
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/verify-email/page": "app/verify-email/page.js"
 }

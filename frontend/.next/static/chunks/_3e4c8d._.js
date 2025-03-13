@@ -35,7 +35,9 @@ __turbopack_esm__({
     "getCurrentUser": (()=>getCurrentUser),
     "loginUser": (()=>loginUser),
     "registerUser": (()=>registerUser),
+    "requestPasswordReset": (()=>requestPasswordReset),
     "requestVerification": (()=>requestVerification),
+    "resetPassword": (()=>resetPassword),
     "verifyEmail": (()=>verifyEmail)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/src/services/api.ts [app-client] (ecmascript)");
@@ -50,6 +52,15 @@ const registerUser = async (username, email, password, confirmPassword)=>{
         });
         return response.data;
     } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
         throw new Error(error.response?.data?.error || 'Registration failed');
     }
 };
@@ -61,7 +72,55 @@ const loginUser = async (identifier, password)=>{
         });
         return response.data;
     } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
         throw new Error(error.response?.data?.error || 'Login failed');
+    }
+};
+const requestPasswordReset = async (email)=>{
+    try {
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/request-reset', {
+            email
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
+        throw new Error(error.response?.data?.error || 'Failed to request password reset');
+    }
+};
+const resetPassword = async (token, newPassword)=>{
+    try {
+        const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post('/auth/reset-password', {
+            token,
+            newPassword
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response?.data?.errors) {
+            const fieldErrors = {};
+            error.response.data.errors.forEach((err)=>{
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw {
+                fieldErrors
+            };
+        }
+        throw new Error(error.response?.data?.error || 'Failed to reset password');
     }
 };
 const verifyEmail = async (token)=>{

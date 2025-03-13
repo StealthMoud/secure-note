@@ -1,4 +1,4 @@
-(globalThis.TURBOPACK = globalThis.TURBOPACK || []).push(["static/chunks/_292a69._.js", {
+(globalThis.TURBOPACK = globalThis.TURBOPACK || []).push(["static/chunks/_0fdd45._.js", {
 
 "[project]/src/services/api.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
@@ -175,24 +175,24 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_refresh__.registerExports(module, globalThis.$RefreshHelpers$);
 }
 }}),
-"[project]/app/login/page.tsx [app-client] (ecmascript)": ((__turbopack_context__) => {
+"[project]/app/forgot-password/page.tsx [app-client] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
 var { r: __turbopack_require__, f: __turbopack_module_context__, i: __turbopack_import__, s: __turbopack_esm__, v: __turbopack_export_value__, n: __turbopack_export_namespace__, c: __turbopack_cache__, M: __turbopack_modules__, l: __turbopack_load__, j: __turbopack_dynamic__, P: __turbopack_resolve_absolute_path__, U: __turbopack_relative_url__, R: __turbopack_resolve_module_id_path__, b: __turbopack_worker_blob_url__, g: global, __dirname, k: __turbopack_refresh__, m: module, z: __turbopack_require_stub__ } = __turbopack_context__;
 {
 __turbopack_esm__({
-    "default": (()=>LoginPage)
+    "default": (()=>ForgotPasswordPage)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/src/services/auth.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$KeyIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__KeyIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/KeyIcon.js [app-client] (ecmascript) <export default as KeyIcon>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/UserIcon.js [app-client] (ecmascript) <export default as UserIcon>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/XMarkIcon.js [app-client] (ecmascript) <export default as XMarkIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$LockClosedIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LockClosedIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/LockClosedIcon.js [app-client] (ecmascript) <export default as LockClosedIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/EyeIcon.js [app-client] (ecmascript) <export default as EyeIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeSlashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeSlashIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/EyeSlashIcon.js [app-client] (ecmascript) <export default as EyeSlashIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/XMarkIcon.js [app-client] (ecmascript) <export default as XMarkIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EnvelopeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EnvelopeIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/EnvelopeIcon.js [app-client] (ecmascript) <export default as EnvelopeIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircleIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/XCircleIcon.js [app-client] (ecmascript) <export default as XCircleIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CheckCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircleIcon$3e$__ = __turbopack_import__("[project]/node_modules/@heroicons/react/24/outline/esm/CheckCircleIcon.js [app-client] (ecmascript) <export default as CheckCircleIcon>");
 ;
@@ -202,11 +202,13 @@ var _s = __turbopack_refresh__.signature();
 ;
 ;
 ;
-function LoginPage() {
+;
+function ForgotPasswordPage() {
     _s();
-    const [identifier, setIdentifier] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
-    const [password, setPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
-    const [rememberMe, setRememberMe] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
+    const token = searchParams.get('token');
+    const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [newPassword, setNewPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [showPassword, setShowPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [errors, setErrors] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
@@ -215,11 +217,11 @@ function LoginPage() {
     const [message, setMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const [isExitingError, setIsExitingError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isExitingMessage, setIsExitingMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    // Client-side validation
-    const validateForm = ()=>{
+    // Validation for request reset form
+    const validateRequestForm = ()=>{
         const newErrors = {};
-        if (!identifier) newErrors.identifier = 'Email or Username is required';
-        if (!password) newErrors.password = 'Password is required';
+        if (!email) newErrors.email = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid';
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             const visibility = {};
@@ -245,21 +247,46 @@ function LoginPage() {
         }
         return Object.keys(newErrors).length === 0;
     };
-    const handleLogin = async (e)=>{
+    // Validation for reset password form
+    const validateResetForm = ()=>{
+        const newErrors = {};
+        if (!newPassword) newErrors.newPassword = 'Password is required';
+        else if (newPassword.length < 6) newErrors.newPassword = 'Password must be at least 6 characters';
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            const visibility = {};
+            Object.keys(newErrors).forEach((field)=>{
+                visibility[field] = true;
+                setTimeout(()=>{
+                    setFieldErrorVisibility((prev)=>({
+                            ...prev,
+                            [field]: false
+                        }));
+                    setTimeout(()=>{
+                        setErrors((prev)=>{
+                            const updatedErrors = {
+                                ...prev
+                            };
+                            delete updatedErrors[field];
+                            return updatedErrors;
+                        });
+                    }, 500);
+                }, 3000);
+            });
+            setFieldErrorVisibility(visibility);
+        }
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleRequestReset = async (e)=>{
         e.preventDefault();
-        if (!validateForm()) return;
+        if (!validateRequestForm()) return;
         setError('');
-        setFieldErrorVisibility({});
         setMessage('');
-        setIsExitingError(false);
-        setIsExitingMessage(false);
+        setFieldErrorVisibility({});
         setLoading(true);
         try {
-            const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["loginUser"])(identifier, password);
-            localStorage.setItem('token', data.token);
-            if (rememberMe) localStorage.setItem('rememberMe', 'true');
-            setMessage('Login successful! Redirecting...');
-            setTimeout(()=>window.location.href = '/dashboard', 1000);
+            const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["requestPasswordReset"])(email);
+            setMessage(data.message || 'Password reset email sent! Check your inbox.');
         } catch (err) {
             if (err.fieldErrors) {
                 setErrors(err.fieldErrors);
@@ -284,7 +311,48 @@ function LoginPage() {
                 });
                 setFieldErrorVisibility(visibility);
             } else {
-                setError(err.message || 'Login failed');
+                setError(err.message || 'Failed to request password reset');
+            }
+        } finally{
+            setLoading(false);
+        }
+    };
+    const handleResetPassword = async (e)=>{
+        e.preventDefault();
+        if (!validateResetForm() || !token) return;
+        setError('');
+        setMessage('');
+        setFieldErrorVisibility({});
+        setLoading(true);
+        try {
+            const data = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resetPassword"])(token, newPassword);
+            setMessage(data.message || 'Password reset successful! Redirecting to login...');
+            setTimeout(()=>window.location.href = '/login', 2000);
+        } catch (err) {
+            if (err.fieldErrors) {
+                setErrors(err.fieldErrors);
+                const visibility = {};
+                Object.keys(err.fieldErrors).forEach((field)=>{
+                    visibility[field] = true;
+                    setTimeout(()=>{
+                        setFieldErrorVisibility((prev)=>({
+                                ...prev,
+                                [field]: false
+                            }));
+                        setTimeout(()=>{
+                            setErrors((prev)=>{
+                                const newErrors = {
+                                    ...prev
+                                };
+                                delete newErrors[field];
+                                return newErrors;
+                            });
+                        }, 500);
+                    }, 3000);
+                });
+                setFieldErrorVisibility(visibility);
+            } else {
+                setError(err.message || 'Failed to reset password');
             }
         } finally{
             setLoading(false);
@@ -306,42 +374,42 @@ function LoginPage() {
         }, 500);
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "LoginPage.useEffect": ()=>{
+        "ForgotPasswordPage.useEffect": ()=>{
             if (error && !isExitingError) {
                 const timer = setTimeout({
-                    "LoginPage.useEffect.timer": ()=>{
+                    "ForgotPasswordPage.useEffect.timer": ()=>{
                         setIsExitingError(true);
                         setTimeout({
-                            "LoginPage.useEffect.timer": ()=>setError('')
-                        }["LoginPage.useEffect.timer"], 500);
+                            "ForgotPasswordPage.useEffect.timer": ()=>setError('')
+                        }["ForgotPasswordPage.useEffect.timer"], 500);
                     }
-                }["LoginPage.useEffect.timer"], 3000);
+                }["ForgotPasswordPage.useEffect.timer"], 3000);
                 return ({
-                    "LoginPage.useEffect": ()=>clearTimeout(timer)
-                })["LoginPage.useEffect"];
+                    "ForgotPasswordPage.useEffect": ()=>clearTimeout(timer)
+                })["ForgotPasswordPage.useEffect"];
             }
         }
-    }["LoginPage.useEffect"], [
+    }["ForgotPasswordPage.useEffect"], [
         error,
         isExitingError
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "LoginPage.useEffect": ()=>{
+        "ForgotPasswordPage.useEffect": ()=>{
             if (message && !isExitingMessage) {
                 const timer = setTimeout({
-                    "LoginPage.useEffect.timer": ()=>{
+                    "ForgotPasswordPage.useEffect.timer": ()=>{
                         setIsExitingMessage(true);
                         setTimeout({
-                            "LoginPage.useEffect.timer": ()=>setMessage('')
-                        }["LoginPage.useEffect.timer"], 500);
+                            "ForgotPasswordPage.useEffect.timer": ()=>setMessage('')
+                        }["ForgotPasswordPage.useEffect.timer"], 500);
                     }
-                }["LoginPage.useEffect.timer"], 3000);
+                }["ForgotPasswordPage.useEffect.timer"], 3000);
                 return ({
-                    "LoginPage.useEffect": ()=>clearTimeout(timer)
-                })["LoginPage.useEffect"];
+                    "ForgotPasswordPage.useEffect": ()=>clearTimeout(timer)
+                })["ForgotPasswordPage.useEffect"];
             }
         }
-    }["LoginPage.useEffect"], [
+    }["ForgotPasswordPage.useEffect"], [
         message,
         isExitingMessage
     ]);
@@ -353,22 +421,22 @@ function LoginPage() {
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                     className: "text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center justify-center",
                     children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$KeyIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__KeyIcon$3e$__["KeyIcon"], {
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$LockClosedIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LockClosedIcon$3e$__["LockClosedIcon"], {
                             className: "h-6 w-6 mr-2 text-gray-400"
                         }, void 0, false, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 135,
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 198,
                             columnNumber: 21
                         }, this),
-                        "Login"
+                        token ? 'Reset Password' : 'Forgot Password'
                     ]
                 }, void 0, true, {
-                    fileName: "[project]/app/login/page.tsx",
-                    lineNumber: 134,
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 197,
                     columnNumber: 17
                 }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
-                    onSubmit: handleLogin,
+                !token ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                    onSubmit: handleRequestReset,
                     className: "space-y-4",
                     noValidate: true,
                     children: [
@@ -376,207 +444,74 @@ function LoginPage() {
                             className: "space-y-1",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                    htmlFor: "identifier",
+                                    htmlFor: "email",
                                     className: "sr-only",
-                                    children: "Email or Username"
+                                    children: "Email"
                                 }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 141,
-                                    columnNumber: 25
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 206,
+                                    columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "relative",
                                     children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserIcon$3e$__["UserIcon"], {
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EnvelopeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EnvelopeIcon$3e$__["EnvelopeIcon"], {
                                             className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
                                         }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 143,
-                                            columnNumber: 29
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 208,
+                                            columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            id: "identifier",
-                                            type: "text",
-                                            value: identifier,
-                                            onChange: (e)=>setIdentifier(e.target.value),
-                                            placeholder: "Email or Username",
+                                            id: "email",
+                                            type: "email",
+                                            value: email,
+                                            onChange: (e)=>setEmail(e.target.value),
+                                            placeholder: "Email",
                                             className: "w-full pl-10 p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-500 transition duration-200",
-                                            "aria-describedby": "identifier-error"
+                                            "aria-describedby": "email-error"
                                         }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 144,
-                                            columnNumber: 29
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 142,
-                                    columnNumber: 25
-                                }, this),
-                                errors.identifier && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    id: "identifier-error",
-                                    className: `min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.identifier ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`,
-                                    children: [
-                                        errors.identifier,
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                            onClick: ()=>dismissFieldError('identifier'),
-                                            className: "ml-2",
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
-                                                className: "h-4 w-4 text-red-500"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/login/page.tsx",
-                                                lineNumber: 158,
-                                                columnNumber: 37
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 157,
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 209,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 155,
-                                    columnNumber: 29
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 140,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "space-y-1",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                    htmlFor: "password",
-                                    className: "sr-only",
-                                    children: "Password"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 166,
-                                    columnNumber: 25
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "relative",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$LockClosedIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LockClosedIcon$3e$__["LockClosedIcon"], {
-                                            className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 168,
-                                            columnNumber: 29
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            id: "password",
-                                            type: showPassword ? 'text' : 'password',
-                                            value: password,
-                                            onChange: (e)=>setPassword(e.target.value),
-                                            placeholder: "Password",
-                                            className: "w-full pl-10 pr-10 p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-500 transition duration-200",
-                                            "aria-describedby": "password-error"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 169,
-                                            columnNumber: 29
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                            type: "button",
-                                            onClick: ()=>setShowPassword(!showPassword),
-                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
-                                            children: showPassword ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeSlashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeSlashIcon$3e$__["EyeSlashIcon"], {
-                                                className: "h-5 w-5"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/login/page.tsx",
-                                                lineNumber: 183,
-                                                columnNumber: 49
-                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeIcon$3e$__["EyeIcon"], {
-                                                className: "h-5 w-5"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/login/page.tsx",
-                                                lineNumber: 183,
-                                                columnNumber: 88
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 178,
-                                            columnNumber: 29
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 167,
-                                    columnNumber: 25
-                                }, this),
-                                errors.password && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    id: "password-error",
-                                    className: `min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.password ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`,
-                                    children: [
-                                        errors.password,
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                            onClick: ()=>dismissFieldError('password'),
-                                            className: "ml-2",
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
-                                                className: "h-4 w-4 text-red-500"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/login/page.tsx",
-                                                lineNumber: 190,
-                                                columnNumber: 37
-                                            }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 189,
-                                            columnNumber: 33
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 187,
-                                    columnNumber: 29
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 165,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex justify-between items-center",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                    className: "flex items-center text-sm text-gray-900 dark:text-gray-100",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            type: "checkbox",
-                                            checked: rememberMe,
-                                            onChange: (e)=>setRememberMe(e.target.checked),
-                                            className: "mr-2 h-4 w-4 text-slate-600 focus:ring-slate-500"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 199,
-                                            columnNumber: 29
-                                        }, this),
-                                        "Remember Me"
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 198,
-                                    columnNumber: 25
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                    href: "/forgot-password",
-                                    className: "text-sm text-slate-600 dark:text-slate-500 hover:text-slate-400 dark:hover:text-slate-300 hover:underline transition duration-200",
-                                    children: "Forgot Password?"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
+                                    fileName: "[project]/app/forgot-password/page.tsx",
                                     lineNumber: 207,
-                                    columnNumber: 25
+                                    columnNumber: 29
+                                }, this),
+                                errors.email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    id: "email-error",
+                                    className: `min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.email ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`,
+                                    children: [
+                                        errors.email,
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>dismissFieldError('email'),
+                                            className: "ml-2",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                                className: "h-4 w-4 text-red-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 223,
+                                                columnNumber: 41
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 222,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 220,
+                                    columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 197,
-                            columnNumber: 21
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 205,
+                            columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                             type: "submit",
@@ -597,147 +532,301 @@ function LoginPage() {
                                             stroke: "currentColor",
                                             strokeWidth: "4"
                                         }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 219,
-                                            columnNumber: 33
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 236,
+                                            columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                             className: "opacity-75",
                                             fill: "currentColor",
                                             d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         }, void 0, false, {
-                                            fileName: "[project]/app/login/page.tsx",
-                                            lineNumber: 220,
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 237,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 235,
+                                    columnNumber: 33
+                                }, this) : null,
+                                "Send Reset Link"
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 229,
+                            columnNumber: 25
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 203,
+                    columnNumber: 21
+                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                    onSubmit: handleResetPassword,
+                    className: "space-y-4",
+                    noValidate: true,
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "space-y-1",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    htmlFor: "newPassword",
+                                    className: "sr-only",
+                                    children: "New Password"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 247,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "relative",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$LockClosedIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LockClosedIcon$3e$__["LockClosedIcon"], {
+                                            className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 249,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            id: "newPassword",
+                                            type: showPassword ? 'text' : 'password',
+                                            value: newPassword,
+                                            onChange: (e)=>setNewPassword(e.target.value),
+                                            placeholder: "New Password",
+                                            className: "w-full pl-10 pr-10 p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-500 transition duration-200",
+                                            "aria-describedby": "newPassword-error"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 250,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            type: "button",
+                                            onClick: ()=>setShowPassword(!showPassword),
+                                            className: "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
+                                            children: showPassword ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeSlashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeSlashIcon$3e$__["EyeSlashIcon"], {
+                                                className: "h-5 w-5"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 264,
+                                                columnNumber: 53
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EyeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeIcon$3e$__["EyeIcon"], {
+                                                className: "h-5 w-5"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 264,
+                                                columnNumber: 92
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 259,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 218,
-                                    columnNumber: 29
-                                }, this) : null,
-                                "Login"
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 212,
-                            columnNumber: 21
-                        }, this),
-                        error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            className: `bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingError ? 'opacity-0' : 'opacity-100'}`,
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircleIcon$3e$__["XCircleIcon"], {
-                                    className: "h-5 w-5 mr-2 text-red-800 dark:text-red-200"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 228,
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 248,
                                     columnNumber: 29
                                 }, this),
-                                error,
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: ()=>setError(''),
-                                    className: "ml-auto",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
-                                        className: "h-5 w-5 text-red-800 dark:text-red-200"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/login/page.tsx",
-                                        lineNumber: 231,
-                                        columnNumber: 33
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 230,
-                                    columnNumber: 29
+                                errors.newPassword && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    id: "newPassword-error",
+                                    className: `min-h-[18px] text-sm text-red-500 transition-opacity duration-300 ease-in-out flex items-center ${fieldErrorVisibility.newPassword ? 'opacity-100 animate-fadeInShort' : 'opacity-0'}`,
+                                    children: [
+                                        errors.newPassword,
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>dismissFieldError('newPassword'),
+                                            className: "ml-2",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                                className: "h-4 w-4 text-red-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/forgot-password/page.tsx",
+                                                lineNumber: 271,
+                                                columnNumber: 41
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 270,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 268,
+                                    columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 227,
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 246,
                             columnNumber: 25
                         }, this),
-                        message && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            className: `bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingMessage ? 'opacity-0' : 'opacity-100'}`,
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            type: "submit",
+                            disabled: loading,
+                            className: `w-full bg-slate-600 dark:bg-slate-500 text-white dark:text-gray-900 p-3 rounded-md hover:bg-slate-500 dark:hover:bg-slate-400 transition duration-200 flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`,
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CheckCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircleIcon$3e$__["CheckCircleIcon"], {
-                                    className: "h-5 w-5 mr-2 text-green-800 dark:text-green-200"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 237,
-                                    columnNumber: 29
-                                }, this),
-                                message,
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: ()=>setMessage(''),
-                                    className: "ml-auto",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
-                                        className: "h-5 w-5 text-green-800 dark:text-green-200"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/login/page.tsx",
-                                        lineNumber: 240,
-                                        columnNumber: 33
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/app/login/page.tsx",
-                                    lineNumber: 239,
-                                    columnNumber: 29
-                                }, this)
+                                loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                    className: "animate-spin h-5 w-5 mr-2 text-white",
+                                    xmlns: "http://www.w3.org/2000/svg",
+                                    fill: "none",
+                                    viewBox: "0 0 24 24",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                                            className: "opacity-25",
+                                            cx: "12",
+                                            cy: "12",
+                                            r: "10",
+                                            stroke: "currentColor",
+                                            strokeWidth: "4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 284,
+                                            columnNumber: 37
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                            className: "opacity-75",
+                                            fill: "currentColor",
+                                            d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/forgot-password/page.tsx",
+                                            lineNumber: 285,
+                                            columnNumber: 37
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/forgot-password/page.tsx",
+                                    lineNumber: 283,
+                                    columnNumber: 33
+                                }, this) : null,
+                                "Reset Password"
                             ]
                         }, void 0, true, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 236,
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 277,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
-                    fileName: "[project]/app/login/page.tsx",
-                    lineNumber: 138,
-                    columnNumber: 17
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 244,
+                    columnNumber: 21
+                }, this),
+                error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: `bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingError ? 'opacity-0' : 'opacity-100'}`,
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircleIcon$3e$__["XCircleIcon"], {
+                            className: "h-5 w-5 mr-2 text-red-800 dark:text-red-200"
+                        }, void 0, false, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 295,
+                            columnNumber: 25
+                        }, this),
+                        error,
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            onClick: ()=>setError(''),
+                            className: "ml-auto",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                className: "h-5 w-5 text-red-800 dark:text-red-200"
+                            }, void 0, false, {
+                                fileName: "[project]/app/forgot-password/page.tsx",
+                                lineNumber: 298,
+                                columnNumber: 29
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 297,
+                            columnNumber: 25
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 294,
+                    columnNumber: 21
+                }, this),
+                message && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: `bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm p-2 rounded-md animate-fadeInShort flex items-center transition-opacity duration-500 ${isExitingMessage ? 'opacity-0' : 'opacity-100'}`,
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CheckCircleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircleIcon$3e$__["CheckCircleIcon"], {
+                            className: "h-5 w-5 mr-2 text-green-800 dark:text-green-200"
+                        }, void 0, false, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 304,
+                            columnNumber: 25
+                        }, this),
+                        message,
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            onClick: ()=>setMessage(''),
+                            className: "ml-auto",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                className: "h-5 w-5 text-green-800 dark:text-green-200"
+                            }, void 0, false, {
+                                fileName: "[project]/app/forgot-password/page.tsx",
+                                lineNumber: 307,
+                                columnNumber: 29
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 306,
+                            columnNumber: 25
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 303,
+                    columnNumber: 21
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                     className: "mt-4 text-sm text-gray-900 dark:text-gray-100",
                     children: [
-                        "Don’t have an account?",
+                        "Back to",
                         ' ',
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                            href: "/register",
+                            href: "/login",
                             className: "text-slate-600 dark:text-slate-500 hover:text-slate-400 dark:hover:text-slate-300 hover:underline transition duration-200",
-                            children: "Register"
+                            children: "Login"
                         }, void 0, false, {
-                            fileName: "[project]/app/login/page.tsx",
-                            lineNumber: 247,
+                            fileName: "[project]/app/forgot-password/page.tsx",
+                            lineNumber: 314,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
-                    fileName: "[project]/app/login/page.tsx",
-                    lineNumber: 245,
+                    fileName: "[project]/app/forgot-password/page.tsx",
+                    lineNumber: 312,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
-            fileName: "[project]/app/login/page.tsx",
-            lineNumber: 133,
+            fileName: "[project]/app/forgot-password/page.tsx",
+            lineNumber: 196,
             columnNumber: 13
         }, this)
     }, void 0, false, {
-        fileName: "[project]/app/login/page.tsx",
-        lineNumber: 132,
+        fileName: "[project]/app/forgot-password/page.tsx",
+        lineNumber: 195,
         columnNumber: 9
     }, this);
 }
-_s(LoginPage, "o24M1TrjQaVolpLyzhZCLBnFvQk=");
-_c = LoginPage;
+_s(ForgotPasswordPage, "IGrINNnmj+tsaWhxT5Jp6tBBOxo=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]
+    ];
+});
+_c = ForgotPasswordPage;
 var _c;
-__turbopack_refresh__.register(_c, "LoginPage");
+__turbopack_refresh__.register(_c, "ForgotPasswordPage");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_refresh__.registerExports(module, globalThis.$RefreshHelpers$);
 }
 }}),
-"[project]/app/login/page.tsx [app-rsc] (ecmascript, Next.js server component, client modules)": ((__turbopack_context__) => {
+"[project]/app/forgot-password/page.tsx [app-rsc] (ecmascript, Next.js server component, client modules)": ((__turbopack_context__) => {
 
 var { r: __turbopack_require__, f: __turbopack_module_context__, i: __turbopack_import__, s: __turbopack_esm__, v: __turbopack_export_value__, n: __turbopack_export_namespace__, c: __turbopack_cache__, M: __turbopack_modules__, l: __turbopack_load__, j: __turbopack_dynamic__, P: __turbopack_resolve_absolute_path__, U: __turbopack_relative_url__, R: __turbopack_resolve_module_id_path__, b: __turbopack_worker_blob_url__, g: global, __dirname, t: __turbopack_require_real__ } = __turbopack_context__;
 {
 }}),
 }]);
 
-//# sourceMappingURL=_292a69._.js.map
+//# sourceMappingURL=_0fdd45._.js.map

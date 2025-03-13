@@ -70,6 +70,39 @@ export const loginUser = async (identifier: string, password: string): Promise<L
     }
 };
 
+
+export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+    try {
+        const response = await api.post<{ message: string }>('/auth/request-reset', { email });
+        return response.data;
+    } catch (error: any) {
+        if (error.response?.data?.errors) {
+            const fieldErrors: Record<string, string> = {};
+            error.response.data.errors.forEach((err: any) => {
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw { fieldErrors };
+        }
+        throw new Error(error.response?.data?.error || 'Failed to request password reset');
+    }
+};
+
+export const resetPassword = async (token: string, newPassword: string): Promise<{ message: string }> => {
+    try {
+        const response = await api.post<{ message: string }>('/auth/reset-password', { token, newPassword });
+        return response.data;
+    } catch (error: any) {
+        if (error.response?.data?.errors) {
+            const fieldErrors: Record<string, string> = {};
+            error.response.data.errors.forEach((err: any) => {
+                fieldErrors[err.path || err.param] = err.msg;
+            });
+            throw { fieldErrors };
+        }
+        throw new Error(error.response?.data?.error || 'Failed to reset password');
+    }
+};
+
 // Verify Email
 export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
     try {
