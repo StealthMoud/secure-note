@@ -157,6 +157,7 @@ var { r: __turbopack_require__, f: __turbopack_module_context__, i: __turbopack_
 __turbopack_esm__({
     "approveVerification": (()=>approveVerification),
     "getCurrentUser": (()=>getCurrentUser),
+    "initiateOAuthLogin": (()=>initiateOAuthLogin),
     "loginUser": (()=>loginUser),
     "registerUser": (()=>registerUser),
     "requestPasswordReset": (()=>requestPasswordReset),
@@ -207,6 +208,11 @@ const loginUser = async (identifier, password)=>{
         }
         throw new Error(error.response?.data?.error || 'Login failed');
     }
+};
+const initiateOAuthLogin = async (provider)=>{
+    // Since this is a redirect, we don’t need to handle the response here
+    // The browser will handle the redirect to the backend OAuth endpoint
+    window.location.href = `${"TURBOPACK compile-time value", "http://localhost:5002"}/api/auth/${provider}`;
 };
 const requestPasswordReset = async (email)=>{
     try {

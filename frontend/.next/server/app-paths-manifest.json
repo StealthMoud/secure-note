@@ -1,7 +1,8 @@
 {
-  "/login/page": "app/login/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
-  "/admin/verify/page": "app/admin/verify/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/register/page": "app/register/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js"
 }

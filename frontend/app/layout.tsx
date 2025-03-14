@@ -1,62 +1,44 @@
+'use client';
 import '@/app/globals.css';
 import { Inter } from 'next/font/google';
-import Link from 'next/link';
-import React from "react";
-import { HomeIcon, KeyIcon, UserIcon, Squares2X2Icon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline';
+import { useDarkMode } from '@/lib/darkMode';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
-    title: 'Secure Note',
-    description: 'A secure note-taking application',
-};
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <html lang="en">
-        <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 min-h-screen`}>
-        {/* Navigation Bar */}
-        <nav className="bg-gray-800 dark:bg-gray-700 p-4">
-            <div className="flex items-center justify-between max-w-4xl mx-auto">
-                {/* Branding */}
-                <div className="flex items-center text-gray-100 text-2xl font-bold animate-fadeIn">
-                    <LockClosedIcon className="h-6 w-6 mr-2 text-gray-400 animate-bounce" />
-                    Secure Note
-                </div>
-                {/* Navigation Links */}
-                <ul className="flex space-x-4">
-                    <li>
-                        <Link href="/" className="flex items-center text-gray-100 hover:bg-gray-600 dark:hover:bg-gray-500 px-3 py-2 rounded-md transition duration-200">
-                            <HomeIcon className="h-5 w-5 mr-1" />
-                            <span>Home</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/login" className="flex items-center text-gray-100 hover:bg-gray-600 dark:hover:bg-gray-500 px-3 py-2 rounded-md transition duration-200">
-                            <KeyIcon className="h-5 w-5 mr-1" />
-                            <span>Login</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/register" className="flex items-center text-gray-100 hover:bg-gray-600 dark:hover:bg-gray-500 px-3 py-2 rounded-md transition duration-200">
-                            <UserIcon className="h-5 w-5 mr-1" />
-                            <span>Register</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/dashboard" className="flex items-center text-gray-100 hover:bg-gray-600 dark:hover:bg-gray-500 px-3 py-2 rounded-md transition duration-200">
-                            <Squares2X2Icon className="h-5 w-5 mr-1" />
-                            <span>Dashboard</span>
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    const { isDarkMode, toggleDarkMode } = useDarkMode();
+    const pathname = usePathname();
+    const isHomePage = pathname === '/';
+    const [mounted, setMounted] = useState(false);
 
-        {/* Main Content Area */}
-        <main className="p-8">
-            <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-gray-800 p-8 rounded-lg animate-fadeIn text-gray-900 dark:text-gray-100">
-                {children}
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    return (
+        <html lang="en" suppressHydrationWarning>
+        <body className={`${inter.className} bg-gray-100 dark:bg-gray-800 min-h-screen`}>
+        <main className={`relative p-8 ${isHomePage ? 'flex items-center justify-center min-h-screen' : ''}`}>
+            <button
+                onClick={toggleDarkMode}
+                className="absolute top-6 right-6 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200 z-10"
+            >
+                {isDarkMode ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
+            </button>
+
+            <div className="max-w-4xl mx-auto">
+                {!isHomePage && mounted && (
+                    <div className="flex flex-col items-center mb-10 mt-10">
+                        <div className="flex items-center text-gray-900 dark:text-gray-100 text-4xl font-bold">
+                            <LockClosedIcon className="h-12 w-12 mr-4 text-gray-400" />
+                            Secure Note
+                        </div>
+                    </div>
+                )}
+                {mounted && children}
             </div>
         </main>
         </body>
