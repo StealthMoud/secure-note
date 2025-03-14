@@ -4,5 +4,6 @@
   "/login/page": "app/login/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/register/page": "app/register/page.js",
-  "/forgot-password/page": "app/forgot-password/page.js"
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
 }
