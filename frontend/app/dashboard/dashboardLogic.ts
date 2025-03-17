@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentUser, requestVerification } from '@/services/auth';
 import { createNote, getNotes, updateNote, deleteNote, shareNote } from '@/services/notes';
 import { getFriends, sendFriendRequest, respondToFriendRequest } from '@/services/users';
+import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 
 interface UserData {
     user: { _id: string; username: string; email: string; role: string; verified?: boolean };
@@ -35,6 +36,7 @@ interface FriendRequest {
 }
 
 export const useDashboardLogic = () => {
+    const shared = useDashboardSharedContext(); // Integrate shared context
     const [user, setUser] = useState<UserData | null>(null);
     const [notes, setNotes] = useState<Note[]>([]);
     const [newTitle, setNewTitle] = useState('');
@@ -188,19 +190,17 @@ export const useDashboardLogic = () => {
             setFriends(friendsData.friends);
             setFriendRequests(friendsData.friendRequests);
         } catch (err: any) {
-            // Extract backend error message if available, otherwise fallback to generic message
             const errorMessage = err.response?.data?.error || err.message || 'Failed to respond to friend request';
             setError(errorMessage);
         }
     };
-
 
     const isOwner = (note: Note, userId: string): boolean => {
         return typeof note.owner === 'string' ? note.owner === userId : note.owner._id === userId;
     };
 
     return {
-        user,
+        ...shared, // Spread shared context (e.g., user, loading, handleLogout from DashboardSharedContext)
         notes,
         newTitle,
         setNewTitle,
@@ -218,7 +218,7 @@ export const useDashboardLogic = () => {
         loading,
         message,
         error,
-        handleLogout,
+        handleLogout, // Local version, could override shared if needed
         handleRequestVerification,
         handleCreateNote,
         handleEditNote,

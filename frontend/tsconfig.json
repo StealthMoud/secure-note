@@ -20,8 +20,8 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@/components/*": ["src/components/*"],
-      "@/services/*": ["src/services/*"]
+      "@/components/*": ["./src/components/*"],
+      "@/services/*": ["./src/services/*"]
     }
   },
   "include": [

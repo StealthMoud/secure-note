@@ -1,20 +1,20 @@
-# Use Node.js LTS version
-FROM node:18-alpine
+# Use Node.js 18 on Debian
+FROM node:18
 
 # Set working directory inside container
 WORKDIR /app
 
-# Copy only package files first
+# Copy package files first to leverage Docker cache
 COPY package.json package-lock.json* ./
 
-# Install dependencies (including devDependencies)
+# Install all dependencies
 RUN npm install
 
-# Copy the rest of the project files
+# Copy the rest of the source code
 COPY . .
 
-# Expose port 3000 for Next.js
+# Expose Next.js port
 EXPOSE 3000
 
-# Start Next.js in development mode
+# Start in dev mode
 CMD ["npm", "run", "dev"]

@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Updated for App Router
-import { getCurrentUser } from '@/services/auth'; // Updated import
+import { useRouter } from 'next/navigation';
+import { getCurrentUser } from '@/services/auth';
 
 interface Props {
     children: React.ReactNode;
@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children }: Props) {
                 return;
             }
             try {
-                await getCurrentUser(token); // Verify token
+                await getCurrentUser(token);
                 setLoading(false);
             } catch (error) {
                 localStorage.removeItem('token');
