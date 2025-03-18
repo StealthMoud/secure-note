@@ -24,17 +24,21 @@ export const useFriendsLogic = () => {
     const [friendRequestUsername, setFriendRequestUsername] = useState('');
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false); // Added loading state
 
     useEffect(() => {
         const fetchFriends = async () => {
-            if (user) {
-                try {
-                    const friendsData = await getFriends();
-                    setFriends(friendsData.friends);
-                    setFriendRequests(friendsData.friendRequests);
-                } catch (err: any) {
-                    setError(err.message || 'Failed to load friends');
-                }
+            if (!user) return;
+            setLoading(true); // Start loading
+            try {
+                const friendsData = await getFriends();
+                setFriends(friendsData.friends);
+                setFriendRequests(friendsData.friendRequests);
+                setError('');
+            } catch (err: any) {
+                setError(err.message || 'Failed to load friends');
+            } finally {
+                setLoading(false); // End loading
             }
         };
         fetchFriends();
@@ -45,6 +49,7 @@ export const useFriendsLogic = () => {
             setError('Username is required to send a friend request');
             return;
         }
+        setLoading(true); // Start loading
         try {
             const data = await sendFriendRequest(friendRequestUsername);
             setFriendRequestUsername('');
@@ -55,10 +60,13 @@ export const useFriendsLogic = () => {
             setFriendRequests(friendsData.friendRequests);
         } catch (err: any) {
             setError(err.message || 'Failed to send friend request');
+        } finally {
+            setLoading(false); // End loading
         }
     };
 
     const handleRespondToFriendRequest = async (requestId: string, action: 'accept' | 'reject') => {
+        setLoading(true); // Start loading
         try {
             const data = await respondToFriendRequest(requestId, action);
             setMessage(data.message);
@@ -69,6 +77,8 @@ export const useFriendsLogic = () => {
         } catch (err: any) {
             const errorMessage = err.response?.data?.error || err.message || 'Failed to respond to friend request';
             setError(errorMessage);
+        } finally {
+            setLoading(false); // End loading
         }
     };
 
@@ -82,5 +92,6 @@ export const useFriendsLogic = () => {
         handleRespondToFriendRequest,
         message,
         error,
+        loading, // Export loading state
     };
 };

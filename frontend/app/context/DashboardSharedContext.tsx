@@ -1,6 +1,8 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/services/auth';
+
 
 interface UserData {
     user: { _id: string; username: string; email: string; role: string; verified?: boolean };
@@ -21,6 +23,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,13 +33,13 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                     const data = await getCurrentUser(token);
                     setUser(data);
                     if (data.role === 'admin') {
-                        window.location.href = '/admin/verify';
+                        router.push('/admin/verify')
                         return;
                     }
                 } catch (error: any) {
                     console.error('Failed to fetch user:', error);
                     localStorage.removeItem('token');
-                    // Don’t redirect here; let page.tsx handle it
+                    // page.tsx handles further redirects
                 }
             }
             setLoading(false);
@@ -46,7 +49,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        router.push('/login');
     };
 
     return (

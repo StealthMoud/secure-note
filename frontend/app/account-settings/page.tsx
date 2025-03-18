@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { DashboardSharedProvider } from '@/app/context/DashboardSharedContext';
 import DashboardContent from '../dashboard/DashboardContent';
 
-export default function NotesPage() {
+export default function AccountSettingsPage() {
     const router = useRouter();
     const pathname = usePathname();
 

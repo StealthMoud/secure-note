@@ -22,6 +22,7 @@ export default function AdminVerifyPage() {
 
     useEffect(() => {
         const fetchUsers = async () => {
+            if (!router) return;
             const token = localStorage.getItem('token');
             if (!token) {
                 router.push('/login');
@@ -47,7 +48,7 @@ export default function AdminVerifyPage() {
             setLoading(false);
         };
         fetchUsers();
-    }, [router]);
+    }, []);
 
     const handleApprove = async (userId: string) => {
         try {

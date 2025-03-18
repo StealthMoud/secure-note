@@ -1,7 +1,6 @@
 'use client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import {useEffect} from 'react';
-import Link from 'next/link';
 import {
     Bars3Icon,
     BellIcon,
@@ -22,6 +21,7 @@ import FriendsSection from '../friends/FriendsSection';
 import ProfileSection from '../profile/ProfileSection';
 import AccountSettingsSection from '../account-settings/AccountSettingsSection';
 import NotificationsSection from '../notifications/NotificationsSection';
+import Link from "next/link";
 
 const sectionMap: { [key: string]: React.ComponentType } = {
     dashboard: DashboardSection,
@@ -48,12 +48,16 @@ export default function DashboardContent({defaultTab = 'dashboard'}: { defaultTa
 
     return (
         <DashboardProvider>
-            <DashboardInner defaultTab={defaultTab} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+            <DashboardInner defaultTab={defaultTab} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}/>
         </DashboardProvider>
     );
 }
 
-function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: { defaultTab: string, isSidebarOpen: boolean, setIsSidebarOpen: (open: boolean) => void }) {
+function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: {
+    defaultTab: string,
+    isSidebarOpen: boolean,
+    setIsSidebarOpen: (open: boolean) => void
+}) {
     const {activeTab, setActiveTab, navigateToTab} = useDashboardContext();
     const pathname = usePathname();
 
@@ -172,15 +176,17 @@ function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: { default
                         isSidebarOpen ? 'ml-64' : 'ml-0'
                     } p-2 min-h-screen`}
                 >
-                    <div className="w-full">
-                        <Link href="/">
-                            <button className="flex flex-col items-center mx-auto mb-10 mt-10 bg-transparent border-none cursor-pointer">
-                                <div className="flex items-center text-gray-900 dark:text-gray-100 text-4xl font-bold">
-                                    <LockClosedIcon className="h-12 w-12 mr-4 text-gray-400"/>
-                                    Secure Note
-                                </div>
+                    <div className="flex justify-center mb-10 mt-10">
+                        {isSidebarOpen ? (
+                            <div className="h-14"/>
+                            ) : (
+                            <Link href="/">
+                            <button className="flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
+                            <LockClosedIcon className="h-10 w-10 text-gray-400" />
+                            Secure Note
                             </button>
-                        </Link>
+                            </Link>
+                            )}
                     </div>
 
                     {!isSidebarOpen && (
@@ -191,11 +197,14 @@ function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: { default
                             <Bars3Icon className="h-6 w-6"/>
                         </button>
                     )}
+
                     <div
-                        className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 w-full min-h-screen mx-auto">
+                        className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 w-full min-h-screen mx-auto"
+                    >
                         <ActiveSection/>
                     </div>
                 </div>
+
             </div>
         </ProtectedRoute>
     );

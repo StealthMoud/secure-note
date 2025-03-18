@@ -13,6 +13,8 @@
 # Ignore node_modules
 node_modules
 
+/frontend/.next
+
 # environment
 .env
 

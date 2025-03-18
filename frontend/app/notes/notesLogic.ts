@@ -1,6 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { requestVerification } from '@/services/auth';
+import { useState, useEffect, useCallback } from 'react';
 import { createNote, getNotes, updateNote, deleteNote, shareNote } from '@/services/notes';
 import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 
@@ -25,35 +24,31 @@ export const useNotesLogic = () => {
     const [sharePermission, setSharePermission] = useState<'viewer' | 'editor'>('viewer');
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchNotes = async () => {
-            if (user) {
-                try {
-                    const notesData = await getNotes();
-                    setNotes(notesData);
-                } catch (err: any) {
-                    setError(err.message || 'Failed to load notes');
-                }
+            if (!user) return;
+            setLoading(true);
+            try {
+                const notesData = await getNotes();
+                setNotes(notesData);
+                setError('');
+            } catch (err: any) {
+                setError(err.message || 'Failed to load notes');
+            } finally {
+                setLoading(false);
             }
         };
         fetchNotes();
     }, [user]);
 
-    const handleRequestVerification = async () => {
-        try {
-            const data = await requestVerification();
-            setMessage(data.message);
-        } catch (err: any) {
-            setError(err.message || 'Failed to request verification');
-        }
-    };
-
-    const handleCreateNote = async () => {
+    const handleCreateNote = useCallback(async () => {
         if (!newTitle.trim()) {
             setError('Title is required');
             return;
         }
+        setLoading(true);
         try {
             const data = await createNote(newTitle, newContent);
             setNotes([data.note, ...notes]);
@@ -63,21 +58,24 @@ export const useNotesLogic = () => {
             setError('');
         } catch (err: any) {
             setError(err.message || 'Failed to create note');
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [newTitle, newContent, notes]);
 
-    const handleEditNote = (note: Note) => {
+    const handleEditNote = useCallback((note: Note) => {
         setEditingNoteId(note._id);
         setNewTitle(note.title);
         setNewContent(note.content);
-    };
+    }, []);
 
-    const handleUpdateNote = async () => {
+    const handleUpdateNote = useCallback(async () => {
         if (!newTitle.trim()) {
             setError('Title is required');
             return;
         }
         if (!editingNoteId) return;
+        setLoading(true);
         try {
             const data = await updateNote(editingNoteId, newTitle, newContent);
             setNotes(notes.map((n) => (n._id === editingNoteId ? data.note : n)));
@@ -88,10 +86,13 @@ export const useNotesLogic = () => {
             setError('');
         } catch (err: any) {
             setError(err.message || 'Failed to update note');
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [editingNoteId, newTitle, newContent, notes]);
 
-    const handleDeleteNote = async (noteId: string) => {
+    const handleDeleteNote = useCallback(async (noteId: string) => {
+        setLoading(true);
         try {
             const data = await deleteNote(noteId);
             setNotes(notes.filter((n) => n._id !== noteId));
@@ -99,14 +100,17 @@ export const useNotesLogic = () => {
             setError('');
         } catch (err: any) {
             setError(err.message || 'Failed to delete note');
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [notes]);
 
-    const handleShareNote = async (noteId: string) => {
+    const handleShareNote = useCallback(async (noteId: string) => {
         if (!shareUserId.trim()) {
             setError('User ID is required to share');
             return;
         }
+        setLoading(true);
         try {
             const data = await shareNote(noteId, shareUserId, sharePermission);
             setNotes(notes.map((n) => (n._id === noteId ? data.note : n)));
@@ -116,12 +120,14 @@ export const useNotesLogic = () => {
             setError('');
         } catch (err: any) {
             setError(err.message || 'Failed to share note');
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [shareUserId, sharePermission, notes]);
 
-    const isOwner = (note: Note, userId: string): boolean => {
+    const isOwner = useCallback((note: Note, userId: string): boolean => {
         return typeof note.owner === 'string' ? note.owner === userId : note.owner._id === userId;
-    };
+    }, []);
 
     return {
         user,
@@ -143,6 +149,6 @@ export const useNotesLogic = () => {
         isOwner,
         message,
         error,
-        handleRequestVerification,
+        loading,
     };
 };

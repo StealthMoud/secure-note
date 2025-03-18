@@ -90,23 +90,24 @@ function MainContent({
                     dropdownRef={dropdownRef}
                 />
             )}
-            <div className="w-full">
+
+            <div className="w-full px-32"> {/* adding padding to middle container */}
                 {!isHomePage && !isDashboardRoute && mounted && (
-                    <div className="ml-0 w-full transition-all duration-300">
+                    <div className="flex justify-center mb-10 mt-10">
                         <Link href="/">
-                            <button className="flex flex-col items-center mx-auto mb-10 mt-10 bg-transparent border-none cursor-pointer">
-                                <div className="flex items-center text-gray-900 dark:text-gray-100 text-4xl font-bold">
-                                    <LockClosedIcon className="h-12 w-12 mr-4 text-gray-400"/>
-                                    Secure Note
-                                </div>
+                            <button className="flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
+                                <LockClosedIcon className="h-10 w-10 text-gray-400" />
+                                Secure Note
                             </button>
                         </Link>
                     </div>
                 )}
+
                 {mounted && children}
             </div>
         </main>
     );
+
 }
 
 function DashboardControls({
