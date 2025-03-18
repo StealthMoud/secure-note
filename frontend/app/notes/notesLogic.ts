@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { createNote, getNotes, updateNote, deleteNote, shareNote } from '@/services/notes';
+import { createNote, getNotes, updateNote, deleteNote, shareNote, unshareNote } from '@/services/notes'; // Add unshareNote import
 import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
+import jsPDF from 'jspdf';
 
 interface Note {
     _id: string;
@@ -11,7 +12,7 @@ interface Note {
     encrypted: boolean;
     owner: string | { _id: string; username: string };
     createdAt: string;
-    sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedContent?: string }[];
+    sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedTitle?: string; encryptedContent?: string }[];
 }
 
 export const useNotesLogic = () => {
@@ -19,8 +20,9 @@ export const useNotesLogic = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     const [newTitle, setNewTitle] = useState('');
     const [newContent, setNewContent] = useState('');
+    const [newFormat, setNewFormat] = useState<'plain' | 'markdown'>('plain');
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [shareUserId, setShareUserId] = useState('');
+    const [shareTarget, setShareTarget] = useState('');
     const [sharePermission, setSharePermission] = useState<'viewer' | 'editor'>('viewer');
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -48,12 +50,23 @@ export const useNotesLogic = () => {
             setError('Title is required');
             return;
         }
+        if (!user) return;
+        if (!user.user.verified && notes.length >= 1) {
+            setError('Unverified users can only create one note');
+            return;
+        }
+        if (!user.user.verified && newFormat !== 'plain') {
+            setError('Unverified users can only create plain text notes');
+            setNewFormat('plain');
+            return;
+        }
         setLoading(true);
         try {
-            const data = await createNote(newTitle, newContent);
+            const data = await createNote(newTitle, newContent, newFormat);
             setNotes([data.note, ...notes]);
             setNewTitle('');
             setNewContent('');
+            setNewFormat('plain');
             setMessage(data.message);
             setError('');
         } catch (err: any) {
@@ -61,27 +74,38 @@ export const useNotesLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, [newTitle, newContent, notes]);
+    }, [newTitle, newContent, newFormat, notes, user]);
 
     const handleEditNote = useCallback((note: Note) => {
+        if (!user?.user.verified && note.format !== 'plain') {
+            setError('Unverified users can only edit plain text notes');
+            return;
+        }
         setEditingNoteId(note._id);
         setNewTitle(note.title);
         setNewContent(note.content);
-    }, []);
+        setNewFormat(note.format);
+    }, [user]);
 
     const handleUpdateNote = useCallback(async () => {
         if (!newTitle.trim()) {
             setError('Title is required');
             return;
         }
-        if (!editingNoteId) return;
+        if (!editingNoteId || !user) return;
+        if (!user.user.verified && newFormat !== 'plain') {
+            setError('Unverified users can only update plain text notes');
+            setNewFormat('plain');
+            return;
+        }
         setLoading(true);
         try {
-            const data = await updateNote(editingNoteId, newTitle, newContent);
+            const data = await updateNote(editingNoteId, newTitle, newContent, newFormat);
             setNotes(notes.map((n) => (n._id === editingNoteId ? data.note : n)));
             setEditingNoteId(null);
             setNewTitle('');
             setNewContent('');
+            setNewFormat('plain');
             setMessage(data.message);
             setError('');
         } catch (err: any) {
@@ -89,7 +113,7 @@ export const useNotesLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, [editingNoteId, newTitle, newContent, notes]);
+    }, [editingNoteId, newTitle, newContent, newFormat, notes, user]);
 
     const handleDeleteNote = useCallback(async (noteId: string) => {
         setLoading(true);
@@ -106,15 +130,19 @@ export const useNotesLogic = () => {
     }, [notes]);
 
     const handleShareNote = useCallback(async (noteId: string) => {
-        if (!shareUserId.trim()) {
-            setError('User ID is required to share');
+        if (!user?.user.verified) {
+            setError('Unverified users cannot share notes');
+            return;
+        }
+        if (!shareTarget.trim()) {
+            setError('Friend’s username or email is required to share');
             return;
         }
         setLoading(true);
         try {
-            const data = await shareNote(noteId, shareUserId, sharePermission);
+            const data = await shareNote(noteId, shareTarget, sharePermission);
             setNotes(notes.map((n) => (n._id === noteId ? data.note : n)));
-            setShareUserId('');
+            setShareTarget('');
             setSharePermission('viewer');
             setMessage(data.message);
             setError('');
@@ -123,7 +151,57 @@ export const useNotesLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, [shareUserId, sharePermission, notes]);
+    }, [shareTarget, sharePermission, notes, user]);
+
+    const handleUnshareNote = useCallback(async (noteId: string, targetUserId: string) => {
+        if (!user?.user.verified) {
+            setError('Unverified users cannot unshare notes');
+            return;
+        }
+        setLoading(true);
+        try {
+            const data = await unshareNote(noteId, targetUserId);
+            setNotes(notes.map((n) => (n._id === noteId ? data.note : n)));
+            setMessage(data.message);
+            setError('');
+        } catch (err: any) {
+            setError(err.message || 'Failed to unshare note');
+        } finally {
+            setLoading(false);
+        }
+    }, [notes, user]);
+
+    const handleExportNote = useCallback((noteId: string, format: 'plain' | 'markdown' | 'pdf') => {
+        const note = notes.find((n) => n._id === noteId);
+        if (!note) return;
+        if (!user?.user.verified && (format === 'markdown' || format === 'pdf')) {
+            setError('Unverified users can only export plain text');
+            return;
+        }
+
+        if (format === 'plain') {
+            const blob = new Blob([note.content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${note.title}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } else if (format === 'markdown') {
+            const blob = new Blob([note.content], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${note.title}.md`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } else if (format === 'pdf') {
+            const doc = new jsPDF();
+            doc.text(note.title, 10, 10);
+            doc.text(note.content, 10, 20);
+            doc.save(`${note.title}.pdf`);
+        }
+    }, [notes, user]);
 
     const isOwner = useCallback((note: Note, userId: string): boolean => {
         return typeof note.owner === 'string' ? note.owner === userId : note.owner._id === userId;
@@ -136,9 +214,11 @@ export const useNotesLogic = () => {
         setNewTitle,
         newContent,
         setNewContent,
+        newFormat,
+        setNewFormat,
         editingNoteId,
-        shareUserId,
-        setShareUserId,
+        shareTarget,
+        setShareTarget,
         sharePermission,
         setSharePermission,
         handleCreateNote,
@@ -146,6 +226,8 @@ export const useNotesLogic = () => {
         handleUpdateNote,
         handleDeleteNote,
         handleShareNote,
+        handleUnshareNote, // Added to return object
+        handleExportNote,
         isOwner,
         message,
         error,

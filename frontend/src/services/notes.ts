@@ -6,9 +6,9 @@ interface Note {
     content: string;
     format: 'plain' | 'markdown';
     encrypted: boolean;
-    owner: string | { _id: string; username: string }; // Union for flexibility
+    owner: string | { _id: string; username: string };
     createdAt: string;
-    sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedContent?: string }[];
+    sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedTitle?: string; encryptedContent?: string }[];
 }
 
 interface NotesResponse {
@@ -16,10 +16,10 @@ interface NotesResponse {
     notes: Note[];
 }
 
-export const createNote = async (title: string, content: string, encrypted: boolean = false): Promise<{ message: string; note: Note }> => {
+export const createNote = async (title: string, content: string, format: 'plain' | 'markdown'): Promise<{ message: string; note: Note }> => {
     try {
         const token = localStorage.getItem('token');
-        const response = await api.post<{ message: string; note: Note }>('/notes', { title, content, encrypted }, {
+        const response = await api.post<{ message: string; note: Note }>('/notes', { title, content, format }, { // Removed encrypted: true
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;
@@ -40,10 +40,10 @@ export const getNotes = async (): Promise<Note[]> => {
     }
 };
 
-export const updateNote = async (noteId: string, title: string, content: string, encrypted: boolean = false): Promise<{ message: string; note: Note }> => {
+export const updateNote = async (noteId: string, title: string, content: string, format: 'plain' | 'markdown'): Promise<{ message: string; note: Note }> => {
     try {
         const token = localStorage.getItem('token');
-        const response = await api.put<{ message: string; note: Note }>(`/notes/${noteId}`, { title, content, encrypted }, {
+        const response = await api.put<{ message: string; note: Note }>(`/notes/${noteId}`, { title, content, format }, { // Removed encrypted: true
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;
@@ -64,14 +64,26 @@ export const deleteNote = async (noteId: string): Promise<{ message: string }> =
     }
 };
 
-export const shareNote = async (noteId: string, userId: string, permission: 'viewer' | 'editor'): Promise<{ message: string; note: Note }> => {
+export const shareNote = async (noteId: string, target: string, permission: 'viewer' | 'editor'): Promise<{ message: string; note: Note }> => {
     try {
         const token = localStorage.getItem('token');
-        const response = await api.post<{ message: string; note: Note }>(`/notes/${noteId}/share`, { userId, permission }, {
+        const response = await api.post<{ message: string; note: Note }>(`/notes/${noteId}/share`, { target, permission }, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Failed to share note');
+    }
+};
+
+export const unshareNote = async (noteId: string, targetUserId: string): Promise<{ message: string; note: Note }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await api.post<{ message: string; note: Note }>('/notes/unshare', { noteId, targetUserId }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to unshare note');
     }
 };

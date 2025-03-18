@@ -6,9 +6,14 @@ import {
     DocumentTextIcon,
     TrashIcon,
     ShareIcon,
-    ClockIcon
+    ClockIcon,
+    XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { marked } from 'marked';
 import { useNotesLogic } from './notesLogic';
+
+// Configure marked for synchronous parsing
+marked.setOptions({ async: false });
 
 interface Note {
     _id: string;
@@ -21,32 +26,38 @@ interface Note {
     sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedContent?: string }[];
 }
 
-// Subcomponent: Note Input Form (Non-Collapsible)
 const NoteInputForm = React.memo(
     ({
          newTitle,
          setNewTitle,
          newContent,
          setNewContent,
+         newFormat,
+         setNewFormat,
          editingNoteId,
          handleCreateNote,
          handleUpdateNote,
          loading,
+         userVerified,
      }: {
         newTitle: string;
         setNewTitle: (value: string) => void;
         newContent: string;
         setNewContent: (value: string) => void;
+        newFormat: 'plain' | 'markdown';
+        setNewFormat: (value: 'plain' | 'markdown') => void;
         editingNoteId: string | null;
         handleCreateNote: () => void;
         handleUpdateNote: () => void;
         loading: boolean;
+        userVerified: boolean;
     }) => {
         const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setNewTitle(e.target.value), [setNewTitle]);
         const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => setNewContent(e.target.value), [setNewContent]);
+        const handleFormatChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => setNewFormat(e.target.value as 'plain' | 'markdown'), [setNewFormat]);
 
         return (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
+            <section className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center mb-4">
                     <PencilIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
                     {editingNoteId ? 'Edit Note' : 'Create a Note'}
@@ -56,7 +67,7 @@ const NoteInputForm = React.memo(
                         value={newTitle}
                         onChange={handleTitleChange}
                         placeholder="Note title"
-                        className="w-full max-w-lg p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        className="w-full max-w-lg p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                         disabled={loading}
                         aria-label="Note title"
                     />
@@ -64,27 +75,36 @@ const NoteInputForm = React.memo(
                         value={newContent}
                         onChange={handleContentChange}
                         placeholder="Write a note..."
-                        className="w-full max-w-lg p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        className="w-full max-w-lg p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                         rows={4}
                         disabled={loading}
                         aria-label="Note content"
                     />
+                    <select
+                        value={newFormat}
+                        onChange={handleFormatChange}
+                        className="w-full max-w-lg p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        disabled={loading || !userVerified}
+                        aria-label="Note format"
+                    >
+                        <option value="plain">Plain Text</option>
+                        <option value="markdown" disabled={!userVerified}>Markdown (Verified Users Only)</option>
+                    </select>
                     <button
                         onClick={editingNoteId ? handleUpdateNote : handleCreateNote}
                         disabled={loading}
-                        className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center whitespace-nowrap"
+                        className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
                         aria-label={editingNoteId ? 'Update note' : 'Add note'}
                     >
                         <DocumentTextIcon className="w-5 h-5 mr-2" />
                         {loading ? 'Saving...' : editingNoteId ? 'Update Note' : 'Add Note'}
                     </button>
                 </div>
-            </div>
+            </section>
         );
     }
 );
 
-// Subcomponent: Notes List (Collapsible)
 const NotesList = React.memo(
     ({
          notes,
@@ -92,159 +112,233 @@ const NotesList = React.memo(
          handleEditNote,
          handleDeleteNote,
          handleShareNote,
-         shareUserId,
-         setShareUserId,
+         handleUnshareNote,
+         handleExportNote,
+         shareTarget,
+         setShareTarget,
          sharePermission,
          setSharePermission,
          isOwner,
          loading,
+         userVerified,
+         title = 'Your Notes',
      }: {
         notes: Note[];
         userId: string;
         handleEditNote: (note: Note) => void;
         handleDeleteNote: (noteId: string) => void;
         handleShareNote: (noteId: string) => void;
-        shareUserId: string;
-        setShareUserId: (value: string) => void;
+        handleUnshareNote: (noteId: string, targetUserId: string) => void;
+        handleExportNote: (noteId: string, format: 'plain' | 'markdown' | 'pdf') => void;
+        shareTarget: string;
+        setShareTarget: (value: string) => void;
         sharePermission: 'viewer' | 'editor';
         setSharePermission: (value: 'viewer' | 'editor') => void;
         isOwner: (note: Note, userId: string) => boolean;
         loading: boolean;
+        userVerified: boolean;
+        title?: string;
     }) => {
-        const handleShareUserIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setShareUserId(e.target.value), [setShareUserId]);
+        const handleShareTargetChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setShareTarget(e.target.value), [setShareTarget]);
         const handlePermissionChange = useCallback(
             (e: React.ChangeEvent<HTMLSelectElement>) => setSharePermission(e.target.value as 'viewer' | 'editor'),
             [setSharePermission]
         );
 
         return (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
+            <section className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <details className="group">
                     <summary className="text-xl font-semibold text-gray-900 dark:text-gray-100 cursor-pointer flex items-center">
                         <DocumentTextIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
-                        Your Notes ({notes.length})
-                        <span className="ml-auto group-open:rotate-180 transition-transform">▼</span>
+                        {title} ({notes.length})
+                        <span className="ml-auto group-open:rotate-180 transition-transform duration-200">▼</span>
                     </summary>
                     <div className="mt-4">
                         {loading ? (
                             <p className="text-gray-600 dark:text-gray-300">Loading notes...</p>
                         ) : notes.length > 0 ? (
                             <ul className="space-y-4 max-h-64 overflow-y-auto">
-                                {notes.map((note) => (
-                                    <li key={note._id} className="bg-gray-100 dark:bg-gray-700 p-4 rounded">
-                                        <div className="space-y-2">
-                                            {/* Title Container */}
-                                            <div className="flex items-center">
-                                                <PencilIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300" />
-                                                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                                    {note.title}
-                                                </p>
-                                            </div>
-                                            {/* Created Date Container */}
-                                            <div className="flex items-center">
-                                                <ClockIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300" />
-                                                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                                    {new Date(note.createdAt).toLocaleString()}
-                                                </p>
-                                            </div>
-                                            {/* Body Container */}
-                                            <div className="flex items-start">
-                                                <DocumentTextIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300 mt-1" />
-                                                <p className="text-gray-900 dark:text-gray-100 break-words">
-                                                    {note.content}
-                                                </p>
-                                            </div>
-                                            {/* Additional Info */}
-                                            {typeof note.owner !== 'string' && note.owner._id !== userId && (
-                                                <p className="text-gray-600 dark:text-gray-300 text-sm">Shared by {note.owner.username}</p>
-                                            )}
-                                            {note.sharedWith.length > 0 && (
-                                                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                                    Shared with:{' '}
-                                                    {note.sharedWith
-                                                        .map((entry) => `${entry.user.username} (${entry.permission})`)
-                                                        .join(', ')}
-                                                </p>
-                                            )}
-                                            {/* Buttons Container */}
-                                            {isOwner(note, userId) && (
+                                {notes.map((note) => {
+                                    const isShared = typeof note.owner !== 'string' && note.owner._id !== userId;
+                                    const sharedEntry = isShared ? note.sharedWith.find((entry) => entry.user._id.toString() === userId) : null;
+                                    const canEdit = isShared ? sharedEntry?.permission === 'editor' : true;
+                                    const ownerUsername = typeof note.owner === 'string' ? 'Unknown' : note.owner.username;
+
+                                    return (
+                                        <li key={note._id} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center">
+                                                    <PencilIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300" />
+                                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{note.title}</h4>
+                                                    {note.sharedWith.length > 0 && isOwner(note, userId) && (
+                                                        <span className="ml-2 text-sm text-blue-500 dark:text-blue-300">[Shared]</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <ClockIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300" />
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300">{new Date(note.createdAt).toLocaleString()}</p>
+                                                </div>
+                                                <div className="flex items-start">
+                                                    <DocumentTextIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300 mt-1" />
+                                                    <div className="text-gray-900 dark:text-gray-100 break-words">
+                                                        {note.format === 'markdown' ? (
+                                                            <div
+                                                                className="prose dark:prose-invert"
+                                                                dangerouslySetInnerHTML={{ __html: marked.parse(note.content) as string }}
+                                                            />
+                                                        ) : (
+                                                            <p>{note.content}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {isShared && (
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                                        Shared by {ownerUsername} ({sharedEntry?.permission})
+                                                    </p>
+                                                )}
+                                                {note.sharedWith.length > 0 && isOwner(note, userId) && (
+                                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                                        <p>Shared with:</p>
+                                                        <ul className="list-disc pl-4">
+                                                            {note.sharedWith.map((entry) => (
+                                                                <li
+                                                                    key={entry.user._id} // Unique key for each shared user
+                                                                    className="flex items-center justify-between"
+                                                                >
+                                                                    {entry.user.username} ({entry.permission})
+                                                                    <button
+                                                                        onClick={() => handleUnshareNote(note._id, entry.user._id)}
+                                                                        disabled={loading}
+                                                                        className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center"
+                                                                        aria-label={`Unshare note ${note.title} from ${entry.user.username}`}
+                                                                    >
+                                                                        <XMarkIcon className="w-4 h-4" />
+                                                                    </button>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                                {isOwner(note, userId) && (
+                                                    <div className="flex justify-center gap-2 mt-2">
+                                                        <button
+                                                            onClick={() => handleEditNote(note)}
+                                                            disabled={loading || (!userVerified && note.format !== 'plain')}
+                                                            className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                            aria-label={`Edit note ${note.title}`}
+                                                        >
+                                                            <PencilIcon className="w-5 h-5 mr-1" />
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteNote(note._id)}
+                                                            disabled={loading}
+                                                            className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                            aria-label={`Delete note ${note.title}`}
+                                                        >
+                                                            <TrashIcon className="w-5 h-5 mr-1" />
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                {isShared && canEdit && (
+                                                    <div className="flex justify-center gap-2 mt-2">
+                                                        <button
+                                                            onClick={() => handleEditNote(note)}
+                                                            disabled={loading}
+                                                            className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                            aria-label={`Edit note ${note.title}`}
+                                                        >
+                                                            <PencilIcon className="w-5 h-5 mr-1" />
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                {isOwner(note, userId) && userVerified && (
+                                                    <details className="group mt-2">
+                                                        <summary className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex items-center">
+                                                            <ShareIcon className="w-4 h-4 mr-1" />
+                                                            Share
+                                                            <span className="ml-auto group-open:rotate-180 transition-transform duration-200">▼</span>
+                                                        </summary>
+                                                        <div className="mt-2 space-y-2">
+                                                            <input
+                                                                value={shareTarget}
+                                                                onChange={handleShareTargetChange}
+                                                                placeholder="Friend's username or email"
+                                                                className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                                disabled={loading}
+                                                                aria-label={`Share note ${note.title} with friend`}
+                                                            />
+                                                            <select
+                                                                value={sharePermission}
+                                                                onChange={handlePermissionChange}
+                                                                className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                                disabled={loading}
+                                                                aria-label={`Permission for sharing note ${note.title}`}
+                                                            >
+                                                                <option value="viewer">Viewer</option>
+                                                                <option value="editor">Editor</option>
+                                                            </select>
+                                                            <div className="flex justify-center">
+                                                                <button
+                                                                    onClick={() => handleShareNote(note._id)}
+                                                                    disabled={loading}
+                                                                    className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                                    aria-label={`Share note ${note.title}`}
+                                                                >
+                                                                    <ShareIcon className="w-5 h-5 mr-1" />
+                                                                    Share
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </details>
+                                                )}
                                                 <div className="flex justify-center gap-2 mt-2">
                                                     <button
-                                                        onClick={() => handleEditNote(note)}
+                                                        onClick={() => handleExportNote(note._id, 'plain')}
                                                         disabled={loading}
-                                                        className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
-                                                        aria-label={`Edit note ${note.title}`}
+                                                        className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                        aria-label={`Export ${note.title} as plain text`}
                                                     >
-                                                        <PencilIcon className="w-5 h-5 mr-1" />
-                                                        Edit
+                                                        Export Plain
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleDeleteNote(note._id)}
-                                                        disabled={loading}
-                                                        className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
-                                                        aria-label={`Delete note ${note.title}`}
-                                                    >
-                                                        <TrashIcon className="w-5 h-5 mr-1" />
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            )}
-                                            {/* Share Options Container */}
-                                            {isOwner(note, userId) && (
-                                                <details className="group mt-2">
-                                                    <summary className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex items-center">
-                                                        <ShareIcon className="w-4 h-4 mr-1" />
-                                                        Share
-                                                        <span className="ml-auto group-open:rotate-180 transition-transform">▼</span>
-                                                    </summary>
-                                                    <div className="mt-2 space-y-2">
-                                                        <input
-                                                            value={shareUserId}
-                                                            onChange={handleShareUserIdChange}
-                                                            placeholder="User ID"
-                                                            className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
-                                                            disabled={loading}
-                                                            aria-label={`Share note ${note.title} with user`}
-                                                        />
-                                                        <select
-                                                            value={sharePermission}
-                                                            onChange={handlePermissionChange}
-                                                            className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
-                                                            disabled={loading}
-                                                            aria-label={`Permission for sharing note ${note.title}`}
-                                                        >
-                                                            <option value="viewer">Viewer</option>
-                                                            <option value="editor">Editor</option>
-                                                        </select>
-                                                        <div className="flex justify-center">
+                                                    {userVerified && (
+                                                        <>
                                                             <button
-                                                                onClick={() => handleShareNote(note._id)}
+                                                                onClick={() => handleExportNote(note._id, 'markdown')}
                                                                 disabled={loading}
-                                                                className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
-                                                                aria-label={`Share note ${note.title}`}
+                                                                className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                                aria-label={`Export ${note.title} as markdown`}
                                                             >
-                                                                <ShareIcon className="w-5 h-5 mr-1" />
-                                                                Share
+                                                                Export Markdown
                                                             </button>
-                                                        </div>
-                                                    </div>
-                                                </details>
-                                            )}
-                                        </div>
-                                    </li>
-                                ))}
+                                                            <button
+                                                                onClick={() => handleExportNote(note._id, 'pdf')}
+                                                                disabled={loading}
+                                                                className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-500 transition duration-200 disabled:opacity-50 flex items-center"
+                                                                aria-label={`Export ${note.title} as PDF`}
+                                                            >
+                                                                Export PDF
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         ) : (
                             <p className="text-gray-600 dark:text-gray-300">No notes yet.</p>
                         )}
                     </div>
                 </details>
-            </div>
+            </section>
         );
     }
 );
 
-// Main Component
 export default function NotesSection() {
     const {
         user,
@@ -253,9 +347,11 @@ export default function NotesSection() {
         setNewTitle,
         newContent,
         setNewContent,
+        newFormat,
+        setNewFormat,
         editingNoteId,
-        shareUserId,
-        setShareUserId,
+        shareTarget,
+        setShareTarget,
         sharePermission,
         setSharePermission,
         handleCreateNote,
@@ -263,6 +359,8 @@ export default function NotesSection() {
         handleUpdateNote,
         handleDeleteNote,
         handleShareNote,
+        handleUnshareNote,
+        handleExportNote,
         isOwner,
         message,
         error,
@@ -271,43 +369,73 @@ export default function NotesSection() {
 
     if (!user) return null;
 
+    const userVerified = user.user.verified ?? false;
+    const ownedNotes = notes.filter((note) => isOwner(note, user.user._id));
+    const sharedNotes = notes.filter((note) => !isOwner(note, user.user._id));
+
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <main className="max-w-4xl mx-auto p-6 space-y-6">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center mb-6">
                 <DocumentTextIcon className="w-8 h-8 mr-2 text-gray-700 dark:text-gray-300" />
                 Your Notes
             </h2>
-            {user.user.verified ? (
-                <div className="flex flex-col gap-6">
+            {userVerified ? (
+                <div className="space-y-6">
                     <NoteInputForm
                         newTitle={newTitle}
                         setNewTitle={setNewTitle}
                         newContent={newContent}
                         setNewContent={setNewContent}
+                        newFormat={newFormat}
+                        setNewFormat={setNewFormat}
                         editingNoteId={editingNoteId}
                         handleCreateNote={handleCreateNote}
                         handleUpdateNote={handleUpdateNote}
                         loading={loading}
+                        userVerified={userVerified}
                     />
-                    {message && <p className="text-green-500 dark:text-green-400 text-sm">{message}</p>}
-                    {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
+                    {message && <p className="text-sm text-green-500 dark:text-green-400">{message}</p>}
+                    {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
                     <NotesList
-                        notes={notes}
+                        notes={ownedNotes}
                         userId={user.user._id}
                         handleEditNote={handleEditNote}
                         handleDeleteNote={handleDeleteNote}
                         handleShareNote={handleShareNote}
-                        shareUserId={shareUserId}
-                        setShareUserId={setShareUserId}
+                        handleUnshareNote={handleUnshareNote}
+                        handleExportNote={handleExportNote}
+                        shareTarget={shareTarget}
+                        setShareTarget={setShareTarget}
                         sharePermission={sharePermission}
                         setSharePermission={setSharePermission}
                         isOwner={isOwner}
                         loading={loading}
+                        userVerified={userVerified}
+                        title="Owned Notes"
                     />
+                    {sharedNotes.length > 0 && (
+                        <NotesList
+                            notes={sharedNotes}
+                            userId={user.user._id}
+                            handleEditNote={handleEditNote}
+                            handleDeleteNote={handleDeleteNote}
+                            handleShareNote={handleShareNote}
+                            handleUnshareNote={handleUnshareNote}
+                            handleExportNote={handleExportNote}
+                            shareTarget={shareTarget}
+                            setShareTarget={setShareTarget}
+                            sharePermission={sharePermission}
+                            setSharePermission={setSharePermission}
+                            isOwner={isOwner}
+                            loading={loading}
+                            userVerified={userVerified}
+                            title="Shared with Me"
+                        />
+                    )}
                 </div>
             ) : (
-                <div className="flex flex-col gap-6 max-w-md mx-auto">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
+                <div className="space-y-6 max-w-md mx-auto">
+                    <section className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center mb-4">
                             <PencilIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
                             {notes.length === 0 ? 'Create a Note' : 'Your Note'}
@@ -318,10 +446,13 @@ export default function NotesSection() {
                                 setNewTitle={setNewTitle}
                                 newContent={newContent}
                                 setNewContent={setNewContent}
+                                newFormat={newFormat}
+                                setNewFormat={setNewFormat}
                                 editingNoteId={editingNoteId}
                                 handleCreateNote={handleCreateNote}
                                 handleUpdateNote={handleUpdateNote}
                                 loading={loading}
+                                userVerified={userVerified}
                             />
                         ) : (
                             <NotesList
@@ -330,28 +461,33 @@ export default function NotesSection() {
                                 handleEditNote={handleEditNote}
                                 handleDeleteNote={handleDeleteNote}
                                 handleShareNote={handleShareNote}
-                                shareUserId={shareUserId}
-                                setShareUserId={setShareUserId}
+                                handleUnshareNote={handleUnshareNote}
+                                handleExportNote={handleExportNote}
+                                shareTarget={shareTarget}
+                                setShareTarget={setShareTarget}
                                 sharePermission={sharePermission}
                                 setSharePermission={setSharePermission}
                                 isOwner={isOwner}
                                 loading={loading}
+                                userVerified={userVerified}
+                                title="Your Note"
                             />
                         )}
-                        {message && <p className="text-green-500 dark:text-green-400 text-sm mt-2">{message}</p>}
-                        {error && <p className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</p>}
-                    </div>
-                    <div className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
+                        {message && <p className="text-sm text-green-500 dark:text-green-400 mt-2">{message}</p>}
+                        {error && <p className="text-sm text-red-500 dark:text-red-400 mt-2">{error}</p>}
+                    </section>
+                    <section className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center mb-4">
                             <LockClosedIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
                             Account Status
                         </h3>
                         <p className="text-gray-700 dark:text-gray-200">
-                            Limited Access: You can only create <span className="font-semibold">one note</span> until your email is verified.
+                            Limited Access: Unverified users can only create <span className="font-semibold">one plain text note</span>. Verify your
+                            email to unlock full features (Markdown, sharing, PDF/Markdown export).
                         </p>
-                    </div>
+                    </section>
                 </div>
             )}
-        </div>
+        </main>
     );
 }
