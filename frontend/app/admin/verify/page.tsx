@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, approveVerification } from '@/services/auth';
-import api from '@/services/api'; // Import Axios instance
+import api from '@/services/api'; // Axios instance
 
 interface User {
     _id: string;
@@ -31,14 +31,14 @@ export default function AdminVerifyPage() {
             try {
                 const userData = await getCurrentUser(token);
                 if (userData.role !== 'admin') {
-                    router.push('/dashboard');
+                    router.push('/');
                     return;
                 }
 
                 const response = await api.get<User[]>('/auth/users/pending', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log('Pending users:', response.data); // Debug log
+                console.log('Pending users:', response.data); // Debug
                 setUsers(Array.isArray(response.data) ? response.data : []);
             } catch (err: any) {
                 console.error('Fetch users error:', err);

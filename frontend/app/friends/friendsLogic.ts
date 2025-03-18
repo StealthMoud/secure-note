@@ -38,7 +38,7 @@ export const useFriendsLogic = () => {
             } catch (err: any) {
                 setError(err.message || 'Failed to load friends');
             } finally {
-                setLoading(false); // End loading
+                setLoading(false);
             }
         };
         fetchFriends();

@@ -111,17 +111,9 @@ export const resetPassword = async (token: string, newPassword: string): Promise
     }
 };
 
-// Verify Email
-export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
-    try {
-        const response = await api.get<VerifyEmailResponse>(`/auth/verify-email?token=${token}`);
-        return response.data; // Typed as VerifyEmailResponse
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Email verification failed');
-    }
-};
 
 // Get Current User
+
 export const getCurrentUser = async (token: string): Promise<UserResponse> => {
     try {
         const response = await api.get<UserResponse>('/users/me', {
@@ -132,7 +124,6 @@ export const getCurrentUser = async (token: string): Promise<UserResponse> => {
         throw new Error(error.response?.data?.error || 'Failed to fetch user');
     }
 };
-
 export const requestVerification = async (): Promise<{ message: string }> => {
     try {
         const token = localStorage.getItem('token');
@@ -154,5 +145,14 @@ export const approveVerification = async (userId: string): Promise<{ message: st
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Failed to approve verification');
+    }
+};
+
+export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
+    try {
+        const response = await api.get<VerifyEmailResponse>(`/auth/verify-email?token=${token}`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Email verification failed');
     }
 };

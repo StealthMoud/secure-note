@@ -250,7 +250,7 @@ exports.requestVerification = async (req, res) => {
         if (user.verified) return res.status(400).json({error: 'Email already verified'});
         if (user.verificationPending) return res.status(400).json({error: 'Verification already requested'});
 
-        user.verificationPending = true; // Mark as pending
+        user.verificationPending = true;
         await user.save();
 
         await transporter.sendMail({
@@ -260,10 +260,37 @@ exports.requestVerification = async (req, res) => {
             html: `<p>Your verification request has been received. An admin will review it soon.</p>`,
         });
 
+        await logSecurityEvent({
+            event: 'request_verification',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                verified: user.verified,
+                verificationPending: user.verificationPending,
+            }
+        });
+
         res.json({message: 'Verification request sent. Awaiting admin approval.'});
     } catch (err) {
         console.error('Request Verification Error:', err);
         res.status(500).json({error: 'Failed to request verification'});
+    }
+};
+
+exports.getPendingUsers = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') return res.status(403).json({error: 'Admin access required'});
+        const pendingUsers = await User.find({verificationPending: true}).select('username email');
+        res.json(pendingUsers);
+    } catch (err) {
+        console.error('Get Pending Users Error:', err);
+        res.status(500).json({error: 'Failed to fetch pending users'});
     }
 };
 
@@ -290,6 +317,22 @@ exports.approveVerification = async (req, res) => {
             html: `<p>An admin has approved your request. Click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
         });
 
+        await logSecurityEvent({
+            event: 'approve_verification',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                verified: user.verified,
+                verificationPending: user.verificationPending,
+            }
+        });
+
         res.json({message: 'User verification approved. Email sent to user.'});
     } catch (err) {
         console.error('Approve Verification Error:', err);
@@ -311,22 +354,25 @@ exports.verifyEmail = async (req, res) => {
         user.verificationExpires = null; // Clear expiration
         await user.save();
 
-        await SecurityLog.create({event: 'email_verified', user: user._id, details: {ip: req.ip}});
+        await logSecurityEvent({
+            event: 'email_verified',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                verified: user.verified,
+                verificationPending: user.verificationPending,
+            }
+        });
 
         res.json({message: 'Email verified successfully'});
     } catch (err) {
         console.error('Email Verification Error:', err);
         res.status(500).json({error: 'Failed to verify email'});
-    }
-};
-
-exports.getPendingUsers = async (req, res) => {
-    try {
-        if (req.user.role !== 'admin') return res.status(403).json({error: 'Admin access required'});
-        const pendingUsers = await User.find({verificationPending: true}).select('username email');
-        res.json(pendingUsers);
-    } catch (err) {
-        console.error('Get Pending Users Error:', err);
-        res.status(500).json({error: 'Failed to fetch pending users'});
     }
 };

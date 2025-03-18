@@ -76,9 +76,9 @@ router.post('/reset-password', [
 });
 
 // Verify Email
-router.get('/verify-email', verifyEmail);
 router.post('/request-verification', authenticate, requestVerification);
-router.post('/approve-verification', authenticate, approveVerification);
 router.get('/users/pending', authenticate, getPendingUsers);
+router.post('/approve-verification', authenticate, approveVerification);
+router.get('/verify-email', verifyEmail);
 
 module.exports = router;
