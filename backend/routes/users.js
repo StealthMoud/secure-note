@@ -14,7 +14,7 @@ router.get('/me', authenticate, getCurrentUser);
 
 // Send Friend Request
 router.post('/friend/request', authenticate, [
-    body('username').notEmpty().withMessage('Username is required'),
+    body('target').notEmpty().withMessage('Username or email is required'),
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -23,7 +23,7 @@ router.post('/friend/request', authenticate, [
 
 // Respond to Friend Request
 router.post('/friend/respond', authenticate, [
-    body('username').notEmpty().withMessage('Username is required'),
+    body('requestId').notEmpty().withMessage('Request ID is required'),
     body('action').isIn(['accept', 'reject']).withMessage('Action must be accept or reject'),
 ], (req, res) => {
     const errors = validationResult(req);

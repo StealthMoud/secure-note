@@ -13,6 +13,7 @@ import {
 interface Friend {
     _id: string;
     username: string;
+    email?: string;
 }
 
 interface FriendRequest {
@@ -31,15 +32,25 @@ const SendFriendRequestCard = React.memo(
          setFriendRequestUsername,
          handleSendFriendRequest,
          loading,
+         friendRequests,
+         userId,
      }: {
         friendRequestUsername: string;
         setFriendRequestUsername: (value: string) => void;
         handleSendFriendRequest: () => void;
         loading: boolean;
+        friendRequests: FriendRequest[];
+        userId: string;
     }) => {
         const handleChange = useCallback(
             (e: React.ChangeEvent<HTMLInputElement>) => setFriendRequestUsername(e.target.value),
             [setFriendRequestUsername]
+        );
+
+        const isRequestPending = friendRequests.some(
+            (r) => r.sender._id === userId &&
+                (r.receiver.username === friendRequestUsername || r.receiver.email === friendRequestUsername) &&
+                r.status === 'pending'
         );
 
         return (
@@ -52,19 +63,19 @@ const SendFriendRequestCard = React.memo(
                     <input
                         value={friendRequestUsername}
                         onChange={handleChange}
-                        placeholder="Enter username"
+                        placeholder="Enter username or email" // Update placeholder
                         className="p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex-1 max-w-xs"
                         disabled={loading}
-                        aria-label="Friend username"
+                        aria-label="Friend username or email" // Update aria-label
                     />
                     <button
                         onClick={handleSendFriendRequest}
-                        disabled={loading}
+                        disabled={loading || isRequestPending}
                         className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center whitespace-nowrap"
                         aria-label="Send friend request"
                     >
                         <EnvelopeIcon className="w-5 h-5 mr-2" />
-                        {loading ? 'Sending...' : 'Send'}
+                        {loading ? 'Sending...' : isRequestPending ? 'Pending' : 'Send'}
                     </button>
                 </div>
             </div>
@@ -88,7 +99,7 @@ const FriendsListCard = React.memo(({ friends, loading }: { friends: Friend[]; l
                     <ul className="space-y-2 max-h-64 overflow-y-auto">
                         {friends.map((friend) => (
                             <li
-                                key={friend._id}
+                                key={friend._id || friend.username} // Fallback to username if _id is missing
                                 className="p-2 bg-gray-100 dark:bg-gray-700 rounded text-gray-900 dark:text-gray-100 flex items-center"
                             >
                                 <UsersIcon className="w-5 h-5 mr-2 text-gray-700 dark:text-gray-300" />
@@ -102,7 +113,17 @@ const FriendsListCard = React.memo(({ friends, loading }: { friends: Friend[]; l
             </div>
         </details>
     </div>
-));
+), (prevProps, nextProps) => {
+    // Custom comparison for React.memo to prevent unnecessary re-renders
+    return (
+        prevProps.loading === nextProps.loading &&
+        prevProps.friends.length === nextProps.friends.length &&
+        prevProps.friends.every((friend, index) =>
+            friend._id === nextProps.friends[index]._id &&
+            friend.username === nextProps.friends[index].username
+        )
+    );
+});
 
 // Subcomponent: Friend Request Logs Card (Collapsible)
 const FriendRequestLogsCard = React.memo(
@@ -139,53 +160,61 @@ const FriendRequestLogsCard = React.memo(
                                     </h4>
                                     {incomingRequests.length > 0 ? (
                                         <ul className="space-y-2 max-h-64 overflow-y-auto">
-                                            {incomingRequests.map((request) => (
-                                                <li
-                                                    key={request._id}
-                                                    className="p-2 border border-gray-200 dark:border-gray-700 rounded flex justify-between items-center text-gray-900 dark:text-gray-100"
-                                                >
-                                                    <span>
-                                                        {request.status === 'pending' &&
-                                                            `${request.sender.username} sent you a request on ${new Date(
-                                                                request.createdAt
-                                                            ).toLocaleString()}`}
-                                                        {request.status === 'accepted' &&
-                                                            `${request.sender.username}'s request was accepted on ${new Date(
-                                                                request.updatedAt
-                                                            ).toLocaleString()}`}
-                                                        {request.status === 'rejected' &&
-                                                            `${request.sender.username}'s request was rejected on ${new Date(
-                                                                request.updatedAt
-                                                            ).toLocaleString()}`}
-                                                    </span>
-                                                    {request.status === 'pending' && (
-                                                        <div className="space-x-2 flex items-center">
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleRespondToFriendRequest(request._id, 'accept')
-                                                                }
-                                                                disabled={loading}
-                                                                className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
-                                                                aria-label={`Accept request from ${request.sender.username}`}
-                                                            >
-                                                                <CheckIcon className="w-5 h-5 mr-1" />
-                                                                Accept
-                                                            </button>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleRespondToFriendRequest(request._id, 'reject')
-                                                                }
-                                                                disabled={loading}
-                                                                className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
-                                                                aria-label={`Reject request from ${request.sender.username}`}
-                                                            >
-                                                                <XMarkIcon className="w-5 h-5 mr-1" />
-                                                                Reject
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </li>
-                                            ))}
+                                            {incomingRequests.map((request, index) => {
+                                                // Fallback key using index if _id is missing
+                                                const key = request._id || `${request.sender._id}-${request.receiver._id}-${index}`;
+                                                // Optional: Log if _id is missing to diagnose
+                                                if (!request._id) {
+                                                    console.warn('Missing _id in request:', request);
+                                                }
+                                                return (
+                                                    <li
+                                                        key={key}
+                                                        className="p-2 border border-gray-200 dark:border-gray-700 rounded flex justify-between items-center text-gray-900 dark:text-gray-100"
+                                                    >
+                                                        <span>
+                                                            {request.status === 'pending' &&
+                                                                `${request.sender.username} sent you a request on ${new Date(
+                                                                    request.createdAt
+                                                                ).toLocaleString()}`}
+                                                            {request.status === 'accepted' &&
+                                                                `${request.sender.username}'s request was accepted on ${new Date(
+                                                                    request.updatedAt
+                                                                ).toLocaleString()}`}
+                                                            {request.status === 'rejected' &&
+                                                                `${request.sender.username}'s request was rejected on ${new Date(
+                                                                    request.updatedAt
+                                                                ).toLocaleString()}`}
+                                                        </span>
+                                                        {request.status === 'pending' && (
+                                                            <div className="space-x-2 flex items-center">
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleRespondToFriendRequest(request._id, 'accept')
+                                                                    }
+                                                                    disabled={loading}
+                                                                    className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
+                                                                    aria-label={`Accept request from ${request.sender.username}`}
+                                                                >
+                                                                    <CheckIcon className="w-5 h-5 mr-1" />
+                                                                    Accept
+                                                                </button>
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleRespondToFriendRequest(request._id, 'reject')
+                                                                    }
+                                                                    disabled={loading}
+                                                                    className="bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 disabled:opacity-50 flex items-center"
+                                                                    aria-label={`Reject request from ${request.sender.username}`}
+                                                                >
+                                                                    <XMarkIcon className="w-5 h-5 mr-1" />
+                                                                    Reject
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     ) : (
                                         <p className="text-gray-600 dark:text-gray-300">No incoming requests.</p>
@@ -197,25 +226,33 @@ const FriendRequestLogsCard = React.memo(
                                     </h4>
                                     {outgoingRequests.length > 0 ? (
                                         <ul className="space-y-2 max-h-64 overflow-y-auto">
-                                            {outgoingRequests.map((request) => (
-                                                <li
-                                                    key={request._id}
-                                                    className="p-2 border border-gray-200 dark:border-gray-700 rounded text-gray-900 dark:text-gray-100"
-                                                >
-                                                    {request.status === 'pending' &&
-                                                        `You sent a request to ${request.receiver.username} on ${new Date(
-                                                            request.createdAt
-                                                        ).toLocaleString()}`}
-                                                    {request.status === 'accepted' &&
-                                                        `Your request to ${request.receiver.username} was accepted on ${new Date(
-                                                            request.updatedAt
-                                                        ).toLocaleString()}`}
-                                                    {request.status === 'rejected' &&
-                                                        `${request.receiver.username} rejected your request on ${new Date(
-                                                            request.updatedAt
-                                                        ).toLocaleString()}`}
-                                                </li>
-                                            ))}
+                                            {outgoingRequests.map((request, index) => {
+                                                // Fallback key using index if _id is missing
+                                                const key = request._id || `${request.sender._id}-${request.receiver._id}-${index}`;
+                                                // Optional: Log if _id is missing to diagnose
+                                                if (!request._id) {
+                                                    console.warn('Missing _id in request:', request);
+                                                }
+                                                return (
+                                                    <li
+                                                        key={key}
+                                                        className="p-2 border border-gray-200 dark:border-gray-700 rounded text-gray-900 dark:text-gray-100"
+                                                    >
+                                                        {request.status === 'pending' &&
+                                                            `You sent a request to ${request.receiver.username} on ${new Date(
+                                                                request.createdAt
+                                                            ).toLocaleString()}`}
+                                                        {request.status === 'accepted' &&
+                                                            `Your request to ${request.receiver.username} was accepted on ${new Date(
+                                                                request.updatedAt
+                                                            ).toLocaleString()}`}
+                                                        {request.status === 'rejected' &&
+                                                            `${request.receiver.username} rejected your request on ${new Date(
+                                                                request.updatedAt
+                                                            ).toLocaleString()}`}
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     ) : (
                                         <p className="text-gray-600 dark:text-gray-300">No outgoing requests.</p>
@@ -261,6 +298,8 @@ export default function FriendsSection() {
                             setFriendRequestUsername={setFriendRequestUsername}
                             handleSendFriendRequest={handleSendFriendRequest}
                             loading={loading}
+                            friendRequests={friendRequests}
+                            userId={user.user._id}
                         />
                         {message && (
                             <p className="text-green-500 dark:text-green-400 text-sm">{message}</p>

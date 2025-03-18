@@ -25,29 +25,28 @@ interface FriendsResponse {
     friendRequests: FriendRequest[];
 }
 
-export const sendFriendRequest = async (username: string): Promise<MessageResponse> => {
+export const sendFriendRequest = async (target: string): Promise<MessageResponse> => {
     const token = getToken();
     try {
-        const response = await api.post<MessageResponse>('/users/friend/request', { username }, {
+        const response = await api.post<MessageResponse>('/users/friend/request', { target }, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;
     } catch (error: any) {
-        // Throw the error response data if it exists
         if (error.response && error.response.data && error.response.data.error) {
             throw new Error(error.response.data.error);
         }
-        throw error; // Fallback to generic error if no specific message
+        throw error;
     }
 };
 
 export const respondToFriendRequest = async (
-    username: string,
+    requestId: string,
     action: 'accept' | 'reject'
 ): Promise<MessageResponse> => {
     const token = getToken();
     try {
-        const response = await api.post<MessageResponse>('/users/friend/respond', { username, action }, {
+        const response = await api.post<MessageResponse>('/users/friend/respond', { requestId, action }, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;

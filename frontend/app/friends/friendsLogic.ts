@@ -6,12 +6,13 @@ import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext'
 interface Friend {
     _id: string;
     username: string;
+    email?: string;
 }
 
 interface FriendRequest {
     _id: string;
-    sender: { _id: string; username: string };
-    receiver: { _id: string; username: string };
+    sender: Friend;
+    receiver: Friend;
     status: 'pending' | 'accepted' | 'rejected';
     createdAt: string;
     updatedAt: string;
@@ -46,10 +47,26 @@ export const useFriendsLogic = () => {
 
     const handleSendFriendRequest = async () => {
         if (!friendRequestUsername.trim()) {
-            setError('Username is required to send a friend request');
+            setError('Username or email is required to send a friend request');
             return;
         }
-        setLoading(true); // Start loading
+
+        if (!user) {
+            setError('User not authenticated');
+            return;
+        }
+
+        const existingRequest = friendRequests.find(
+            (r) => r.sender._id === user.user._id &&
+                (r.receiver.username === friendRequestUsername || (r.receiver.email && r.receiver.email === friendRequestUsername)) && // Check email only if it exists
+                r.status === 'pending'
+        );
+        if (existingRequest) {
+            setError('Friend request already sent to this user');
+            return;
+        }
+
+        setLoading(true);
         try {
             const data = await sendFriendRequest(friendRequestUsername);
             setFriendRequestUsername('');
@@ -61,12 +78,12 @@ export const useFriendsLogic = () => {
         } catch (err: any) {
             setError(err.message || 'Failed to send friend request');
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
 
     const handleRespondToFriendRequest = async (requestId: string, action: 'accept' | 'reject') => {
-        setLoading(true); // Start loading
+        setLoading(true);
         try {
             const data = await respondToFriendRequest(requestId, action);
             setMessage(data.message);
@@ -78,7 +95,7 @@ export const useFriendsLogic = () => {
             const errorMessage = err.response?.data?.error || err.message || 'Failed to respond to friend request';
             setError(errorMessage);
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
 

@@ -80,8 +80,9 @@ const UserSchema = new mongoose.Schema({
         sender: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}, // Who sent the request
         receiver: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}, // Who received the request
         status: {type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending'},
-        createdAt: {type: Date, default: Date.now}, // When the request was made
-        updatedAt: {type: Date, default: Date.now} // When the status last changed
+        createdAt: {type: Date, default: Date.now},
+        updatedAt: {type: Date, default: Date.now},
+        requestId: { type: mongoose.Schema.Types.ObjectId }
     }]
 }, {
     timestamps: true,
