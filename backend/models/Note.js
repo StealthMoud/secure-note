@@ -11,10 +11,18 @@ const NoteSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    encryptedTitle: {
+        type: String,
+        default: null
+    },
+    encryptedContent: {
+        type: String,
+        default: null
+    },
     format: {
         type: String,
         enum: ['plain', 'markdown'],
-        default: 'markdown',
+        default: 'plain',
     },
     encrypted: {
         type: Boolean,
@@ -28,7 +36,8 @@ const NoteSchema = new mongoose.Schema({
     sharedWith: [
         {
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            permission: { type: String, enum: ['viewer', 'editor', 'admin'], default: 'viewer' },
+            permission: { type: String, enum: ['viewer', 'editor'], default: 'viewer' },
+            encryptedTitle: { type: String },
             encryptedContent: { type: String },
         },
     ],

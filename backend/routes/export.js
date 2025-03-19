@@ -9,14 +9,13 @@ const PDFDocument = require('pdfkit');
 
 router.use(authenticate);
 
-// Export a Note
 router.get(
     '/:noteId',
     [
         query('format')
             .optional()
-            .isIn(['markdown', 'pdf'])
-            .withMessage('Format must be "markdown" or "pdf"'),
+            .isIn(['plain', 'markdown', 'pdf'])
+            .withMessage('Format must be "plain", "markdown", or "pdf"'),
     ],
     async (req, res) => {
         const errors = validationResult(req);
@@ -25,17 +24,14 @@ router.get(
         }
 
         const { noteId } = req.params;
-        const format = req.query.format || 'markdown';
+        const format = req.query.format || 'plain';
+        const user = await User.findById(req.user.id);
+
+        if (!user.verified && (format === 'markdown' || format === 'pdf')) {
+            return res.status(403).json({ error: 'Unverified users can only export plain text' });
+        }
 
         try {
-            const user = await User.findById(req.user.id);
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            if (format === 'pdf' && !user.verified) {
-                return res.status(403).json({ error: 'Unverified users cannot export notes as PDF.' });
-            }
-
             const note = await Note.findById(noteId)
                 .populate('owner', 'username email')
                 .populate('sharedWith.user', 'username email');
@@ -60,14 +56,17 @@ router.get(
                 }
             }
 
-            if (format === 'markdown') {
+            if (format === 'plain') {
+                res.setHeader('Content-Disposition', `attachment; filename="${note.title}.txt"`);
+                res.setHeader('Content-Type', 'text/plain');
+                return res.send(content);
+            } else if (format === 'markdown') {
                 res.setHeader('Content-Disposition', `attachment; filename="${note.title}.md"`);
                 res.setHeader('Content-Type', 'text/markdown');
                 return res.send(`# ${note.title}\n\n${content}`);
             } else if (format === 'pdf') {
                 res.setHeader('Content-Disposition', `attachment; filename="${note.title}.pdf"`);
                 res.setHeader('Content-Type', 'application/pdf');
-
                 const doc = new PDFDocument();
                 doc.pipe(res);
                 doc.fontSize(20).text(note.title, { underline: true });

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { authenticate } = require('../middleware/auth');
-const { createNote, getNotes, updateNote, deleteNote } = require('../controllers/noteController');
+const { createNote, getNotes, updateNote, deleteNote, shareNote, unshareNote } = require('../controllers/noteController'); // Add unshareNote
 
 router.use(authenticate);
 
@@ -55,10 +55,8 @@ router.delete('/:noteId', deleteNote);
 router.post(
     '/:noteId/share',
     [
-        body('userId').notEmpty().withMessage('User ID is required'),
-        body('permission')
-            .isIn(['viewer', 'editor'])
-            .withMessage('Permission must be either viewer or editor'),
+        body('target').notEmpty().withMessage('Friend’s username or email is required'),
+        body('permission').isIn(['viewer', 'editor']).withMessage('Permission must be either viewer or editor'),
     ],
     (req, res) => {
         const errors = validationResult(req);
@@ -66,6 +64,22 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
         shareNote(req, res);
+    }
+);
+
+// Unshare a Note
+router.post(
+    '/unshare',
+    [
+        body('noteId').notEmpty().withMessage('Note ID is required'),
+        body('targetUserId').notEmpty().withMessage('Target user ID is required'),
+    ],
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        unshareNote(req, res);
     }
 );
 

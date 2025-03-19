@@ -15,6 +15,8 @@ app.use(rateLimit({windowMs: 15 * 60 * 1000, max: 500, message: "Too many reques
 app.use(express.json());
 app.use(passport.initialize());
 
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));

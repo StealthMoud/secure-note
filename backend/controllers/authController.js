@@ -67,25 +67,14 @@ exports.registerUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     try {
-        const {identifier, password, totpToken} = req.body;
-        const user = await User.findOne({$or: [{email: identifier}, {username: identifier}]});
-        if (!user) return res.status(404).json({error: 'Invalid credentials'});
+        const { identifier, password } = req.body;
+        const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+        if (!user) return res.status(404).json({ error: 'Invalid credentials' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({error: 'Invalid credentials'});
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-        if (user.isTotpEnabled && user.totpSecret) {
-            if (!totpToken) return res.status(401).json({error: 'TOTP token required'});
-            const verified = speakeasy.totp.verify({
-                secret: user.totpSecret,
-                encoding: 'base32',
-                token: totpToken,
-                window: 1,
-            });
-            if (!verified) return res.status(401).json({error: 'Invalid TOTP token'});
-        }
-
-        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         await logSecurityEvent({
             event: 'login',
@@ -101,16 +90,16 @@ exports.loginUser = async (req, res) => {
                 verified: user.verified,
                 isActive: user.isActive,
                 isTotpEnabled: user.isTotpEnabled,
-            }
+            },
         });
 
         res.json({
             token,
-            user: {_id: user._id, username: user.username, email: user.email, role: user.role},
+            user: { _id: user._id, username: user.username, email: user.email, role: user.role },
         });
     } catch (err) {
         console.error('Login Error:', err);
-        res.status(500).json({error: 'An unexpected error occurred during login. Please try again later.'});
+        res.status(500).json({ error: 'An unexpected error occurred during login. Please try again later.' });
     }
 };
 

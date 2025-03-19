@@ -15,6 +15,7 @@ function encryptText(text, publicKey) {
         const encrypted = crypto.publicEncrypt(publicKey, buffer);
         return encrypted.toString('base64');
     } catch (error) {
+        console.error('Encryption error:', error.message, { text, publicKey });
         throw new Error('Encryption failed: ' + error.message);
     }
 }
@@ -31,6 +32,7 @@ function decryptText(encryptedText, privateKey) {
         const decrypted = crypto.privateDecrypt(privateKey, buffer);
         return decrypted.toString('utf8');
     } catch (error) {
+        console.error('Decryption error:', error.message, { encryptedText, privateKey });
         throw new Error('Decryption failed: ' + error.message);
     }
 }
