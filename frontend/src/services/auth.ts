@@ -1,6 +1,6 @@
 import api from './api';
 
-interface User {
+export interface User {
     _id: string;
     username: string;
     email: string;
@@ -19,12 +19,7 @@ interface User {
     isTotpEnabled?: boolean;
 }
 
-interface LoginResponse {
-    token?: string;
-    requires2FA?: boolean;
-    tempToken?: string;
-    user: User;
-}
+interface LoginResponse { token?: string; requires2FA?: boolean; tempToken?: string; user: User; }
 interface RegisterResponse { message: string; }
 interface UserResponse { user: User; role: string; }
 interface VerifyEmailResponse { message: string; }
@@ -33,19 +28,9 @@ interface TotpSetupResponse { message: string; otpauthUrl: string; qrCodeDataURL
 interface TotpResponse { message: string; }
 interface TotpLoginResponse { token: string; }
 
-export const registerUser = async (
-    username: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-): Promise<RegisterResponse> => {
+export const registerUser = async (username: string, email: string, password: string, confirmPassword: string): Promise<RegisterResponse> => {
     try {
-        const response = await api.post<RegisterResponse>('/auth/register', {
-            username,
-            email,
-            password,
-            confirmPassword,
-        });
+        const response = await api.post<RegisterResponse>('/auth/register', { username, email, password, confirmPassword });
         return response.data;
     } catch (error: any) {
         if (error.response?.data?.errors) {
@@ -75,6 +60,17 @@ export const loginUser = async (identifier: string, password: string): Promise<L
     }
 };
 
+export const getCurrentUser = async (token: string): Promise<UserResponse> => {
+    try {
+        const response = await api.get<UserResponse>('/users/me', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to fetch user');
+    }
+};
+
 export const verifyTotpLogin = async (tempToken: string, totpCode: string): Promise<TotpLoginResponse> => {
     try {
         const response = await api.post<TotpLoginResponse>('/auth/verify-totp-login', { tempToken, totpCode });
@@ -88,7 +84,6 @@ export const initiateOAuthLogin = async (provider: 'google' | 'github'): Promise
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/${provider}`;
 };
 
-// Other functions remain unchanged
 export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
     try {
         const response = await api.post<{ message: string }>('/auth/request-password-reset', { email });
@@ -118,17 +113,6 @@ export const resetPassword = async (token: string, newPassword: string): Promise
             throw { fieldErrors };
         }
         throw new Error(error.response?.data?.error || 'Failed to reset password');
-    }
-};
-
-export const getCurrentUser = async (token: string): Promise<UserResponse> => {
-    try {
-        const response = await api.get<UserResponse>('/users/me', {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Failed to fetch user');
     }
 };
 
@@ -165,36 +149,17 @@ export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> =
     }
 };
 
-export const updateProfile = async (data: Partial<User>): Promise<UpdateResponse> => {
+
+
+export const updateUsername = async (username: string): Promise<{ message: string; user: User }> => {
     try {
         const token = localStorage.getItem('token');
-        const response = await api.put<UpdateResponse>('/users/profile', data, {
+        const response = await api.put<{ message: string; user: User }>('/users/username', { username }, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Failed to update profile');
-    }
-};
-
-export const updatePersonalization = async (data: Partial<User> & { avatar?: File, header?: File }): Promise<UpdateResponse> => {
-    try {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        if (data.avatar) formData.append('avatar', data.avatar);
-        if (data.header) formData.append('header', data.header);
-        if (data.bio) formData.append('bio', data.bio);
-        if (data.gender) formData.append('gender', data.gender);
-
-        const response = await api.put<UpdateResponse>('/users/personalization', formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Failed to update personalization');
+        throw new Error(error.response?.data?.error || 'Failed to update username');
     }
 };
 

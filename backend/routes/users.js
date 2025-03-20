@@ -39,6 +39,28 @@ const upload = multer({
 
 router.get('/me', authenticate, getCurrentUser);
 
+router.put('/username', authenticate, [
+    body('username').notEmpty().withMessage('Username is required').trim(),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+        const { username } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (await User.findOne({ username })) return res.status(400).json({ error: 'Username already taken' });
+
+        user.username = username;
+        await user.save();
+        await logSecurityEvent({ event: 'username_updated', user: user._id, details: { ip: req.ip } });
+        res.json({ message: 'Username updated successfully', user: user.toJSON() });
+    } catch (err) {
+        console.error('Update Username Error:', err);
+        res.status(500).json({ error: 'Failed to update username' });
+    }
+});
+
 router.put('/profile', authenticate, [
     body('firstName').optional().trim(),
     body('lastName').optional().trim(),
@@ -51,6 +73,7 @@ router.put('/profile', authenticate, [
 
     try {
         const { firstName, lastName, nickname, birthday, country } = req.body;
+        console.log('Received profile update:', { firstName, lastName, nickname, birthday, country }); // Log incoming data
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -61,6 +84,7 @@ router.put('/profile', authenticate, [
         user.country = country || user.country;
 
         await user.save();
+        console.log('Updated user profile:', user.toJSON()); // Log updated user
         await logSecurityEvent({ event: 'profile_updated', user: user._id, details: { ip: req.ip } });
         res.json({ message: 'Profile updated successfully', user: user.toJSON() });
     } catch (err) {

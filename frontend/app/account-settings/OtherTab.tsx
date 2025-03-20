@@ -1,32 +1,51 @@
 'use client';
-import React, { useState, Dispatch, SetStateAction } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAccountSettingsLogic } from './accountSettingsLogic';
-import { PhotoIcon, ChatBubbleLeftIcon, PaintBrushIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, ChatBubbleLeftIcon, PaintBrushIcon, UserIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetStateAction<boolean>> }) {
+interface OtherTabProps {
+    handleUpdatePersonalization: () => Promise<void>;
+}
+
+export default function OtherTab({ handleUpdatePersonalization }: OtherTabProps) {
     const {
+        user,
         avatar, setAvatar,
         header, setHeader,
         bio, setBio,
         gender, setGender,
-        loading,
+        loading, message, error,
     } = useAccountSettingsLogic();
     const [activeSubTab, setActiveSubTab] = useState('appearance');
+    const avatarInputRef = useRef<HTMLInputElement>(null);
+    const headerInputRef = useRef<HTMLInputElement>(null);
 
     const subTabs = [
         { name: 'appearance', label: 'Appearance', icon: PaintBrushIcon },
         { name: 'personal', label: 'Personal', icon: UserIcon },
     ];
 
-    const handleFileChange = (setter: (file: File | null) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        setter(e.target.files?.[0] || null);
-        setIsDirty(true);
+    const handleFileChange = (setter: (file: File | null) => void, ref: React.RefObject<HTMLInputElement | null>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && !['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+            alert('Only JPEG, JPG, or PNG images are allowed');
+            return;
+        }
+        setter(file || null);
     };
 
     const handleTextChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
         setter(e.target.value);
-        setIsDirty(true);
     };
+
+    React.useEffect(() => {
+        const resetFileInputs = () => {
+            if (avatarInputRef.current) avatarInputRef.current.value = '';
+            if (headerInputRef.current) headerInputRef.current.value = '';
+        };
+        window.addEventListener('resetFileInputs', resetFileInputs);
+        return () => window.removeEventListener('resetFileInputs', resetFileInputs);
+    }, []);
 
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -55,11 +74,13 @@ export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetState
                         </label>
                         <input
                             type="file"
-                            accept="image/*"
-                            onChange={handleFileChange(setAvatar)}
+                            accept="image/jpeg,image/jpg,image/png"
+                            ref={avatarInputRef}
+                            onChange={handleFileChange(setAvatar, avatarInputRef)}
                             className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                             disabled={loading}
                         />
+                        {user?.user.avatar && <img src={user.user.avatar} alt="Avatar" className="mt-2 w-24 h-24 rounded" />}
                     </div>
                     <div>
                         <label className="flex items-center text-gray-700 dark:text-gray-300">
@@ -68,11 +89,13 @@ export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetState
                         </label>
                         <input
                             type="file"
-                            accept="image/*"
-                            onChange={handleFileChange(setHeader)}
+                            accept="image/jpeg,image/jpg,image/png"
+                            ref={headerInputRef}
+                            onChange={handleFileChange(setHeader, headerInputRef)}
                             className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                             disabled={loading}
                         />
+                        {user?.user.header && <img src={user.user.header} alt="Header" className="mt-2 w-full h-32 object-cover rounded" />}
                     </div>
                 </div>
             )}
@@ -86,6 +109,7 @@ export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetState
                         <textarea
                             value={bio}
                             onChange={handleTextChange(setBio)}
+                            placeholder={user?.user.bio || 'Write something about yourself'}
                             className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                             rows={4}
                             disabled={loading}
@@ -93,6 +117,7 @@ export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetState
                     </div>
                     <div>
                         <label className="flex items-center text-gray-700 dark:text-gray-300">
+                            <UserIcon className="w-5 h-5 mr-2" />
                             Gender
                         </label>
                         <select
@@ -107,8 +132,18 @@ export default function OtherTab({ setIsDirty }: { setIsDirty: Dispatch<SetState
                             <option value="prefer-not-to-say">Prefer not to say</option>
                         </select>
                     </div>
+                    <button
+                        onClick={handleUpdatePersonalization}
+                        disabled={loading}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    >
+                        <CheckCircleIcon className="w-5 h-5 mr-2" />
+                        {loading ? 'Saving...' : 'Save Personalization'}
+                    </button>
                 </div>
             )}
+            {message && <p className="text-green-500 dark:text-green-400 text-sm mt-4">{message}</p>}
+            {error && <p className="text-red-500 dark:text-red-400 text-sm mt-4">{error}</p>}
         </div>
     );
 }

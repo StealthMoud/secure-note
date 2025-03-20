@@ -10,7 +10,8 @@ const SecurityLogSchema = new mongoose.Schema({
             'email_verified', 'note_updated', 'note_deleted', 'friend_request_sent',
             'friend_request_accepted', 'friend_request_rejected', 'password_reset_request',
             'password_reset', 'login_google', 'login_github', 'request_verification',
-            'approve_verification', 'totp_setup', 'totp_enabled', 'totp_disabled'
+            'approve_verification', 'totp_setup', 'totp_enabled', 'totp_disabled', 'profile_updated',
+            'username_updated', 'personalization_updated', 'password_changed','email_change_requested'
         ],
     },
     user: {

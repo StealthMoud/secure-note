@@ -1,6 +1,5 @@
 import api from '@/services/api';
-
-const getToken = () => localStorage.getItem('token') || '';
+import { User } from './auth';
 
 interface MessageResponse {
     message: string;
@@ -25,8 +24,44 @@ interface FriendsResponse {
     friendRequests: FriendRequest[];
 }
 
+export const updateProfile = async (data: Partial<User>): Promise<{ message: string; user: User }> => {
+    try {
+        const token = localStorage.getItem('token');
+        console.log('Sending updateProfile request:', { endpoint: '/users/profile', data, token }); // Log request
+        const response = await api.put<{ message: string; user: User }>('/users/profile', data, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log('updateProfile response:', response.data); // Log response
+        return response.data;
+    } catch (error: any) {
+        console.error('updateProfile error:', error.response?.data || error.message); // Log detailed error
+        throw new Error(error.response?.data?.error || 'Failed to update profile');
+    }
+};
+
+export const updatePersonalization = async (data: Partial<User> & { avatar?: File; header?: File }): Promise<{ message: string; user: User }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        if (data.bio) formData.append('bio', data.bio);
+        if (data.gender) formData.append('gender', data.gender);
+        if (data.avatar) formData.append('avatar', data.avatar);
+        if (data.header) formData.append('header', data.header);
+
+        const response = await api.put<{ message: string; user: User }>('/users/personalization', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to update personalization');
+    }
+};
+
 export const sendFriendRequest = async (target: string): Promise<MessageResponse> => {
-    const token = getToken();
+    const token = localStorage.getItem('token') || '';
     try {
         const response = await api.post<MessageResponse>('/users/friend/request', { target }, {
             headers: { Authorization: `Bearer ${token}` },
@@ -44,7 +79,7 @@ export const respondToFriendRequest = async (
     requestId: string,
     action: 'accept' | 'reject'
 ): Promise<MessageResponse> => {
-    const token = getToken();
+    const token = localStorage.getItem('token') || '';
     try {
         const response = await api.post<MessageResponse>('/users/friend/respond', { requestId, action }, {
             headers: { Authorization: `Bearer ${token}` },
@@ -59,7 +94,7 @@ export const respondToFriendRequest = async (
 };
 
 export const getFriends = async (): Promise<FriendsResponse> => {
-    const token = getToken();
+    const token = localStorage.getItem('token') || '';
     try {
         const response = await api.get<FriendsResponse>('/users/friends', {
             headers: { Authorization: `Bearer ${token}` },

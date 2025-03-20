@@ -1,32 +1,56 @@
 'use client';
 import React, { useState, Dispatch, SetStateAction } from 'react';
-import { useAccountSettingsLogic } from './accountSettingsLogic';
-import { PencilIcon, EnvelopeIcon, LockClosedIcon, KeyIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, EnvelopeIcon, LockClosedIcon, KeyIcon, ShieldCheckIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetStateAction<boolean>> }) {
-    const {
-        user,
-        username, setUsername,
-        newEmail, setNewEmail,
-        currentPassword, setCurrentPassword,
-        newPassword, setNewPassword,
-        totpEnabled, totpQrCode, totpToken, setTotpToken,
-        handleSetupTotp,
-        handleVerifyTotp,
-        handleDisableTotp,
-        loading,
-    } = useAccountSettingsLogic();
-    const [activeSubTab, setActiveSubTab] = useState('login');
+interface SecurityTabProps {
+    username: string;
+    setUsername: Dispatch<SetStateAction<string>>;
+    newEmail: string;
+    setNewEmail: Dispatch<SetStateAction<string>>;
+    currentPassword: string;
+    setCurrentPassword: Dispatch<SetStateAction<string>>;
+    newPassword: string;
+    setNewPassword: Dispatch<SetStateAction<string>>;
+    confirmNewPassword: string;
+    setConfirmNewPassword: Dispatch<SetStateAction<string>>;
+    totpEnabled: boolean;
+    totpQrCode: string | null;
+    totpToken: string;
+    setTotpToken: Dispatch<SetStateAction<string>>;
+    handleUpdateUsername: () => Promise<void>;
+    handleChangeEmail: () => Promise<void>;
+    handleChangePassword: () => Promise<void>;
+    handleSetupTotp: () => Promise<void>;
+    handleVerifyTotp: () => Promise<void>;
+    handleDisableTotp: () => Promise<void>;
+    loading: boolean;
+    message: string | null;
+    error: string | null;
+}
 
-    const isOAuth = !!user?.user.githubId;
+export default function SecurityTab({
+                                        username, setUsername,
+                                        newEmail, setNewEmail,
+                                        currentPassword, setCurrentPassword,
+                                        newPassword, setNewPassword,
+                                        confirmNewPassword, setConfirmNewPassword,
+                                        totpEnabled, totpQrCode, totpToken, setTotpToken,
+                                        handleUpdateUsername, handleChangeEmail, handleChangePassword,
+                                        handleSetupTotp, handleVerifyTotp, handleDisableTotp,
+                                        loading, message, error
+                                    }: SecurityTabProps) {
+    const [activeSubTab, setActiveSubTab] = useState('username');
+
     const subTabs = [
-        { name: 'login', label: 'Login', icon: LockClosedIcon },
+        { name: 'username', label: 'Username', icon: PencilIcon },
+        { name: 'email', label: 'Email', icon: EnvelopeIcon },
+        { name: 'password', label: 'Password', icon: LockClosedIcon },
         { name: '2fa', label: '2FA', icon: ShieldCheckIcon },
     ];
 
     const handleChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('Input changed to:', e.target.value);
         setter(e.target.value);
-        setIsDirty(true);
     };
 
     return (
@@ -47,8 +71,8 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                     </button>
                 ))}
             </div>
-            {activeSubTab === 'login' && (
-                <div className="space-y-6">
+            {activeSubTab === 'username' && (
+                <div className="space-y-4">
                     <div>
                         <label className="flex items-center text-gray-700 dark:text-gray-300">
                             <PencilIcon className="w-5 h-5 mr-2" />
@@ -57,10 +81,26 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                         <input
                             value={username}
                             onChange={handleChange(setUsername)}
+                            placeholder="Enter new username"
                             className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                             disabled={loading}
                         />
                     </div>
+                    <button
+                        onClick={() => {
+                            console.log('Save Username clicked, current username:', username);
+                            handleUpdateUsername();
+                        }}
+                        disabled={loading}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    >
+                        <CheckCircleIcon className="w-5 h-5 mr-2" />
+                        {loading ? 'Saving...' : 'Save Username'}
+                    </button>
+                </div>
+            )}
+            {activeSubTab === 'email' && (
+                <div className="space-y-4">
                     <div>
                         <label className="flex items-center text-gray-700 dark:text-gray-300">
                             <EnvelopeIcon className="w-5 h-5 mr-2" />
@@ -69,37 +109,73 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                         <input
                             value={newEmail}
                             onChange={handleChange(setNewEmail)}
+                            placeholder="Enter new email"
                             className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                             disabled={loading}
                         />
                     </div>
-                    {!isOAuth && (
-                        <div>
-                            <label className="flex items-center text-gray-700 dark:text-gray-300">
-                                <LockClosedIcon className="w-5 h-5 mr-2" />
-                                Current Password
-                            </label>
-                            <input
-                                type="password"
-                                value={currentPassword}
-                                onChange={handleChange(setCurrentPassword)}
-                                className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
-                                disabled={loading}
-                            />
-                            <label className="flex items-center text-gray-700 dark:text-gray-300 mt-4">
-                                <LockClosedIcon className="w-5 h-5 mr-2" />
-                                New Password
-                            </label>
-                            <input
-                                type="password"
-                                value={newPassword}
-                                onChange={handleChange(setNewPassword)}
-                                className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
-                                disabled={loading}
-                            />
-                        </div>
-                    )}
-                    {isOAuth && <p className="text-gray-500">Password management is handled via OAuth provider.</p>}
+                    <button
+                        onClick={handleChangeEmail}
+                        disabled={loading}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    >
+                        <CheckCircleIcon className="w-5 h-5 mr-2" />
+                        {loading ? 'Saving...' : 'Save Email'}
+                    </button>
+                </div>
+            )}
+            {activeSubTab === 'password' && (
+                <div className="space-y-4">
+                    <div>
+                        <label className="flex items-center text-gray-700 dark:text-gray-300">
+                            <LockClosedIcon className="w-5 h-5 mr-2" />
+                            Current Password
+                        </label>
+                        <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={handleChange(setCurrentPassword)}
+                            placeholder="Enter current password"
+                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+                            disabled={loading}
+                        />
+                    </div>
+                    <div>
+                        <label className="flex items-center text-gray-700 dark:text-gray-300">
+                            <LockClosedIcon className="w-5 h-5 mr-2" />
+                            New Password
+                        </label>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={handleChange(setNewPassword)}
+                            placeholder="Enter new password"
+                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+                            disabled={loading}
+                        />
+                    </div>
+                    <div>
+                        <label className="flex items-center text-gray-700 dark:text-gray-300">
+                            <LockClosedIcon className="w-5 h-5 mr-2" />
+                            Confirm New Password
+                        </label>
+                        <input
+                            type="password"
+                            value={confirmNewPassword}
+                            onChange={handleChange(setConfirmNewPassword)}
+                            placeholder="Confirm new password"
+                            className="mt-1 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+                            disabled={loading}
+                        />
+                    </div>
+                    <button
+                        onClick={handleChangePassword}
+                        disabled={loading}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    >
+                        <CheckCircleIcon className="w-5 h-5 mr-2" />
+                        {loading ? 'Saving...' : 'Save Password'}
+                    </button>
                 </div>
             )}
             {activeSubTab === '2fa' && (
@@ -124,7 +200,7 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                             <input
                                 type="text"
                                 value={totpToken}
-                                onChange={(e) => { setTotpToken(e.target.value); setIsDirty(true); }}
+                                onChange={(e) => setTotpToken(e.target.value)}
                                 placeholder="Enter TOTP code"
                                 className="mt-2 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                                 disabled={loading}
@@ -145,7 +221,7 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                             <input
                                 type="text"
                                 value={totpToken}
-                                onChange={(e) => { setTotpToken(e.target.value); setIsDirty(true); }}
+                                onChange={(e) => setTotpToken(e.target.value)}
                                 placeholder="Enter TOTP code to disable"
                                 className="mt-2 w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-200"
                                 disabled={loading}
@@ -162,6 +238,8 @@ export default function SecurityTab({ setIsDirty }: { setIsDirty: Dispatch<SetSt
                     )}
                 </div>
             )}
+            {message && <p className="text-green-500 dark:text-green-400 text-sm mt-4">{message}</p>}
+            {error && <p className="text-red-500 dark:text-red-400 text-sm mt-4">{error}</p>}
         </div>
     );
 }

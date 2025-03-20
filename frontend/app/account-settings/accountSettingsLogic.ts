@@ -1,205 +1,66 @@
 'use client';
-import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
-import { requestVerification, updateProfile, updatePersonalization, changeEmail, changePassword, setupTotp, verifyTotp, disableTotp } from '@/services/auth';
 import { useState } from 'react';
+import { useAuthSettings } from '@/hooks/useAuthSettings';
+import { useUserSettings } from '@/hooks/useUserSettings';
 
 export const useAccountSettingsLogic = () => {
-    const { user } = useDashboardSharedContext();
-
-    const [username, setUsername] = useState(user?.user.username || '');
-    const [firstName, setFirstName] = useState(user?.user.firstName || '');
-    const [lastName, setLastName] = useState(user?.user.lastName || '');
-    const [nickname, setNickname] = useState(user?.user.nickname || '');
-    const [birthday, setBirthday] = useState(user?.user.birthday ? new Date(user.user.birthday).toISOString().split('T')[0] : '');
-    const [country, setCountry] = useState(user?.user.country || '');
-    const [newEmail, setNewEmail] = useState('');
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [avatar, setAvatar] = useState<File | null>(null);
-    const [header, setHeader] = useState<File | null>(null);
-    const [bio, setBio] = useState(user?.user.bio || '');
-    const [gender, setGender] = useState(user?.user.gender || 'prefer-not-to-say');
-    const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const authSettings = useAuthSettings();
+    const userSettings = useUserSettings();
     const [loading, setLoading] = useState(false);
-    const [totpEnabled, setTotpEnabled] = useState(user?.user.isTotpEnabled || false);
-    const [totpQrCode, setTotpQrCode] = useState<string | null>(null);
-    const [totpToken, setTotpToken] = useState('');
 
-    const handleUpdateUsername = async () => {
-        if (username === user?.user.username) return; // No change
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-            setMessage('Username updated successfully!');
-        } catch (err: any) {
-            setError(err.message || 'Failed to update username.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const message = [authSettings.message, userSettings.message].filter(Boolean).join('; ') || null;
+    const error = [authSettings.error, userSettings.error].filter(Boolean).join('; ') || null;
 
-    const handleUpdateProfile = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const data = { firstName, lastName, nickname, birthday, country };
-            const response = await updateProfile(data);
-            setMessage(response.message);
-        } catch (err: any) {
-            setError(err.message || 'Failed to update profile.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChangeEmail = async () => {
-        if (!newEmail) return; // No change
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const response = await changeEmail(newEmail);
-            setMessage(response.message);
-            setNewEmail('');
-        } catch (err: any) {
-            setError(err.message || 'Failed to change email.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChangePassword = async () => {
-        if (!currentPassword || !newPassword) return; // No change
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const response = await changePassword(currentPassword, newPassword);
-            setMessage(response.message);
-            setCurrentPassword('');
-            setNewPassword('');
-        } catch (err: any) {
-            setError(err.message || 'Failed to change password.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleUpdatePersonalization = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const data: any = { bio, gender };
-            if (avatar) data.avatar = avatar;
-            if (header) data.header = header;
-            const response = await updatePersonalization(data);
-            setMessage(response.message);
-            setAvatar(null);
-            setHeader(null);
-        } catch (err: any) {
-            setError(err.message || 'Failed to update personalization.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleRequestVerification = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const response = await requestVerification();
-            setMessage(response.message);
-        } catch (err: any) {
-            setError(err.message || 'Failed to request verification.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSetupTotp = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const { qrCodeDataURL } = await setupTotp();
-            setTotpQrCode(qrCodeDataURL);
-            setMessage('Scan the QR code with your authenticator app.');
-        } catch (err: any) {
-            setError(err.message || 'Failed to setup TOTP.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyTotp = async () => {
-        if (!totpToken) return;
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const response = await verifyTotp(totpToken);
-            setTotpEnabled(true);
-            setTotpQrCode(null);
-            setTotpToken('');
-            setMessage(response.message);
-        } catch (err: any) {
-            setError(err.message || 'Failed to verify TOTP.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDisableTotp = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            const response = await disableTotp(totpToken || undefined);
-            setTotpEnabled(false);
-            setTotpToken('');
-            setMessage(response.message);
-        } catch (err: any) {
-            setError(err.message || 'Failed to disable TOTP.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const isLoading = loading || authSettings.loading || userSettings.loading;
 
     return {
-        user,
-        username, setUsername,
-        firstName, setFirstName,
-        lastName, setLastName,
-        nickname, setNickname,
-        birthday, setBirthday,
-        country, setCountry,
-        newEmail, setNewEmail,
-        currentPassword, setCurrentPassword,
-        newPassword, setNewPassword,
-        avatar, setAvatar,
-        header, setHeader,
-        bio, setBio,
-        gender, setGender,
-        totpEnabled, setTotpEnabled,
-        totpQrCode, setTotpQrCode,
-        totpToken, setTotpToken,
-        handleUpdateUsername,
-        handleUpdateProfile,
-        handleChangeEmail,
-        handleChangePassword,
-        handleUpdatePersonalization,
-        handleRequestVerification,
-        handleSetupTotp,
-        handleVerifyTotp,
-        handleDisableTotp,
+        user: authSettings.user,
+        username: authSettings.username, // Changed from userSettings
+        setUsername: authSettings.setUsername, // Changed from userSettings
+        firstName: userSettings.firstName,
+        setFirstName: userSettings.setFirstName,
+        lastName: userSettings.lastName,
+        setLastName: userSettings.setLastName,
+        nickname: userSettings.nickname,
+        setNickname: userSettings.setNickname,
+        birthday: userSettings.birthday,
+        setBirthday: userSettings.setBirthday,
+        country: userSettings.country,
+        setCountry: userSettings.setCountry,
+        avatar: userSettings.avatar,
+        setAvatar: userSettings.setAvatar,
+        header: userSettings.header,
+        setHeader: userSettings.setHeader,
+        bio: userSettings.bio,
+        setBio: userSettings.setBio,
+        gender: userSettings.gender,
+        setGender: userSettings.setGender,
+        handleUpdateUsername: authSettings.handleUpdateUsername, // Changed from userSettings
+        handleUpdateProfile: userSettings.handleUpdateProfile,
+        handleUpdatePersonalization: userSettings.handleUpdatePersonalization,
+        newEmail: authSettings.newEmail,
+        setNewEmail: authSettings.setNewEmail,
+        currentPassword: authSettings.currentPassword,
+        setCurrentPassword: authSettings.setCurrentPassword,
+        newPassword: authSettings.newPassword,
+        setNewPassword: authSettings.setNewPassword,
+        confirmNewPassword: authSettings.confirmNewPassword,
+        setConfirmNewPassword: authSettings.setConfirmNewPassword,
+        totpEnabled: authSettings.totpEnabled,
+        setTotpEnabled: authSettings.setTotpEnabled,
+        totpQrCode: authSettings.totpQrCode,
+        setTotpQrCode: authSettings.setTotpQrCode,
+        totpToken: authSettings.totpToken,
+        setTotpToken: authSettings.setTotpToken,
+        handleChangeEmail: authSettings.handleChangeEmail,
+        handleChangePassword: authSettings.handleChangePassword,
+        handleSetupTotp: authSettings.handleSetupTotp,
+        handleVerifyTotp: authSettings.handleVerifyTotp,
+        handleDisableTotp: authSettings.handleDisableTotp,
+        handleRequestVerification: authSettings.handleRequestVerification,
         message,
         error,
-        loading,
+        loading: isLoading,
+        setLoading,
     };
 };
