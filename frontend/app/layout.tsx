@@ -102,10 +102,11 @@ function MainContent({
                 {!isHomePage && !isDashboardRoute && mounted && (
                     <div className="flex justify-center mb-10 mt-10">
                         <Link href="/">
-                            <button className="flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
-                                <LockClosedIcon className="h-10 w-10 text-gray-400" />
+                            <button className="group flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
+                                <LockClosedIcon className="h-10 w-10 text-gray-400 group-hover:scale-125 transition-transform duration-200" />
                                 Secure Note
                             </button>
+
                         </Link>
                     </div>
                 )}
@@ -155,85 +156,99 @@ function DashboardControls({
             {/* Dark Mode Toggle */}
             <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200"
+                className="group p-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200"
             >
-                {isDarkMode ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
+                {isDarkMode ? (
+                    <SunIcon className="h-7 w-7 group-hover:scale-125 transition-transform duration-200" />
+                ) : (
+                    <MoonIcon className="h-7 w-7 group-hover:scale-125 transition-transform duration-200" />
+                )}
             </button>
 
-            {/* Notification Icon */}
-            <button
-                onClick={handleNotificationsClick}
-                className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200"
-            >
-                <BellIcon className="h-6 w-6" />
-            </button>
 
-            {/* Profile Dropdown */}
+            {/* Notification and Profile (only when logged in) */}
             {user && (
-                <div className="relative flex items-center gap-2">
-                    {/* Verified Status */}
-                    <CheckCircleIcon
-                        className={`h-5 w-5 ${user.user.verified ? 'text-green-500' : 'text-red-500'}`}
-                        aria-label={user.user.verified ? 'Verified' : 'Not Verified'}
-                    />
-
-                    {/* Profile Toggle Button with Avatar */}
+                <>
+                    {/* Notification Icon */}
                     <button
-                        onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                        className="p-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200"
+                        onClick={handleNotificationsClick}
+                        className="group p-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200"
                     >
-                        <img
-                            src={avatarUrl}
-                            alt="User Avatar"
-                            className="h-6 w-6 rounded-full object-cover"
-                        />
+                        <BellIcon className="h-7 w-7 group-hover:scale-125 transition-transform duration-200" />
                     </button>
 
-                    {/* Dropdown */}
-                    {showProfileDropdown && (
-                        <div
-                            ref={dropdownRef}
-                            className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600"
-                        >
-                            {/* Username, Nickname, Avatar */}
-                            <div className="flex items-center px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+
+                    {/* Profile Dropdown */}
+                    <div className="relative flex items-center gap-2">
+                        {/* Profile Toggle Button with Avatar and Verification Icon */}
+                        <div className="relative group">
+                            <button
+                                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                                className="p-1 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200"
+                            >
                                 <img
                                     src={avatarUrl}
                                     alt="User Avatar"
-                                    className="h-8 w-8 rounded-full object-cover mr-2"
+                                    className="h-12 w-12 rounded-full object-cover group-hover:scale-125 transition-transform duration-200"
                                 />
-                                <div>
-                                    <p className="text-gray-900 dark:text-gray-100 font-semibold">
-                                        {user.user.username}
-                                    </p>
-                                    {user.user.nickname && (
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                            {user.user.nickname}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Profile Link */}
-                            <button
-                                onClick={handleProfileClick}
-                                className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
-                            >
-                                <UserIcon className="h-5 w-5 mr-2" />
-                                Profile
                             </button>
 
-                            {/* Logout */}
-                            <button
-                                onClick={handleLogout}
-                                className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
-                            >
-                                <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                                Logout
-                            </button>
+                            {/* Verification Icon Overlapping Bottom Right */}
+                            <CheckCircleIcon
+                                className={`absolute bottom-0 right-0 h-4 w-4 ${
+                                    user.user.verified ? 'text-green-500' : 'text-red-500'
+                                }`}
+                                aria-label={user.user.verified ? 'Verified' : 'Not Verified'}
+                            />
                         </div>
-                    )}
-                </div>
+
+
+                        {/* Dropdown */}
+                        {showProfileDropdown && (
+                            <div
+                                ref={dropdownRef}
+                                className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600"
+                            >
+                                {/* Username, Nickname, Avatar */}
+                                <div className="flex items-center px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+                                    <img
+                                        src={avatarUrl}
+                                        alt="User Avatar"
+                                        className="h-8 w-8 rounded-full object-cover mr-2"
+                                    />
+                                    <div>
+                                        <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                                            {user.user.username}
+                                        </p>
+                                        {user.user.nickname && (
+                                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                                {user.user.nickname}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Profile Link */}
+                                <button
+                                    onClick={handleProfileClick}
+                                    className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
+                                >
+                                    <UserIcon className="h-5 w-5 mr-2" />
+                                    Profile
+                                </button>
+
+                                {/* Logout */}
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
+                                >
+                                    <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </>
             )}
         </div>
     );

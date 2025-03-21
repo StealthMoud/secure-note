@@ -87,88 +87,89 @@ function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: {
                         {isSidebarOpen && (
                             <button
                                 onClick={() => setIsSidebarOpen(false)}
-                                className="absolute top-6 right-6 p-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                                className="group absolute top-6 right-6 p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
                             >
-                                <XMarkIcon className="h-6 w-6"/>
+                                <XMarkIcon className="h-6 w-6 group-hover:scale-125 transition-transform duration-200" />
                             </button>
                         )}
                         <button
                             onClick={() => navigateToTab('dashboard')}
-                            className="flex items-center text-gray-900 dark:text-gray-100 text-xl font-bold mb-8 focus:outline-none"
+                            className="group flex items-center text-gray-900 dark:text-gray-100 text-xl font-bold mb-8 focus:outline-none"
                         >
-                            <LockClosedIcon className="h-7 w-7 mr-2 text-gray-400"/>
+                            <LockClosedIcon className="h-7 w-7 mr-2 text-gray-400 group-hover:scale-125 transition-transform duration-200" />
                             Secure Note
                         </button>
                         <ul className="space-y-2">
                             <li>
                                 <button
                                     onClick={() => navigateToTab('dashboard')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'dashboard' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <HomeIcon className="h-5 w-5 mr-2"/>
+                                    <HomeIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Dashboard
                                 </button>
                             </li>
                             <li>
                                 <button
                                     onClick={() => navigateToTab('profile')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'profile' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <UserIcon className="h-5 w-5 mr-2"/>
+                                    <UserIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Profile
                                 </button>
                             </li>
                             <li>
                                 <button
                                     onClick={() => navigateToTab('notes')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'notes' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <DocumentTextIcon className="h-5 w-5 mr-2"/>
+                                    <DocumentTextIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Notes
                                 </button>
                             </li>
                             <li>
                                 <button
                                     onClick={() => navigateToTab('friends')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'friends' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <UsersIcon className="h-5 w-5 mr-2"/>
+                                    <UsersIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Friends
                                 </button>
                             </li>
                             <li>
                                 <button
                                     onClick={() => navigateToTab('account-settings')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'account-settings' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <Cog6ToothIcon className="h-5 w-5 mr-2"/>
+                                    <Cog6ToothIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Account Settings
                                 </button>
                             </li>
                             <li>
                                 <button
                                     onClick={() => navigateToTab('notifications')}
-                                    className={`w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                                    className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
                                         activeTab === 'notifications' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                     }`}
                                 >
-                                    <BellIcon className="h-5 w-5 mr-2"/>
+                                    <BellIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Notifications
                                 </button>
                             </li>
                         </ul>
                     </div>
                 </div>
+
 
                 {/* Main Content */}
                 <div
@@ -181,10 +182,10 @@ function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: {
                             <div className="h-14"/>
                             ) : (
                             <Link href="/">
-                            <button className="flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
-                            <LockClosedIcon className="h-10 w-10 text-gray-400" />
-                            Secure Note
-                            </button>
+                                <button className="group flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
+                                    <LockClosedIcon className="h-10 w-10 text-gray-400 group-hover:scale-125 transition-transform duration-200" />
+                                    Secure Note
+                                </button>
                             </Link>
                             )}
                     </div>
@@ -192,9 +193,9 @@ function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: {
                     {!isSidebarOpen && (
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="absolute top-4 left-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            className="group absolute top-4 left-4 p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                         >
-                            <Bars3Icon className="h-6 w-6"/>
+                            <Bars3Icon className="h-6 w-6 group-hover:scale-125 transition-transform duration-200" />
                         </button>
                     )}
 
