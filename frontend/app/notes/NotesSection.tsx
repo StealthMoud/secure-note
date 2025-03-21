@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     LockClosedIcon,
     PencilIcon,
@@ -8,6 +8,7 @@ import {
     ShareIcon,
     ClockIcon,
     XMarkIcon,
+    UsersIcon,
 } from '@heroicons/react/24/outline';
 import { marked } from 'marked';
 import { useNotesLogic } from './notesLogic';
@@ -202,7 +203,7 @@ const NotesList = React.memo(
                                                         <ul className="list-disc pl-4">
                                                             {note.sharedWith.map((entry) => (
                                                                 <li
-                                                                    key={entry.user._id} // Unique key for each shared user
+                                                                    key={entry.user._id}
                                                                     className="flex items-center justify-between"
                                                                 >
                                                                     {entry.user.username} ({entry.permission})
@@ -367,80 +368,60 @@ export default function NotesSection() {
         loading,
     } = useNotesLogic();
 
+    const [activeTab, setActiveTab] = useState('create');
+
     if (!user) return null;
 
     const userVerified = user.user.verified ?? false;
     const ownedNotes = notes.filter((note) => isOwner(note, user.user._id));
     const sharedNotes = notes.filter((note) => !isOwner(note, user.user._id));
 
+    const tabs = [
+        { name: 'create', label: 'Create/Edit Note', icon: PencilIcon },
+        { name: 'owned', label: 'Owned Notes', icon: DocumentTextIcon },
+        ...(userVerified && sharedNotes.length > 0 ? [{ name: 'shared', label: 'Shared Notes', icon: UsersIcon }] : []),
+    ];
+
     return (
-        <main className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-4xl mx-auto p-6">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center mb-6">
                 <DocumentTextIcon className="w-8 h-8 mr-2 text-gray-700 dark:text-gray-300" />
                 Your Notes
             </h2>
-            {userVerified ? (
-                <div className="space-y-6">
-                    <NoteInputForm
-                        newTitle={newTitle}
-                        setNewTitle={setNewTitle}
-                        newContent={newContent}
-                        setNewContent={setNewContent}
-                        newFormat={newFormat}
-                        setNewFormat={setNewFormat}
-                        editingNoteId={editingNoteId}
-                        handleCreateNote={handleCreateNote}
-                        handleUpdateNote={handleUpdateNote}
-                        loading={loading}
-                        userVerified={userVerified}
-                    />
-                    {message && <p className="text-sm text-green-500 dark:text-green-400">{message}</p>}
-                    {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
-                    <NotesList
-                        notes={ownedNotes}
-                        userId={user.user._id}
-                        handleEditNote={handleEditNote}
-                        handleDeleteNote={handleDeleteNote}
-                        handleShareNote={handleShareNote}
-                        handleUnshareNote={handleUnshareNote}
-                        handleExportNote={handleExportNote}
-                        shareTarget={shareTarget}
-                        setShareTarget={setShareTarget}
-                        sharePermission={sharePermission}
-                        setSharePermission={setSharePermission}
-                        isOwner={isOwner}
-                        loading={loading}
-                        userVerified={userVerified}
-                        title="Owned Notes"
-                    />
-                    {sharedNotes.length > 0 && (
-                        <NotesList
-                            notes={sharedNotes}
-                            userId={user.user._id}
-                            handleEditNote={handleEditNote}
-                            handleDeleteNote={handleDeleteNote}
-                            handleShareNote={handleShareNote}
-                            handleUnshareNote={handleUnshareNote}
-                            handleExportNote={handleExportNote}
-                            shareTarget={shareTarget}
-                            setShareTarget={setShareTarget}
-                            sharePermission={sharePermission}
-                            setSharePermission={setSharePermission}
-                            isOwner={isOwner}
+            <div className="flex border-b border-gray-200 dark:border-gray-700">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.name}
+                        onClick={() => setActiveTab(tab.name)}
+                        className={`flex items-center px-4 py-2 text-sm font-medium ${
+                            activeTab === tab.name
+                                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                        }`}
+                    >
+                        <tab.icon className="w-5 h-5 mr-2" />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+            <div className="mt-6 space-y-6">
+                {activeTab === 'create' && (
+                    userVerified ? (
+                        <NoteInputForm
+                            newTitle={newTitle}
+                            setNewTitle={setNewTitle}
+                            newContent={newContent}
+                            setNewContent={setNewContent}
+                            newFormat={newFormat}
+                            setNewFormat={setNewFormat}
+                            editingNoteId={editingNoteId}
+                            handleCreateNote={handleCreateNote}
+                            handleUpdateNote={handleUpdateNote}
                             loading={loading}
                             userVerified={userVerified}
-                            title="Shared with Me"
                         />
-                    )}
-                </div>
-            ) : (
-                <div className="space-y-6 max-w-md mx-auto">
-                    <section className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center mb-4">
-                            <PencilIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
-                            {notes.length === 0 ? 'Create a Note' : 'Your Note'}
-                        </h3>
-                        {notes.length === 0 ? (
+                    ) : (
+                        notes.length === 0 ? (
                             <NoteInputForm
                                 newTitle={newTitle}
                                 setNewTitle={setNewTitle}
@@ -472,10 +453,48 @@ export default function NotesSection() {
                                 userVerified={userVerified}
                                 title="Your Note"
                             />
-                        )}
-                        {message && <p className="text-sm text-green-500 dark:text-green-400 mt-2">{message}</p>}
-                        {error && <p className="text-sm text-red-500 dark:text-red-400 mt-2">{error}</p>}
-                    </section>
+                        )
+                    )
+                )}
+                {activeTab === 'owned' && (
+                    <NotesList
+                        notes={ownedNotes}
+                        userId={user.user._id}
+                        handleEditNote={handleEditNote}
+                        handleDeleteNote={handleDeleteNote}
+                        handleShareNote={handleShareNote}
+                        handleUnshareNote={handleUnshareNote}
+                        handleExportNote={handleExportNote}
+                        shareTarget={shareTarget}
+                        setShareTarget={setShareTarget}
+                        sharePermission={sharePermission}
+                        setSharePermission={setSharePermission}
+                        isOwner={isOwner}
+                        loading={loading}
+                        userVerified={userVerified}
+                        title="Owned Notes"
+                    />
+                )}
+                {activeTab === 'shared' && userVerified && sharedNotes.length > 0 && (
+                    <NotesList
+                        notes={sharedNotes}
+                        userId={user.user._id}
+                        handleEditNote={handleEditNote}
+                        handleDeleteNote={handleDeleteNote}
+                        handleShareNote={handleShareNote}
+                        handleUnshareNote={handleUnshareNote}
+                        handleExportNote={handleExportNote}
+                        shareTarget={shareTarget}
+                        setShareTarget={setShareTarget}
+                        sharePermission={sharePermission}
+                        setSharePermission={setSharePermission}
+                        isOwner={isOwner}
+                        loading={loading}
+                        userVerified={userVerified}
+                        title="Shared with Me"
+                    />
+                )}
+                {!userVerified && (
                     <section className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center mb-4">
                             <LockClosedIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
@@ -486,8 +505,10 @@ export default function NotesSection() {
                             email to unlock full features (Markdown, sharing, PDF/Markdown export).
                         </p>
                     </section>
-                </div>
-            )}
-        </main>
+                )}
+                {message && <p className="text-sm text-green-500 dark:text-green-400">{message}</p>}
+                {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
+            </div>
+        </div>
     );
 }
