@@ -39,23 +39,24 @@ export const updateProfile = async (data: Partial<User>): Promise<{ message: str
     }
 };
 
-export const updatePersonalization = async (data: Partial<User> & { avatar?: File; header?: File }): Promise<{ message: string; user: User }> => {
+export const updatePersonalization = async (data: { avatar?: File; header?: File }): Promise<{ message: string; user: User }> => {
     try {
         const token = localStorage.getItem('token');
         const formData = new FormData();
-        if (data.bio) formData.append('bio', data.bio);
-        if (data.gender) formData.append('gender', data.gender);
         if (data.avatar) formData.append('avatar', data.avatar);
         if (data.header) formData.append('header', data.header);
 
+        console.log('Sending updatePersonalization request:', { endpoint: '/users/personalization', data: formData, token }); // Log request
         const response = await api.put<{ message: string; user: User }>('/users/personalization', formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
+        console.log('updatePersonalization response:', response.data); // Log response
         return response.data;
     } catch (error: any) {
+        console.error('updatePersonalization error:', error.response?.data || error.message); // Log detailed error
         throw new Error(error.response?.data?.error || 'Failed to update personalization');
     }
 };

@@ -4,19 +4,32 @@ export interface User {
     _id: string;
     username: string;
     email: string;
-    role: string;
+    role: 'admin' | 'user';
+    verified?: boolean;
+    githubId?: string;
+    isTotpEnabled?: boolean;
+    isActive?: boolean;
+    avatar?: string;
+    header?: string;
     firstName?: string;
     lastName?: string;
     nickname?: string;
     birthday?: string;
     country?: string;
     bio?: string;
-    gender?: string;
-    avatar?: string;
-    header?: string;
-    verified?: boolean;
-    githubId?: string;
-    isTotpEnabled?: boolean;
+    gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+    createdAt?: string;
+    updatedAt?: string;
+    publicKey?: string;
+    friends?: { user: string }[];
+    friendRequests?: {
+        sender: string;
+        receiver: string;
+        status: 'pending' | 'accepted' | 'rejected';
+        createdAt: string;
+        updatedAt: string;
+        requestId: string;
+    }[];
 }
 
 interface LoginResponse { token?: string; requires2FA?: boolean; tempToken?: string; user: User; }
@@ -28,6 +41,7 @@ interface TotpSetupResponse { message: string; otpauthUrl: string; qrCodeDataURL
 interface TotpResponse { message: string; }
 interface TotpLoginResponse { token: string; }
 
+// Rest of the file remains unchanged...
 export const registerUser = async (username: string, email: string, password: string, confirmPassword: string): Promise<RegisterResponse> => {
     try {
         const response = await api.post<RegisterResponse>('/auth/register', { username, email, password, confirmPassword });
@@ -71,6 +85,7 @@ export const getCurrentUser = async (token: string): Promise<UserResponse> => {
     }
 };
 
+// ... (rest of the functions remain unchanged)
 export const verifyTotpLogin = async (tempToken: string, totpCode: string): Promise<TotpLoginResponse> => {
     try {
         const response = await api.post<TotpLoginResponse>('/auth/verify-totp-login', { tempToken, totpCode });
@@ -148,8 +163,6 @@ export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> =
         throw new Error(error.response?.data?.error || 'Email verification failed');
     }
 };
-
-
 
 export const updateUsername = async (username: string): Promise<{ message: string; user: User }> => {
     try {

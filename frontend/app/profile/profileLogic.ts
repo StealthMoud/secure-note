@@ -1,61 +1,81 @@
 'use client';
 import { useState } from 'react';
+import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
+import { updatePersonalization } from '@/services/users';
+import { User } from '@/services/auth';
+
+interface UserData {
+    user: User;
+    role: 'admin' | 'user';
+}
 
 export const useProfileLogic = () => {
-    // Simulated user data for a secure note app
-    const simulatedUser = {
-        username: 'NoteMaster',
-        email: 'secure.notes@example.com',
-        createdAt: '2023-06-01T09:00:00Z', // Simulated join date
-    };
+    const { user, setUser } = useDashboardSharedContext();
 
-    // Simulated friends data
-    const simulatedFriends = [
-        { _id: '1', username: 'Alice' },
-        { _id: '2', username: 'Bob' },
-        { _id: '3', username: 'Charlie' },
-    ];
-
-    // Simulated note stats
-    const simulatedNoteStats = {
-        totalNotes: 42,
-        sharedNotes: 8,
-    };
-
-    // Local state for profile
-    const [username, setUsername] = useState(simulatedUser.username);
+    const [avatar, setAvatar] = useState<string | File | undefined>(user?.user.avatar);
+    const [header, setHeader] = useState<string | File | undefined>(user?.user.header);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    // Simulate updating username
-    const handleUpdateUsername = async () => {
+    const hasChanges = () => {
+        const avatarChanged = avatar instanceof File || (avatar === undefined && user?.user.avatar !== undefined) || (avatar !== user?.user.avatar);
+        const headerChanged = header instanceof File || (header === undefined && user?.user.header !== undefined) || (header !== user?.user.header);
+        return avatarChanged || headerChanged;
+    };
+
+    const handleUpdateAppearance = async () => {
+        if (!hasChanges()) {
+            console.log('No changes detected in appearance');
+            return;
+        }
+
         setLoading(true);
         setError(null);
         setMessage(null);
+
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            setMessage('Username updated successfully!');
-        } catch (err) {
-            setError('Failed to update username.');
+            const formData = {
+                avatar: avatar instanceof File ? avatar : undefined,
+                header: header instanceof File ? header : undefined,
+            };
+            const response = await updatePersonalization(formData);
+            console.log('Upload response:', response);
+            if (user) {
+                const updatedUser: UserData = {
+                    ...user,
+                    user: {
+                        ...user.user,
+                        avatar: response.user.avatar,
+                        header: response.user.header,
+                    },
+                };
+                setUser(updatedUser);
+                console.log('Updated user state:', updatedUser);
+            }
+            setAvatar(response.user.avatar);
+            setHeader(response.user.header);
+            console.log('New avatar value:', response.user.avatar);
+            setMessage('Appearance updated successfully');
+        } catch (err: any) {
+            setError(err.message || 'Failed to update appearance');
+            console.error('Update appearance error:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    // Friend and note stats from simulated data
-    const friendCount = simulatedFriends.length;
-    const { totalNotes, sharedNotes } = simulatedNoteStats;
+    if (!user) {
+        throw new Error('User data is not available');
+    }
 
     return {
-        user: simulatedUser,
-        username,
-        setUsername,
-        friends: simulatedFriends,
-        friendCount,
-        totalNotes,
-        sharedNotes,
-        handleUpdateUsername,
+        user: user.user,
+        avatar,
+        setAvatar,
+        header,
+        setHeader,
+        handleUpdateAppearance,
         message,
         error,
         loading,

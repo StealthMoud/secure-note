@@ -2,27 +2,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/services/auth';
+import { User } from '@/services/auth';
 
+// Define UserData with strict role typing
 interface UserData {
-    user: {
-        _id: string;
-        username: string;
-        email: string;
-        role: string;
-        verified?: boolean;
-        githubId?: string;
-        firstName?: string;
-        lastName?: string;
-        nickname?: string;
-        birthday?: string;
-        country?: string;
-        bio?: string;
-        gender?: string;
-        avatar?: string;
-        header?: string;
-        isTotpEnabled?: boolean;
-    };
-    role: string;
+    user: User;
+    role: 'admin' | 'user';
 }
 
 interface DashboardSharedContextType {
@@ -31,7 +16,7 @@ interface DashboardSharedContextType {
     handleLogout: () => void;
     isSidebarOpen: boolean;
     setIsSidebarOpen: (open: boolean) => void;
-    setUser: (user: UserData | null) => void; // Add setUser
+    setUser: (user: UserData | null) => void;
 }
 
 const DashboardSharedContext = createContext<DashboardSharedContextType | undefined>(undefined);
@@ -46,12 +31,20 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
         const fetchData = async () => {
             const token = localStorage.getItem('token');
             console.log('Fetching user with token:', token);
-            if (token && !user) { // Only fetch if no user is set
+            if (token && !user) {
                 try {
                     const data = await getCurrentUser(token);
                     console.log('User fetched successfully:', data);
-                    setUser(data);
-                    if (data.role === 'admin') {
+                    // Transform the response to match UserData
+                    const transformedData: UserData = {
+                        user: data.user,
+                        role: data.role as 'admin' | 'user', // Type assertion with validation
+                    };
+                    if (!['admin', 'user'].includes(data.role)) {
+                        throw new Error('Invalid role received from server');
+                    }
+                    setUser(transformedData);
+                    if (transformedData.role === 'admin') {
                         router.push('/admin/verify');
                         return;
                     }
@@ -69,7 +62,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        setUser(null); // Clear user on logout
+        setUser(null);
         router.push('/login');
     };
 

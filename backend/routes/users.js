@@ -8,6 +8,7 @@ const { logSecurityEvent } = require('../utils/logger');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -16,15 +17,23 @@ const transporter = nodemailer.createTransport({
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
 });
 
+const uploadBaseDir = path.join(__dirname, '../uploads'); // Base uploads folder
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        const userId = req.user.id;
+        const userUploadDir = path.join(uploadBaseDir, userId.toString());
+        if (!fs.existsSync(userUploadDir)) {
+            fs.mkdirSync(userUploadDir, { recursive: true });
+        }
+        cb(null, userUploadDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
     },
 });
+
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 },
@@ -36,6 +45,7 @@ const upload = multer({
         cb(new Error('Only JPEG/JPG/PNG images are allowed'));
     },
 });
+
 
 router.get('/me', authenticate, getCurrentUser);
 
@@ -73,7 +83,7 @@ router.put('/profile', authenticate, [
 
     try {
         const { firstName, lastName, nickname, birthday, country } = req.body;
-        console.log('Received profile update:', { firstName, lastName, nickname, birthday, country }); // Log incoming data
+        console.log('Received profile update:', { firstName, lastName, nickname, birthday, country });
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -84,7 +94,7 @@ router.put('/profile', authenticate, [
         user.country = country || user.country;
 
         await user.save();
-        console.log('Updated user profile:', user.toJSON()); // Log updated user
+        console.log('Updated user profile:', user.toJSON());
         await logSecurityEvent({ event: 'profile_updated', user: user._id, details: { ip: req.ip } });
         res.json({ message: 'Profile updated successfully', user: user.toJSON() });
     } catch (err) {
@@ -108,8 +118,8 @@ router.put('/personalization', authenticate, upload.fields([{ name: 'avatar', ma
 
         user.bio = bio || user.bio;
         user.gender = gender || user.gender;
-        if (files?.avatar) user.avatar = `/uploads/${files.avatar[0].filename}`;
-        if (files?.header) user.header = `/uploads/${files.header[0].filename}`;
+        if (files?.avatar) user.avatar = `/uploads/${req.user.id}/${files.avatar[0].filename}`;
+        if (files?.header) user.header = `/uploads/${req.user.id}/${files.header[0].filename}`;
 
         await user.save();
         await logSecurityEvent({ event: 'personalization_updated', user: user._id, details: { ip: req.ip } });
