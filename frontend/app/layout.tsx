@@ -189,7 +189,7 @@ function DashboardControls({
                                 <img
                                     src={avatarUrl}
                                     alt="User Avatar"
-                                    className="h-12 w-12 rounded-full object-cover group-hover:scale-125 transition-transform duration-200"
+                                    className="h-12 w-12 rounded-full object-cover group-hover:scale-110 transition-transform duration-200"
                                 />
                             </button>
 
