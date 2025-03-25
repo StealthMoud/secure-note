@@ -1,10 +1,9 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation'; // Add usePathname
 import { getCurrentUser } from '@/services/auth';
 import { User } from '@/services/auth';
 
-// Define UserData with strict role typing
 interface UserData {
     user: User;
     role: 'admin' | 'user';
@@ -26,6 +25,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const router = useRouter();
+    const pathname = usePathname(); // Get current path
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,30 +35,43 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                 try {
                     const data = await getCurrentUser(token);
                     console.log('User fetched successfully:', data);
-                    // Transform the response to match UserData
                     const transformedData: UserData = {
                         user: data.user,
-                        role: data.role as 'admin' | 'user', // Type assertion with validation
+                        role: data.role as 'admin' | 'user',
                     };
                     if (!['admin', 'user'].includes(data.role)) {
                         throw new Error('Invalid role received from server');
                     }
                     setUser(transformedData);
-                    if (transformedData.role === 'admin') {
-                        router.push('/admin/verify');
-                        return;
+
+                    // Define valid dashboard routes
+                    const validRoutes = ['/', '/friends', '/profile', '/notes', '/account-settings', '/notifications'];
+                    const isValidRoute = validRoutes.includes(pathname);
+
+                    // Only redirect if not already on a valid route
+                    if (!isValidRoute) {
+                        if (transformedData.role === 'admin') {
+                            console.log('Redirecting admin to /admin');
+                            router.push('/admin');
+                        } else {
+                            console.log('Redirecting regular user to /');
+                            router.push('/');
+                        }
                     }
                 } catch (error: any) {
                     console.error('Failed to fetch user:', error.message, error.response?.data);
                     localStorage.removeItem('token');
+                    setUser(null);
+                    router.push('/login');
                 }
             } else if (!token) {
                 console.log('No token found in localStorage');
+                router.push('/login');
             }
             setLoading(false);
         };
         fetchData();
-    }, [router]);
+    }, [router, pathname]); // Add pathname as dependency
 
     const handleLogout = () => {
         localStorage.removeItem('token');

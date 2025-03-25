@@ -1,29 +1,41 @@
 'use client';
 import Link from 'next/link';
-import {LockClosedIcon} from '@heroicons/react/24/outline';
-import {useEffect} from 'react';
-import {DashboardSharedProvider, useDashboardSharedContext} from '@/app/context/DashboardSharedContext';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardSharedProvider, useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 import DashboardContent from './dashboard/DashboardContent';
 
 export default function Home() {
-    const {user, loading} = useDashboardSharedContext();
+    const { user, loading } = useDashboardSharedContext();
+    const router = useRouter();
 
     useEffect(() => {
-        if (!user) {
-            document.title = 'Home | Secure Note';
+        if (!loading) {
+            if (!user) {
+                document.title = 'Home | Secure Note';
+                console.log('No user, showing welcome page');
+            } else if (user.role === 'admin') {
+                console.log('Admin detected, redirecting to /admin');
+                router.push('/admin');
+            } else {
+                console.log('Regular user detected, staying at /');
+                document.title = 'Dashboard | Secure Note';
+            }
         }
-    }, [user]);
+    }, [user, loading, router]);
 
     if (loading) return <div className="text-center mt-10">Loading...</div>;
 
-    if (user) {
-        return <DashboardContent defaultTab="dashboard"/>;
+    if (user && user.role !== 'admin') {
+        return <DashboardContent defaultTab="dashboard" />;
     }
 
     return (
         <div
-            className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 text-center w-full max-w-md mx-auto my-12">
-            <LockClosedIcon className="h-28 w-28 mx-auto text-gray-400 dark:text-gray-500"/>
+            className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 text-center w-full max-w-md mx-auto my-12"
+        >
+            <LockClosedIcon className="h-28 w-28 mx-auto text-gray-400 dark:text-gray-500" />
             <h1 className="text-4xl font-bold tracking-wide text-gray-900 dark:text-gray-100 mt-4">
                 Welcome to Secure Note
             </h1>
@@ -48,7 +60,7 @@ export default function Home() {
     );
 }
 
-export function RootPageWrapper({children}: { children: React.ReactNode }) {
+export function RootPageWrapper({ children }: { children: React.ReactNode }) {
     return <DashboardSharedProvider>{children}</DashboardSharedProvider>;
 }
 
