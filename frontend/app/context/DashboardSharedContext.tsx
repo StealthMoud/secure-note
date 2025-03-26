@@ -34,7 +34,6 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
             if (token && !user) {
                 try {
                     const data = await getCurrentUser(token);
-                    console.log('User fetched successfully:', data);
                     const transformedData: UserData = {
                         user: data.user,
                         role: data.role as 'admin' | 'user',
@@ -44,19 +43,17 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                     }
                     setUser(transformedData);
 
-                    // Define valid dashboard routes
-                    const validRoutes = ['/', '/friends', '/profile', '/notes', '/account-settings', '/notifications'];
-                    const isValidRoute = validRoutes.includes(pathname);
+                    // Define role-based valid routes
+                    const userRoutes = ['/', '/friends', '/profile', '/notes', '/account-settings', '/notifications'];
+                    const adminRoutes = ['/admin/overview', '/admin/users', '/admin/notes', '/admin/verify'];
 
-                    // Only redirect if not already on a valid route
-                    if (!isValidRoute) {
-                        if (transformedData.role === 'admin') {
-                            console.log('Redirecting admin to /admin');
-                            router.push('/admin');
-                        } else {
-                            console.log('Redirecting regular user to /');
-                            router.push('/');
-                        }
+                    // Check current route against user role
+                    if (transformedData.role === 'admin' && userRoutes.includes(pathname)) {
+                        console.log('Admin attempting to access user route, redirecting to /admin/overview');
+                        router.push('/admin/overview');
+                    } else if (transformedData.role === 'user' && pathname.startsWith('/admin')) {
+                        console.log('User attempting to access admin route, redirecting to /');
+                        router.push('/');
                     }
                 } catch (error: any) {
                     console.error('Failed to fetch user:', error.message, error.response?.data);
@@ -71,7 +68,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
             setLoading(false);
         };
         fetchData();
-    }, [router, pathname]); // Add pathname as dependency
+    }, [router, pathname]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');

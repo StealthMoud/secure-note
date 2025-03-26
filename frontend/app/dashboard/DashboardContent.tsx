@@ -12,7 +12,7 @@ import {
     UsersIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline';
-import {usePathname} from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {DashboardProvider, useDashboardContext} from '@/app/context/DashboardContext';
 import {useDashboardSharedContext} from '@/app/context/DashboardSharedContext';
 import DashboardSection from './DashboardSection';
@@ -53,24 +53,32 @@ export default function DashboardContent({defaultTab = 'dashboard'}: { defaultTa
     );
 }
 
-function DashboardInner({defaultTab, isSidebarOpen, setIsSidebarOpen}: {
+function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
     defaultTab: string,
     isSidebarOpen: boolean,
     setIsSidebarOpen: (open: boolean) => void
 }) {
-    const {activeTab, setActiveTab, navigateToTab} = useDashboardContext();
+    const { activeTab, setActiveTab, navigateToTab } = useDashboardContext();
+    const { user } = useDashboardSharedContext();
     const pathname = usePathname();
+    const router = useRouter();
 
     useEffect(() => {
+        if (user?.role === 'admin') {
+            console.log('Admin detected in user dashboard, redirecting to /admin/overview');
+            router.push('/admin/overview');
+            return;
+        }
         const tabFromPath = pathname === '/' ? 'dashboard' : pathname.replace('/', '');
         const initialTab = sectionMap[tabFromPath] ? tabFromPath : defaultTab;
         if (initialTab !== activeTab) {
             setActiveTab(initialTab);
         }
-        // Set document title based on activeTab
         const pageTitle = titleMap[activeTab] || 'Dashboard';
         document.title = `${pageTitle} | Secure Note`;
-    }, [pathname, setActiveTab, activeTab, defaultTab]);
+    }, [pathname, setActiveTab, activeTab, defaultTab, user, router]);
+
+    if (user?.role === 'admin') return null; // Prevent rendering if admin
 
     const ActiveSection = sectionMap[activeTab] || DashboardSection;
 

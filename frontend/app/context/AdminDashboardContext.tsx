@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 
 interface AdminDashboardContextType {
     activeTab: string;
@@ -13,11 +14,14 @@ const AdminDashboardContext = createContext<AdminDashboardContextType | undefine
 export const AdminDashboardProvider = ({ children }: { children: ReactNode }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const router = useRouter();
+    const { setIsSidebarOpen } = useDashboardSharedContext();
 
     const navigateToTab = (tab: string) => {
-        console.log(`Navigating to tab: ${tab}`);
+        console.log(`navigateToTab - tab: ${tab}, setting activeTab and navigating`);
         setActiveTab(tab);
         router.push(`/admin/${tab}`);
+        console.log('Ensuring sidebar is open in navigateToTab');
+        setIsSidebarOpen(true);
     };
 
     return (

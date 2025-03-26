@@ -99,14 +99,13 @@ function MainContent({
             )}
 
             <div className="w-full px-32">
-                {!isHomePage && !isDashboardRoute && mounted && (
+                {!isHomePage && !isDashboardRoute && !pathname.startsWith('/admin') && mounted && (
                     <div className="flex justify-center mb-10 mt-10">
                         <Link href="/">
                             <button className="group flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
                                 <LockClosedIcon className="h-10 w-10 text-gray-400 group-hover:scale-125 transition-transform duration-200" />
                                 Secure Note
                             </button>
-
                         </Link>
                     </div>
                 )}
@@ -165,7 +164,6 @@ function DashboardControls({
                 )}
             </button>
 
-
             {/* Notification and Profile (only when logged in) */}
             {user && (
                 <>
@@ -176,7 +174,6 @@ function DashboardControls({
                     >
                         <BellIcon className="h-7 w-7 group-hover:scale-125 transition-transform duration-200" />
                     </button>
-
 
                     {/* Profile Dropdown */}
                     <div className="relative flex items-center gap-2">
@@ -201,7 +198,6 @@ function DashboardControls({
                                 aria-label={user.user.verified ? 'Verified' : 'Not Verified'}
                             />
                         </div>
-
 
                         {/* Dropdown */}
                         {showProfileDropdown && (
