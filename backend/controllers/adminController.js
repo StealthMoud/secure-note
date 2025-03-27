@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const SecurityLog = require('../models/SecurityLog');
-const Note = require('../models/Note'); // Assuming a Note model exists
+const Note = require('../models/Note');
+const bcrypt = require('bcryptjs');
+const { generateKeyPairSync } = require('crypto');
 
 // Get all users with pagination
 exports.getUsers = async (req, res) => {
@@ -177,5 +179,107 @@ exports.deleteNote = async (req, res) => {
     } catch (err) {
         console.error('Error removing note:', err);
         res.status(500).json({ error: 'Failed to remove note' });
+    }
+};
+
+// Create a new user/admin
+exports.createUser = async (req, res) => {
+    try {
+        const { username, email, password, role } = req.body;
+        if (!username || !email || !password || !role) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        if (!['user', 'admin'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Username or email already in use' });
+        }
+
+        // Generate RSA key pair
+        const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: { type: 'spki', format: 'pem' },
+            privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+        });
+
+        const user = new User({
+            username,
+            email,
+            password, // Password hashing will be handled in the User model
+            role,
+            verified: role === 'admin', // Set verified: true for admin, false for user
+            isActive: true,
+            publicKey,
+            privateKey,
+        });
+        await user.save();
+
+        await SecurityLog.create({
+            event: 'user_created',
+            user: user._id,
+            details: { by: req.user.id },
+        });
+
+        res.status(201).json({ message: 'User registered', user: user.toJSON() });
+    } catch (err) {
+        console.error('Error creating user:', err);
+        res.status(500).json({ error: 'Failed to create user' });
+    }
+};
+
+// Unverify a user
+exports.unverifyUser = async (req, res) => {
+    try {
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ error: 'Admins cannot unverify themselves' });
+        }
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { verified: false },
+            { new: true }
+        ).select('-password -privateKey -totpSecret');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        await SecurityLog.create({
+            event: 'user_unverified',
+            user: req.params.id,
+            details: { by: req.user.id },
+        });
+
+        res.json({ message: 'User unverified successfully', user });
+    } catch (err) {
+        console.error('Error unverifying user:', err);
+        res.status(500).json({ error: 'Failed to unverify user' });
+    }
+};
+
+// Get user activity insights
+exports.getUserActivity = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId).select('friends');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const notesCreated = await Note.countDocuments({ owner: userId });
+        const friendsAdded = user.friends.length;
+        const sharedNotes = await Note.find({ 'sharedWith.user': userId })
+            .populate('owner', 'username')
+            .select('owner');
+        const sharedWith = [...new Set(sharedNotes.map(note => note.owner.username))];
+
+        res.json({
+            message: 'User activity retrieved successfully',
+            activity: {
+                notesCreated,
+                friendsAdded,
+                sharedWith,
+            },
+        });
+    } catch (err) {
+        console.error('Error fetching user activity:', err);
+        res.status(500).json({ error: 'Failed to fetch user activity' });
     }
 };

@@ -96,17 +96,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                         Notes
                                     </button>
                                 </li>
-                                <li>
-                                    <button
-                                        onClick={() => router.push('/admin/verify')}
-                                        className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                                            pathname === '/admin/verify' ? 'bg-gray-200 dark:bg-gray-700' : ''
-                                        }`}
-                                    >
-                                        <ShieldCheckIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
-                                        Verify Users
-                                    </button>
-                                </li>
                             </ul>
                         </div>
                     ) : null}

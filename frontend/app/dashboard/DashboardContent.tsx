@@ -1,6 +1,7 @@
+// /app/dashboard/DashboardContent.tsx
 'use client';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import {
     Bars3Icon,
     BellIcon,
@@ -12,16 +13,16 @@ import {
     UsersIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline';
-import {usePathname, useRouter} from 'next/navigation';
-import {DashboardProvider, useDashboardContext} from '@/app/context/DashboardContext';
-import {useDashboardSharedContext} from '@/app/context/DashboardSharedContext';
+import { usePathname, useRouter } from 'next/navigation';
+import { DashboardProvider, useDashboardContext } from '@/app/context/DashboardContext';
+import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 import DashboardSection from './DashboardSection';
 import NotesSection from '../notes/NotesSection';
 import FriendsSection from '../friends/FriendsSection';
 import ProfileSection from '../profile/ProfileSection';
 import AccountSettingsSection from '../account-settings/AccountSettingsSection';
 import NotificationsSection from '../notifications/NotificationsSection';
-import Link from "next/link";
+import Link from 'next/link';
 
 const sectionMap: { [key: string]: React.ComponentType } = {
     dashboard: DashboardSection,
@@ -41,14 +42,14 @@ const titleMap: { [key: string]: string } = {
     notifications: 'Notifications',
 };
 
-export default function DashboardContent({defaultTab = 'dashboard'}: { defaultTab?: string }) {
-    const {loading, isSidebarOpen, setIsSidebarOpen} = useDashboardSharedContext();
+export default function DashboardContent({ defaultTab = 'dashboard' }: { defaultTab?: string }) {
+    const { loading, isSidebarOpen, setIsSidebarOpen } = useDashboardSharedContext();
 
     if (loading) return <div className="text-center mt-10">Loading...</div>;
 
     return (
         <DashboardProvider>
-            <DashboardInner defaultTab={defaultTab} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}/>
+            <DashboardInner defaultTab={defaultTab} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         </DashboardProvider>
     );
 }
@@ -59,7 +60,7 @@ function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
     setIsSidebarOpen: (open: boolean) => void
 }) {
     const { activeTab, setActiveTab, navigateToTab } = useDashboardContext();
-    const { user } = useDashboardSharedContext();
+    const { user, notificationCount } = useDashboardSharedContext(); // Add notificationCount here
     const pathname = usePathname();
     const router = useRouter();
 
@@ -172,12 +173,16 @@ function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
                                 >
                                     <BellIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
                                     Notifications
+                                    {notificationCount > 0 && (
+                                        <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                                            {notificationCount}
+                                        </span>
+                                    )}
                                 </button>
                             </li>
                         </ul>
                     </div>
                 </div>
-
 
                 {/* Main Content */}
                 <div
@@ -187,15 +192,15 @@ function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
                 >
                     <div className="flex justify-center mb-10 mt-10">
                         {isSidebarOpen ? (
-                            <div className="h-14"/>
-                            ) : (
+                            <div className="h-14" />
+                        ) : (
                             <Link href="/">
                                 <button className="group flex items-center gap-3 px-4 py-2 bg-transparent border-none cursor-pointer text-gray-900 dark:text-gray-100 text-4xl font-bold">
                                     <LockClosedIcon className="h-10 w-10 text-gray-400 group-hover:scale-125 transition-transform duration-200" />
                                     Secure Note
                                 </button>
                             </Link>
-                            )}
+                        )}
                     </div>
 
                     {!isSidebarOpen && (
@@ -210,10 +215,9 @@ function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
                     <div
                         className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 w-full min-h-screen mx-auto"
                     >
-                        <ActiveSection/>
+                        <ActiveSection />
                     </div>
                 </div>
-
             </div>
         </ProtectedRoute>
     );

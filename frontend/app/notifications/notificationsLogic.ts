@@ -1,82 +1,83 @@
+// /app/notifications/notificationsLogic.ts
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
+import { getFriends, respondToFriendRequest } from '@/services/users';
+import { getNotes } from '@/services/notes';
+
+// Define interfaces (same as in NotificationsSection.tsx)
+interface User {
+    _id: string;
+    username: string;
+}
+
+interface FriendRequest {
+    _id: string;
+    sender: User;
+    receiver: User;
+    status: 'pending' | 'accepted' | 'rejected';
+    createdAt: string;
+}
+
+interface SharedWith {
+    user: User;
+    permission: 'viewer' | 'editor';
+    encryptedContent?: string;
+}
+
+interface Note {
+    _id: string;
+    title: string;
+    content: string;
+    format: 'plain' | 'markdown';
+    encrypted: boolean;
+    owner: string | User;
+    createdAt: string;
+    sharedWith: SharedWith[];
+}
 
 export const useNotificationsLogic = () => {
-    // Simulated notification data for a secure note app
-    const simulatedNotifications = [
-        {
-            _id: '1',
-            type: 'friend_request',
-            message: 'Alice sent you a friend request.',
-            timestamp: '2025-03-18T10:00:00Z',
-            read: false,
-        },
-        {
-            _id: '2',
-            type: 'note_shared',
-            message: 'Bob shared a note "Project Plan" with you.',
-            timestamp: '2025-03-17T15:30:00Z',
-            read: true,
-        },
-        {
-            _id: '3',
-            type: 'account',
-            message: 'Your email verification was successful.',
-            timestamp: '2025-03-16T09:15:00Z',
-            read: true,
-        },
-    ];
-
-    // Local state for notifications
-    const [notifications, setNotifications] = useState(simulatedNotifications);
-    const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const { user, refreshNotifications } = useDashboardSharedContext();
+    const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
+    const [sharedNotes, setSharedNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Simulate marking a notification as read
-    const handleMarkAsRead = async (id: string) => {
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (!user) return;
+            setLoading(true);
+            try {
+                const [friendsData, notesData] = await Promise.all([getFriends(), getNotes()]);
+                setFriendRequests(friendsData.friendRequests);
+                setSharedNotes(notesData.filter((note: Note) => note.sharedWith.length > 0));
+                refreshNotifications(); // Update global count
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNotifications();
+    }, [user, refreshNotifications]);
+
+    const handleRespondToFriendRequest = async (requestId: string, action: 'accept' | 'reject') => {
         setLoading(true);
-        setError(null);
-        setMessage(null);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            setNotifications((prev) =>
-                prev.map((n) => (n._id === id ? { ...n, read: true } : n))
-            );
-            setMessage('Notification marked as read.');
-        } catch (err) {
-            setError('Failed to mark notification as read.');
+            await respondToFriendRequest(requestId, action);
+            const friendsData = await getFriends();
+            setFriendRequests(friendsData.friendRequests);
+            refreshNotifications();
+        } catch (error) {
+            console.error('Failed to respond to friend request:', error);
         } finally {
             setLoading(false);
         }
     };
-
-    // Simulate clearing all notifications
-    const handleClearAll = async () => {
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            setNotifications([]);
-            setMessage('All notifications cleared.');
-        } catch (err) {
-            setError('Failed to clear notifications.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Notification stats
-    const unreadCount = notifications.filter((n) => !n.read).length;
 
     return {
-        notifications,
-        unreadCount,
-        handleMarkAsRead,
-        handleClearAll,
-        message,
-        error,
+        friendRequests,
+        sharedNotes,
         loading,
+        respondToFriendRequest: handleRespondToFriendRequest,
     };
 };

@@ -1,8 +1,11 @@
+// /app/context/DashboardSharedContext.tsx
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation'; // Add usePathname
+import { useRouter, usePathname } from 'next/navigation';
 import { getCurrentUser } from '@/services/auth';
 import { User } from '@/services/auth';
+import { getFriends } from '@/services/users'; // For friend requests
+import { getNotes } from '@/services/notes';   // For note sharing
 
 interface UserData {
     user: User;
@@ -16,6 +19,8 @@ interface DashboardSharedContextType {
     isSidebarOpen: boolean;
     setIsSidebarOpen: (open: boolean) => void;
     setUser: (user: UserData | null) => void;
+    notificationCount: number; // Add notification count
+    refreshNotifications: () => void; // Method to refresh notifications
 }
 
 const DashboardSharedContext = createContext<DashboardSharedContextType | undefined>(undefined);
@@ -24,13 +29,38 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [notificationCount, setNotificationCount] = useState(0);
     const router = useRouter();
-    const pathname = usePathname(); // Get current path
+    const pathname = usePathname();
+
+    const fetchNotifications = async () => {
+        if (!user) return;
+        try {
+            const token = localStorage.getItem('token');
+            const [friendsData, notesData] = await Promise.all([
+                getFriends(),
+                getNotes(),
+            ]);
+
+            // Friend request notifications (pending incoming)
+            const pendingFriendRequests = friendsData.friendRequests.filter(
+                (r) => r.receiver._id === user.user._id && r.status === 'pending'
+            ).length;
+
+            // Note sharing notifications (notes shared with user)
+            const sharedNotes = notesData.filter(
+                (note) => typeof note.owner !== 'string' && note.owner._id !== user.user._id
+            ).length;
+
+            setNotificationCount(pendingFriendRequests + sharedNotes);
+        } catch (error) {
+            console.error('Failed to fetch notifications:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem('token');
-            console.log('Fetching user with token:', token);
             if (token && !user) {
                 try {
                     const data = await getCurrentUser(token);
@@ -38,31 +68,23 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                         user: data.user,
                         role: data.role as 'admin' | 'user',
                     };
-                    if (!['admin', 'user'].includes(data.role)) {
-                        throw new Error('Invalid role received from server');
-                    }
                     setUser(transformedData);
-
-                    // Define role-based valid routes
+                    await fetchNotifications(); // Fetch notifications on load
+                    // Role-based routing logic remains the same
                     const userRoutes = ['/', '/friends', '/profile', '/notes', '/account-settings', '/notifications'];
                     const adminRoutes = ['/admin/overview', '/admin/users', '/admin/notes', '/admin/verify'];
-
-                    // Check current route against user role
                     if (transformedData.role === 'admin' && userRoutes.includes(pathname)) {
-                        console.log('Admin attempting to access user route, redirecting to /admin/overview');
                         router.push('/admin/overview');
                     } else if (transformedData.role === 'user' && pathname.startsWith('/admin')) {
-                        console.log('User attempting to access admin route, redirecting to /');
                         router.push('/');
                     }
                 } catch (error: any) {
-                    console.error('Failed to fetch user:', error.message, error.response?.data);
+                    console.error('Failed to fetch user:', error.message);
                     localStorage.removeItem('token');
                     setUser(null);
                     router.push('/login');
                 }
             } else if (!token) {
-                console.log('No token found in localStorage');
                 router.push('/login');
             }
             setLoading(false);
@@ -73,11 +95,18 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const handleLogout = () => {
         localStorage.removeItem('token');
         setUser(null);
+        setNotificationCount(0);
         router.push('/login');
     };
 
+    const refreshNotifications = () => {
+        fetchNotifications();
+    };
+
     return (
-        <DashboardSharedContext.Provider value={{ user, loading, handleLogout, isSidebarOpen, setIsSidebarOpen, setUser }}>
+        <DashboardSharedContext.Provider
+            value={{ user, loading, handleLogout, isSidebarOpen, setIsSidebarOpen, setUser, notificationCount, refreshNotifications }}
+        >
             {children}
         </DashboardSharedContext.Provider>
     );
