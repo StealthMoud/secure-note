@@ -1,13 +1,8 @@
 'use client';
 import React from 'react';
 import { useDashboardLogic } from './dashboardLogic';
-import {
-    ChartBarIcon,
-    PencilIcon,
-    UserPlusIcon,
-    LockClosedIcon,
-    EnvelopeIcon
-} from '@heroicons/react/24/outline';
+import { ChartBarIcon, LockClosedIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 export default function DashboardSection() {
     const { user, message, error, loading, handleRequestVerification } = useDashboardLogic();
@@ -23,50 +18,47 @@ export default function DashboardSection() {
             {user.user.verified ? (
                 // Verified User Dashboard
                 <div className="space-y-6 mt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Card 1: Activity Overview */}
+                    <div className="grid grid-cols-1 gap-6">
+                        {/* Card: Your Profile */}
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                                 <ChartBarIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
-                                Activity Overview
+                                Your Profile
                             </h3>
-                            <p className="mt-2 text-gray-600 dark:text-gray-300">
-                                Notes Created: <span className="font-medium">5</span>
-                            </p>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Friends: <span className="font-medium">3</span>
-                            </p>
-                            <button
-                                className="mt-4 bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 flex items-center"
-                                aria-label="View details"
-                            >
-                                <ChartBarIcon className="w-5 h-5 mr-2" />
-                                View Details
-                            </button>
-                        </div>
-
-                        {/* Card 2: Quick Actions */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-shadow duration-200">
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                                <PencilIcon className="w-6 h-6 mr-2 text-gray-700 dark:text-gray-300" />
-                                Quick Actions
-                            </h3>
-                            <div className="mt-2 space-y-2">
-                                <button
-                                    className="w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 flex items-center justify-center"
-                                    aria-label="Create a new note"
-                                >
-                                    <PencilIcon className="w-5 h-5 mr-2" />
-                                    New Note
-                                </button>
-                                <button
-                                    className="w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 flex items-center justify-center"
-                                    aria-label="Add a friend"
-                                >
-                                    <UserPlusIcon className="w-5 h-5 mr-2" />
-                                    Add Friend
-                                </button>
+                            <div className="mt-2 text-gray-600 dark:text-gray-300 space-y-1">
+                                <p>
+                                    <strong>Username:</strong> {user.user.username}
+                                </p>
+                                <p>
+                                    <strong>Email:</strong> {user.user.email}
+                                </p>
+                                <p>
+                                    <strong>Role:</strong> {user.user.role}
+                                </p>
+                                <p>
+                                    <strong>Joined:</strong>{' '}
+                                    {new Date(user.user.createdAt || '').toLocaleDateString()}
+                                </p>
+                                {user.user.nickname && (
+                                    <p>
+                                        <strong>Nickname:</strong> {user.user.nickname}
+                                    </p>
+                                )}
+                                {user.user.bio && (
+                                    <p>
+                                        <strong>Bio:</strong> {user.user.bio}
+                                    </p>
+                                )}
                             </div>
+                            <Link href="/profile">
+                                <button
+                                    className="mt-4 bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 flex items-center"
+                                    aria-label="View profile details"
+                                >
+                                    <ChartBarIcon className="w-5 h-5 mr-2" />
+                                    View Profile
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

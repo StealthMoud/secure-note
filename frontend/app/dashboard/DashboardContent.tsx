@@ -1,4 +1,3 @@
-// /app/dashboard/DashboardContent.tsx
 'use client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useEffect } from 'react';
