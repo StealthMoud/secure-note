@@ -1,11 +1,10 @@
-// /app/context/DashboardSharedContext.tsx
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { getCurrentUser } from '@/services/auth';
 import { User } from '@/services/auth';
-import { getFriends } from '@/services/users'; // For friend requests
-import { getNotes } from '@/services/notes';   // For note sharing
+import { getFriends } from '@/services/users';
+import { getNotes } from '@/services/notes';
 
 interface UserData {
     user: User;
@@ -19,8 +18,8 @@ interface DashboardSharedContextType {
     isSidebarOpen: boolean;
     setIsSidebarOpen: (open: boolean) => void;
     setUser: (user: UserData | null) => void;
-    notificationCount: number; // Add notification count
-    refreshNotifications: () => void; // Method to refresh notifications
+    notificationCount: number;
+    refreshNotifications: () => void;
 }
 
 const DashboardSharedContext = createContext<DashboardSharedContextType | undefined>(undefined);
@@ -32,6 +31,9 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const [notificationCount, setNotificationCount] = useState(0);
     const router = useRouter();
     const pathname = usePathname();
+
+    // Define public routes that don't require authentication
+    const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
 
     const fetchNotifications = async () => {
         if (!user) return;
@@ -69,12 +71,12 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                         role: data.role as 'admin' | 'user',
                     };
                     setUser(transformedData);
-                    await fetchNotifications(); // Fetch notifications on load
-                    // Role-based routing logic remains the same
+                    await fetchNotifications();
+                    // Role-based routing logic
                     const userRoutes = ['/', '/friends', '/profile', '/notes', '/account-settings', '/notifications'];
                     const adminRoutes = ['/admin/overview', '/admin/users', '/admin/notes', '/admin/verify'];
                     if (transformedData.role === 'admin' && userRoutes.includes(pathname)) {
-                        router.push('/admin/overview');
+                        router.push('/admin-overview');
                     } else if (transformedData.role === 'user' && pathname.startsWith('/admin')) {
                         router.push('/');
                     }
@@ -82,9 +84,11 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                     console.error('Failed to fetch user:', error.message);
                     localStorage.removeItem('token');
                     setUser(null);
-                    router.push('/login');
+                    if (!publicRoutes.includes(pathname)) {
+                        router.push('/login');
+                    }
                 }
-            } else if (!token) {
+            } else if (!token && !publicRoutes.includes(pathname)) {
                 router.push('/login');
             }
             setLoading(false);
