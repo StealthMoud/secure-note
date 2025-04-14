@@ -41,7 +41,6 @@ interface TotpSetupResponse { message: string; otpauthUrl: string; qrCodeDataURL
 interface TotpResponse { message: string; }
 interface TotpLoginResponse { token: string; }
 
-// Rest of the file remains unchanged...
 export const registerUser = async (username: string, email: string, password: string, confirmPassword: string): Promise<RegisterResponse> => {
     try {
         const response = await api.post<RegisterResponse>('/auth/register', { username, email, password, confirmPassword });
@@ -85,7 +84,6 @@ export const getCurrentUser = async (token: string): Promise<UserResponse> => {
     }
 };
 
-// ... (rest of the functions remain unchanged)
 export const verifyTotpLogin = async (tempToken: string, totpCode: string): Promise<TotpLoginResponse> => {
     try {
         const response = await api.post<TotpLoginResponse>('/auth/verify-totp-login', { tempToken, totpCode });
@@ -152,6 +150,18 @@ export const approveVerification = async (userId: string): Promise<{ message: st
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Failed to approve verification');
+    }
+};
+
+export const rejectVerification = async (userId: string): Promise<{ message: string }> => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await api.post<{ message: string }>('/auth/reject-verification', { userId }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Failed to reject verification');
     }
 };
 

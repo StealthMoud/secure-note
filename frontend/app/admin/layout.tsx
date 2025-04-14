@@ -87,13 +87,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 </li>
                                 <li>
                                     <button
-                                        onClick={() => router.push('/admin/notes')}
+                                        onClick={() => router.push('/admin/security-logs')}
                                         className={`group w-full flex items-center p-2 rounded text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                                            pathname === '/admin/notes' ? 'bg-gray-200 dark:bg-gray-700' : ''
+                                            pathname === '/admin/security-logs' ? 'bg-gray-200 dark:bg-gray-700' : ''
                                         }`}
                                     >
-                                        <DocumentTextIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
-                                        Notes
+                                        <ShieldCheckIcon className="h-5 w-5 mr-2 group-hover:scale-125 transition-transform duration-200" />
+                                        Security Logs
                                     </button>
                                 </li>
                             </ul>

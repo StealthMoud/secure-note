@@ -1,4 +1,3 @@
-// /frontend/src/services/adminService.ts
 import api from './api';
 
 interface User {
@@ -9,6 +8,7 @@ interface User {
     verified: boolean;
     isActive: boolean;
     createdAt: string;
+    verificationPending: boolean;
 }
 
 interface Activity {

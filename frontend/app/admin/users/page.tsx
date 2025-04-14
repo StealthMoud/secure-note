@@ -1,10 +1,8 @@
-// /frontend/app/admin/users/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import {
     UserIcon,
     TrashIcon,
-    LockClosedIcon,
     MagnifyingGlassIcon,
     ArrowsUpDownIcon,
     ChartBarIcon,
@@ -13,7 +11,8 @@ import {
     XCircleIcon,
 } from '@heroicons/react/24/outline';
 import api from '@/services/api';
-import { createUser, unverifyUser, getUserActivity } from '@/services/adminService';
+import { createUser, getUserActivity } from '@/services/adminService';
+import { approveVerification, rejectVerification } from '@/services/auth';
 import { useDebounce } from '@/app/utils/debounce';
 import { SetStateAction } from 'react';
 
@@ -24,6 +23,8 @@ interface User {
     verified: boolean;
     isActive: boolean;
     createdAt: string;
+    role: 'user' | 'admin';
+    verificationPending: boolean;
 }
 
 interface Activity {
@@ -34,9 +35,11 @@ interface Activity {
 
 export default function UsersPage() {
     const [activeTab, setActiveTab] = useState('all-users');
+    const [subTab, setSubTab] = useState<'users' | 'admins'>('users');
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState('username-asc');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -59,10 +62,18 @@ export default function UsersPage() {
     }, []);
 
     const filteredUsers = users
-        .filter(user =>
-            user.username.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-        )
+        .filter(user => {
+            const matchesSearch =
+                user.username.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+            if (activeTab === 'pending-verifications') {
+                return matchesSearch && user.verificationPending;
+            }
+            if (activeTab === 'all-users') {
+                return matchesSearch && user.role === (subTab === 'users' ? 'user' : 'admin');
+            }
+            return matchesSearch;
+        })
         .sort((a, b) => {
             if (sortOption === 'username-asc') return a.username.localeCompare(b.username);
             if (sortOption === 'username-desc') return b.username.localeCompare(a.username);
@@ -79,6 +90,7 @@ export default function UsersPage() {
                 <UserIcon className="w-8 h-8 mr-2 text-gray-700 dark:text-gray-300" />
                 Manage Users
             </h2>
+            {message && <p className="text-green-500 mb-4">{message}</p>}
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             {/* Tabs */}
@@ -88,6 +100,12 @@ export default function UsersPage() {
                     onClick={() => setActiveTab('all-users')}
                 >
                     All Users
+                </button>
+                <button
+                    className={`px-4 py-2 ${activeTab === 'pending-verifications' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                    onClick={() => setActiveTab('pending-verifications')}
+                >
+                    Pending Verifications
                 </button>
                 <button
                     className={`px-4 py-2 ${activeTab === 'user-activity' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
@@ -103,16 +121,36 @@ export default function UsersPage() {
                 </button>
             </div>
 
-            {/* Tab Content */}
+            {/* Sub-tabs for All Users */}
             {activeTab === 'all-users' && (
+                <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                    <button
+                        className={`px-4 py-2 ${subTab === 'users' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                        onClick={() => setSubTab('users')}
+                    >
+                        Users
+                    </button>
+                    <button
+                        className={`px-4 py-2 ${subTab === 'admins' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                        onClick={() => setSubTab('admins')}
+                    >
+                        Admins
+                    </button>
+                </div>
+            )}
+
+            {/* Tab Content */}
+            {(activeTab === 'all-users' || activeTab === 'pending-verifications') && (
                 <UserList
                     users={filteredUsers}
                     setUsers={setUsers}
                     setError={setError}
+                    setMessage={setMessage}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     sortOption={sortOption}
                     setSortOption={setSortOption}
+                    activeTab={activeTab}
                 />
             )}
             {activeTab === 'user-activity' && <UserActivity users={users} setError={setError} />}
@@ -125,55 +163,23 @@ function UserList({
                       users,
                       setUsers,
                       setError,
+                      setMessage,
                       searchTerm,
                       setSearchTerm,
                       sortOption,
                       setSortOption,
+                      activeTab,
                   }: {
     users: User[];
-    setUsers: (users: SetStateAction<User[]>) => void; // Updated type
+    setUsers: (users: SetStateAction<User[]>) => void;
     setError: (error: string) => void;
+    setMessage: (message: string) => void;
     searchTerm: string;
     setSearchTerm: (term: string) => void;
     sortOption: string;
     setSortOption: (option: string) => void;
+    activeTab: string;
 }) {
-    const handleVerifyToggle = async (userId: string, isVerified: boolean) => {
-        try {
-            let updatedUser: User;
-            if (isVerified) {
-                // unverifyUser returns { message: string; user: User }
-                const unverifyResponse = await unverifyUser(userId);
-                updatedUser = unverifyResponse.user;
-            } else {
-                // api.put returns AxiosXHR<{ user: User }>
-                const verifyResponse = await api.put<{ user: User }>(
-                    `/admin/users/${userId}/verify`,
-                    {},
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                    }
-                );
-                updatedUser = verifyResponse.data.user;
-            }
-            setUsers(prev => prev.map(u => (u._id === userId ? updatedUser : u)));
-        } catch (err: any) {
-            setError(err.response?.data?.error || `Failed to ${isVerified ? 'unverify' : 'verify'} user`);
-        }
-    };
-
-    const handleDeactivate = async (userId: string) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await api.put<{ user: User }>(`/admin/users/${userId}/deactivate`, {}, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setUsers(prev => prev.map(u => (u._id === userId ? response.data.user : u)));
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to deactivate user');
-        }
-    };
-
     const handleDelete = async (userId: string) => {
         if (confirm('Are you sure you want to delete this user?')) {
             try {
@@ -182,9 +188,30 @@ function UserList({
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(prev => prev.filter(u => u._id !== userId));
+                setMessage('User deleted successfully');
             } catch (err: any) {
                 setError(err.response?.data?.error || 'Failed to delete user');
             }
+        }
+    };
+
+    const handleApprove = async (userId: string) => {
+        try {
+            const data = await approveVerification(userId);
+            setMessage(data.message);
+            setUsers(prev => prev.filter(u => u._id !== userId));
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to approve verification');
+        }
+    };
+
+    const handleReject = async (userId: string) => {
+        try {
+            const data = await rejectVerification(userId);
+            setMessage(data.message);
+            setUsers(prev => prev.filter(u => u._id !== userId));
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to reject verification');
         }
     };
 
@@ -216,41 +243,49 @@ function UserList({
                 </div>
             </div>
             <div className="overflow-y-auto max-h-[500px] border border-gray-200 dark:border-gray-700 rounded-lg">
-                {users.map((user) => (
-                    <div key={user._id} className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-                        <div>
-                            <p className="text-gray-900 dark:text-gray-100"><strong>Username:</strong> {user.username}</p>
-                            <p className="text-gray-600 dark:text-gray-300"><strong>Email:</strong> {user.email}</p>
-                            <p className="text-gray-600 dark:text-gray-300"><strong>Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
-                            <p className="text-gray-600 dark:text-gray-300"><strong>Verified:</strong> {user.verified ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleVerifyToggle(user._id, user.verified)}
-                                className={`${user.verified ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white px-3 py-1 rounded flex items-center`}
-                            >
-                                {user.verified ? <XCircleIcon className="w-5 h-5 mr-1" /> : <CheckCircleIcon className="w-5 h-5 mr-1" />}
-                                {user.verified ? 'Unverify' : 'Verify'}
-                            </button>
-                            {user.isActive && (
+                {users.length === 0 ? (
+                    <p className="p-4 text-gray-600 dark:text-gray-300">No users found.</p>
+                ) : (
+                    users.map((user) => (
+                        <div key={user._id} className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+                            <div>
+                                <p className="text-gray-900 dark:text-gray-100"><strong>Username:</strong> {user.username}</p>
+                                <p className="text-gray-600 dark:text-gray-300"><strong>Email:</strong> {user.email}</p>
+                                <p className="text-gray-600 dark:text-gray-300"><strong>Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
+                                <p className="text-gray-600 dark:text-gray-300"><strong>Verified:</strong> {user.verified ? 'Yes' : 'No'}</p>
+                                <p className="text-gray-600 dark:text-gray-300"><strong>Role:</strong> {user.role}</p>
+                                <p className="text-gray-600 dark:text-gray-300"><strong>Verification Pending:</strong> {user.verificationPending ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                {activeTab === 'pending-verifications' && (
+                                    <>
+                                        <button
+                                            onClick={() => handleApprove(user._id)}
+                                            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 flex items-center"
+                                        >
+                                            <CheckCircleIcon className="w-5 h-5 mr-1" />
+                                            Approve
+                                        </button>
+                                        <button
+                                            onClick={() => handleReject(user._id)}
+                                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center"
+                                        >
+                                            <XCircleIcon className="w-5 h-5 mr-1" />
+                                            Reject
+                                        </button>
+                                    </>
+                                )}
                                 <button
-                                    onClick={() => handleDeactivate(user._id)}
-                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 flex items-center"
+                                    onClick={() => handleDelete(user._id)}
+                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center"
                                 >
-                                    <LockClosedIcon className="w-5 h-5 mr-1" />
-                                    Deactivate
+                                    <TrashIcon className="w-5 h-5 mr-1" />
+                                    Delete
                                 </button>
-                            )}
-                            <button
-                                onClick={() => handleDelete(user._id)}
-                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center"
-                            >
-                                <TrashIcon className="w-5 h-5 mr-1" />
-                                Delete
-                            </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
         </div>
     );
@@ -307,7 +342,7 @@ function AddUserForm({ setUsers, setError }: { setUsers: (users: SetStateAction<
             setUsers((prev: User[]) => [...prev, response.user]);
             setFormData({ username: '', email: '', password: '', role: 'user' });
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to create userrrrrr');
+            setError(err.response?.data?.error || 'Failed to create user');
         }
     };
 

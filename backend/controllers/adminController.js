@@ -107,8 +107,7 @@ exports.getSecurityLogs = async (req, res) => {
     try {
         const logs = await SecurityLog.find()
             .populate('user', 'username email')
-            .sort({ timestamp: -1 })
-            .limit(100);
+            .sort({ timestamp: -1 });
         res.json({ message: 'Security logs retrieved successfully', logs });
     } catch (err) {
         console.error('Error fetching security logs:', err);
