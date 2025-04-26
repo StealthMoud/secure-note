@@ -20,7 +20,7 @@ app.use(helmet({
             imgSrc: ["'self'", "http://localhost:5002", "http://localhost:3000"], // Allow images from backend and frontend
             scriptSrc: ["'self'"],
             styleSrc: ["'self'"],
-            // Add other directives as needed
+            // we can add other directives as needed
         },
     },
 }));

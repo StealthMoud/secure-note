@@ -38,7 +38,8 @@ export default function LoginPage() {
     } = useLoginLogic();
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 text-center w-full max-w-md mx-auto my-12">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700 text-center w-full max-w-md mx-auto my-12
+    transform transition-all duration-500 ease-in-out hover:scale-105 hover:rotate-x-1 hover:rotate-y-2 hover:shadow-[0_15px_30px_rgba(0,0,0,0.2)] perspective-[1000px]">
             <h1 className="text-3xl font-bold tracking-wide text-gray-900 dark:text-gray-100 mt-4 mb-6 flex items-center justify-center">
                 <KeyIcon className="h-8 w-8 mr-2 text-gray-400 dark:text-gray-500" />
                 Login
@@ -184,9 +185,10 @@ export default function LoginPage() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 text-base flex items-center justify-center ${
+                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition-all duration-500 ease-in-out transform hover:scale-105 active:scale-95 text-base flex items-center justify-center ${
                         loading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
+
                 >
                     {loading ? (
                         <svg
@@ -219,7 +221,7 @@ export default function LoginPage() {
                 <button
                     onClick={() => handleOAuthLogin('google')}
                     disabled={loading}
-                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 text-base flex items-center justify-center ${
+                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition-all duration-500 ease-in-out transform hover:scale-105 active:scale-95 text-base flex items-center justify-center ${
                         loading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                 >
@@ -238,7 +240,7 @@ export default function LoginPage() {
                 <button
                     onClick={() => handleOAuthLogin('github')}
                     disabled={loading}
-                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition duration-200 text-base flex items-center justify-center ${
+                    className={`w-full bg-white dark:bg-slate-600 border border-gray-300 dark:border-none text-gray-900 dark:text-gray-100 px-5 py-2.5 rounded hover:bg-gray-100 dark:hover:bg-slate-400 transition-all duration-500 ease-in-out transform hover:scale-105 active:scale-95 text-base flex items-center justify-center ${
                         loading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                 >
