@@ -7,6 +7,10 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+    restart: unless-stopped
 
   # BACKEND SERVICE (Express.js)
   backend:
@@ -16,15 +20,14 @@ services:
     container_name: secure-note-backend
     ports:
       - "5002:5002"
-    volumes:
-      - ./backend:/app
     env_file:
       - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       - mongodb
-    command: npx nodemon server.js
+    command: node server.js
+    restart: unless-stopped
 
   # FRONTEND SERVICE (Next.js)
   frontend:
@@ -34,13 +37,12 @@ services:
     container_name: secure-note-frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       - backend
-    command: npm run dev
+    command: npm run start
+    restart: unless-stopped
 
 volumes:
   mongodb_data:

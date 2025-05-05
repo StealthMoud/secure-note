@@ -29,6 +29,8 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: "Too many reque
 app.use(express.json());
 app.use(passport.initialize());
 
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
