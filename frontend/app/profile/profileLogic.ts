@@ -1,5 +1,6 @@
+// /Users/stealthmoud/Projects/SecureNote/frontend/app/profile/profileLogic.tsx
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
 import { updatePersonalization } from '@/services/users';
 import { User } from '@/services/auth';
@@ -17,11 +18,35 @@ export const useProfileLogic = () => {
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isExitingError, setIsExitingError] = useState(false);
+    const [isExitingMessage, setIsExitingMessage] = useState(false);
 
     const hasChanges = () => {
-        const avatarChanged = avatar instanceof File || (avatar === undefined && user?.user.avatar !== undefined) || (avatar !== user?.user.avatar);
-        const headerChanged = header instanceof File || (header === undefined && user?.user.header !== undefined) || (header !== user?.user.header);
+        const avatarChanged =
+            avatar instanceof File ||
+            (avatar === undefined && user?.user.avatar !== undefined) ||
+            (avatar !== user?.user.avatar);
+        const headerChanged =
+            header instanceof File ||
+            (header === undefined && user?.user.header !== undefined) ||
+            (header !== user?.user.header);
         return avatarChanged || headerChanged;
+    };
+
+    const dismissMessage = (type: 'error' | 'message') => {
+        if (type === 'error') {
+            setIsExitingError(true);
+            setTimeout(() => {
+                setError(null);
+                setIsExitingError(false);
+            }, 500); // Match transition duration
+        } else {
+            setIsExitingMessage(true);
+            setTimeout(() => {
+                setMessage(null);
+                setIsExitingMessage(false);
+            }, 500); // Match transition duration
+        }
     };
 
     const handleUpdateAppearance = async () => {
@@ -65,6 +90,36 @@ export const useProfileLogic = () => {
         }
     };
 
+    useEffect(() => {
+        let errorTimeout: NodeJS.Timeout;
+        let messageTimeout: NodeJS.Timeout;
+
+        if (error) {
+            errorTimeout = setTimeout(() => {
+                setIsExitingError(true);
+                setTimeout(() => {
+                    setError(null);
+                    setIsExitingError(false);
+                }, 500); // Match transition duration
+            }, 5000); // Display for 5 seconds
+        }
+
+        if (message) {
+            messageTimeout = setTimeout(() => {
+                setIsExitingMessage(true);
+                setTimeout(() => {
+                    setMessage(null);
+                    setIsExitingMessage(false);
+                }, 500); // Match transition duration
+            }, 5000); // Display for 5 seconds
+        }
+
+        return () => {
+            clearTimeout(errorTimeout);
+            clearTimeout(messageTimeout);
+        };
+    }, [error, message]);
+
     if (!user) {
         throw new Error('User data is not available');
     }
@@ -78,6 +133,10 @@ export const useProfileLogic = () => {
         handleUpdateAppearance,
         message,
         error,
+        isExitingError,
+        isExitingMessage,
+        dismissMessage,
         loading,
+        hasChanges, // Added to return object
     };
 };
