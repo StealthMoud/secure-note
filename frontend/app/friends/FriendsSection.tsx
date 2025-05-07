@@ -63,10 +63,10 @@ const SendFriendRequestCard = React.memo(
                     <input
                         value={friendRequestUsername}
                         onChange={handleChange}
-                        placeholder="Enter username or email" // Update placeholder
+                        placeholder="Enter username or email"
                         className="p-2 border border-gray-200 dark:border-gray-700 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 flex-1 max-w-xs"
                         disabled={loading}
-                        aria-label="Friend username or email" // Update aria-label
+                        aria-label="Friend username or email"
                     />
                     <button
                         onClick={handleSendFriendRequest}

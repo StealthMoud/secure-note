@@ -25,7 +25,7 @@ interface Note {
     owner: string | { _id: string; username: string };
     createdAt: string;
     sharedWith: { user: { _id: string; username: string }; permission: 'viewer' | 'editor'; encryptedContent?: string }[];
-}
+}''
 
 const NoteInputForm = React.memo(
     ({

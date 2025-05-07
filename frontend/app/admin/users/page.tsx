@@ -181,9 +181,18 @@ function UserList({
     activeTab: string;
 }) {
     const handleDelete = async (userId: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const currentUserId = parseJwt(token).id;
+
+        if (userId === currentUserId) {
+            alert('Admins cannot delete themselves');
+            return;
+        }
+
         if (confirm('Are you sure you want to delete this user?')) {
             try {
-                const token = localStorage.getItem('token');
                 await api.delete(`/admin/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -194,6 +203,16 @@ function UserList({
             }
         }
     };
+
+// Helper to decode JWT
+    function parseJwt(token: string) {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            return {};
+        }
+    }
+
 
     const handleApprove = async (userId: string) => {
         try {

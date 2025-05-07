@@ -34,7 +34,7 @@ export interface User {
 
 interface LoginResponse { token?: string; requires2FA?: boolean; tempToken?: string; user: User; }
 interface RegisterResponse { message: string; }
-interface UserResponse { user: User; role: string; }
+interface UserResponse { user: User; role: 'admin' | 'user'; }
 interface VerifyEmailResponse { message: string; }
 interface UpdateResponse { message: string; user: User; }
 interface TotpSetupResponse { message: string; otpauthUrl: string; qrCodeDataURL: string; }

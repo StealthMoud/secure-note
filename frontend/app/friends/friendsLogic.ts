@@ -58,7 +58,7 @@ export const useFriendsLogic = () => {
 
         const existingRequest = friendRequests.find(
             (r) => r.sender._id === user.user._id &&
-                (r.receiver.username === friendRequestUsername || (r.receiver.email && r.receiver.email === friendRequestUsername)) && // Check email only if it exists
+                (r.receiver.username === friendRequestUsername || (r.receiver.email && r.receiver.email === friendRequestUsername)) &&
                 r.status === 'pending'
         );
         if (existingRequest) {

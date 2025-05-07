@@ -83,7 +83,7 @@ exports.deactivateUser = async (req, res) => {
 // Delete a user
 exports.deleteUser = async (req, res) => {
     try {
-        if (req.params.id === req.user.id) {
+        if (req.params.id === String(req.user._id)) {
             return res.status(400).json({ error: 'Admins cannot delete themselves' });
         }
         const user = await User.findByIdAndDelete(req.params.id);

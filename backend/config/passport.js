@@ -50,7 +50,6 @@ passport.use(new GitHubStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         console.log('GitHub Profile:', JSON.stringify(profile, null, 2));
-        // Use native fetch to get emails
         const emailResponse = await fetch('https://api.github.com/user/emails', {
             headers: { Authorization: `token ${accessToken}` }
         });

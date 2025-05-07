@@ -216,6 +216,13 @@ export default function LoginPage() {
                 </button>
             </form>
 
+            {/* Divider with 'or' */}
+            <div className="my-6 flex items-center justify-center">
+                <hr className="w-1/3 border-gray-300 dark:border-gray-600" />
+                <span className="mx-4 text-sm text-gray-500 dark:text-gray-400 font-medium">or</span>
+                <hr className="w-1/3 border-gray-300 dark:border-gray-600" />
+            </div>
+
             {/* OAuth Buttons */}
             <div className="mt-6 space-y-4">
                 <button

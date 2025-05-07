@@ -78,7 +78,7 @@ export function useLoginLogic() {
                     return;
                 }
                 localStorage.setItem('token', data.token!);
-                const userData = await getCurrentUser(data.token!);
+                const userData = await getCurrentUser(data.token!) ;
                 setUser(userData);
                 if (rememberMe) localStorage.setItem('rememberMe', 'true');
                 setMessage('Login successful! Redirecting...');

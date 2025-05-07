@@ -68,7 +68,6 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-// Moved and updated loginUser function (replacing the existing one)
 exports.loginUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -486,9 +485,9 @@ exports.verifyEmail = async (req, res) => {
         });
         if (!user) return res.status(400).json({ error: 'Invalid or expired verification token' });
 
-        user.verified = true; // Fully verify the user
-        user.verificationToken = null; // Clear token
-        user.verificationExpires = null; // Clear expiration
+        user.verified = true;
+        user.verificationToken = null;
+        user.verificationExpires = null;
         await user.save();
 
         await logSecurityEvent({
