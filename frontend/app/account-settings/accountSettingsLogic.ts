@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuthSettings } from '@/hooks/useAuthSettings';
 import { useUserSettings } from '@/hooks/useUserSettings';
 
@@ -7,16 +7,92 @@ export const useAccountSettingsLogic = () => {
     const authSettings = useAuthSettings();
     const userSettings = useUserSettings();
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+    const [isExitingError, setIsExitingError] = useState(false);
+    const [isExitingMessage, setIsExitingMessage] = useState(false);
+    const dismissedErrorsRef = useRef<Set<string>>(new Set());
+    const dismissedMessagesRef = useRef<Set<string>>(new Set());
 
-    const message = [authSettings.message, userSettings.message].filter(Boolean).join('; ') || null;
-    const error = [authSettings.error, userSettings.error].filter(Boolean).join('; ') || null;
+    // Combine messages and errors from hooks, respecting dismissed ones
+    useEffect(() => {
+        const combinedError = [authSettings.error, userSettings.error].filter(Boolean).join('; ') || null;
+        const combinedMessage = [authSettings.message, userSettings.message].filter(Boolean).join('; ') || null;
+
+        if (combinedError && !dismissedErrorsRef.current.has(combinedError) && combinedError !== error) {
+            setError(combinedError);
+            setIsExitingError(false);
+        }
+        if (combinedMessage && !dismissedMessagesRef.current.has(combinedMessage) && combinedMessage !== message) {
+            setMessage(combinedMessage);
+            setIsExitingMessage(false);
+        }
+
+        // Clear dismissed messages/errors if the source is cleared
+        if (!combinedError && dismissedErrorsRef.current.size > 0) {
+            dismissedErrorsRef.current.clear();
+        }
+        if (!combinedMessage && dismissedMessagesRef.current.size > 0) {
+            dismissedMessagesRef.current.clear();
+        }
+    }, [authSettings.error, authSettings.message, userSettings.error, userSettings.message, error, message]);
 
     const isLoading = loading || authSettings.loading || userSettings.loading;
 
+    const dismissMessage = (type: 'error' | 'message') => {
+        if (type === 'error' && error) {
+            setIsExitingError(true);
+            dismissedErrorsRef.current.add(error);
+            setTimeout(() => {
+                setError(null);
+                setIsExitingError(false);
+            }, 500);
+        } else if (type === 'message' && message) {
+            setIsExitingMessage(true);
+            dismissedMessagesRef.current.add(message);
+            setTimeout(() => {
+                setMessage(null);
+                setIsExitingMessage(false);
+            }, 500);
+        }
+    };
+
+    useEffect(() => {
+        let errorTimeout: NodeJS.Timeout;
+        let messageTimeout: NodeJS.Timeout;
+
+        if (error && !dismissedErrorsRef.current.has(error)) {
+            errorTimeout = setTimeout(() => {
+                setIsExitingError(true);
+                dismissedErrorsRef.current.add(error);
+                setTimeout(() => {
+                    setError(null);
+                    setIsExitingError(false);
+                }, 500);
+            }, 5000);
+        }
+
+        if (message && !dismissedMessagesRef.current.has(message)) {
+            messageTimeout = setTimeout(() => {
+                setIsExitingMessage(true);
+                dismissedMessagesRef.current.add(message);
+                setTimeout(() => {
+                    setMessage(null);
+                    setIsExitingMessage(false);
+                }, 500);
+            }, 5000);
+        }
+
+        return () => {
+            clearTimeout(errorTimeout);
+            clearTimeout(messageTimeout);
+        };
+    }, [error, message]);
+
     return {
         user: authSettings.user,
-        username: authSettings.username, // Changed from userSettings
-        setUsername: authSettings.setUsername, // Changed from userSettings
+        username: authSettings.username,
+        setUsername: authSettings.setUsername,
         firstName: userSettings.firstName,
         setFirstName: userSettings.setFirstName,
         lastName: userSettings.lastName,
@@ -35,7 +111,7 @@ export const useAccountSettingsLogic = () => {
         setBio: userSettings.setBio,
         gender: userSettings.gender,
         setGender: userSettings.setGender,
-        handleUpdateUsername: authSettings.handleUpdateUsername, // Changed from userSettings
+        handleUpdateUsername: authSettings.handleUpdateUsername,
         handleUpdateProfile: userSettings.handleUpdateProfile,
         handleUpdatePersonalization: userSettings.handleUpdatePersonalization,
         newEmail: authSettings.newEmail,
@@ -60,6 +136,9 @@ export const useAccountSettingsLogic = () => {
         handleRequestVerification: authSettings.handleRequestVerification,
         message,
         error,
+        isExitingError,
+        isExitingMessage,
+        dismissMessage,
         loading: isLoading,
         setLoading,
     };

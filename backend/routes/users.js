@@ -79,7 +79,10 @@ router.put('/profile', authenticate, [
     body('country').optional().trim(),
 ], async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+        console.log('Profile validation errors:', errors.array());
+        return res.status(400).json({ errors: errors.array() });
+    }
 
     try {
         const { firstName, lastName, nickname, birthday, country } = req.body;

@@ -113,7 +113,7 @@ export const useUserSettings = () => {
         try {
             const response = await updateProfile(data);
             console.log('Profile update response:', response);
-            setUser({ ...user!, user: { ...user!.user, ...data } });
+            setUser({ ...user!, user: { ...user!.user, ...response.user } }); // Use backend response
             setOriginalProfileState(data);
             setMessage('Profile updated successfully');
         } catch (err: any) {
@@ -125,30 +125,37 @@ export const useUserSettings = () => {
     };
 
     const handleUpdatePersonalization = async () => {
-        const data: any = { bio: user?.user.bio || '', gender: user?.user.gender || 'prefer-not-to-say' };
+        const data: { avatar?: File; header?: File; bio?: string; gender?: string } = {
+            bio: user?.user.bio || '',
+            gender: user?.user.gender || 'prefer-not-to-say',
+        };
         if (avatar) data.avatar = avatar;
         if (header) data.header = header;
 
         const hasChanges =
             data.bio !== originalPersonalization.bio ||
             data.gender !== originalPersonalization.gender ||
-            avatar || header;
+            data.avatar ||
+            data.header;
 
         if (!hasChanges) {
             console.log('No changes detected in personalization data:', data);
             return;
         }
 
+        console.log('Sending personalization update:', data);
+
         setLoading(true);
         setError(null);
         setMessage(null);
         try {
             const response = await updatePersonalization(data);
+            console.log('Personalization update response:', response);
             setUser({
                 ...user!,
-                user: { ...user!.user, bio: data.bio, gender: data.gender, avatar: response.user.avatar, header: response.user.header },
+                user: { ...user!.user, ...response.user }, // Use backend response
             });
-            setOriginalPersonalizationState({ bio: data.bio, gender: data.gender });
+            setOriginalPersonalizationState({ bio: response.user.bio || '', gender: response.user.gender || 'prefer-not-to-say' });
             setAvatar(null);
             setHeader(null);
             setMessage('Personalization updated successfully');

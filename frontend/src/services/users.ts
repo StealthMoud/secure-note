@@ -27,37 +27,71 @@ interface FriendsResponse {
 export const updateProfile = async (data: Partial<User>): Promise<{ message: string; user: User }> => {
     try {
         const token = localStorage.getItem('token');
-        console.log('Sending updateProfile request:', { endpoint: '/users/profile', data, token }); // Log request
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+        console.log('Sending updateProfile request:', { endpoint: '/users/profile', data, token: token.substring(0, 10) + '...' });
         const response = await api.put<{ message: string; user: User }>('/users/profile', data, {
             headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('updateProfile response:', response.data); // Log response
+        console.log('updateProfile response:', response.data);
         return response.data;
     } catch (error: any) {
-        console.error('updateProfile error:', error.response?.data || error.message); // Log detailed error
-        throw new Error(error.response?.data?.error || 'Failed to update profile');
+        console.error('updateProfile error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            errors: error.response?.data?.errors,
+            config: error.config,
+            name: error.name,
+            stack: error.stack,
+        });
+        const errorMessage = error.response?.data?.errors
+            ? error.response.data.errors.map((err: any) => err.msg).join('; ')
+            : error.response?.data?.error || error.message || 'Failed to update profile';
+        throw new Error(errorMessage);
     }
 };
 
-export const updatePersonalization = async (data: { avatar?: File; header?: File }): Promise<{ message: string; user: User }> => {
+export const updatePersonalization = async (data: { avatar?: File; header?: File; bio?: string; gender?: string }): Promise<{ message: string; user: User }> => {
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
         const formData = new FormData();
         if (data.avatar) formData.append('avatar', data.avatar);
         if (data.header) formData.append('header', data.header);
+        if (data.bio !== undefined) formData.append('bio', data.bio); // Include bio
+        if (data.gender !== undefined) formData.append('gender', data.gender); // Include gender
 
-        console.log('Sending updatePersonalization request:', { endpoint: '/users/personalization', data: formData, token }); // Log request
+        console.log('Sending updatePersonalization request:', {
+            endpoint: '/users/personalization',
+            data: { bio: data.bio, gender: data.gender, hasAvatar: !!data.avatar, hasHeader: !!data.header },
+            token: token.substring(0, 10) + '...',
+        });
         const response = await api.put<{ message: string; user: User }>('/users/personalization', formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log('updatePersonalization response:', response.data); // Log response
+        console.log('updatePersonalization response:', response.data);
         return response.data;
     } catch (error: any) {
-        console.error('updatePersonalization error:', error.response?.data || error.message); // Log detailed error
-        throw new Error(error.response?.data?.error || 'Failed to update personalization');
+        console.error('updatePersonalization error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            errors: error.response?.data?.errors,
+            config: error.config,
+            name: error.name,
+            stack: error.stack,
+        });
+        const errorMessage = error.response?.data?.errors
+            ? error.response.data.errors.map((err: any) => err.msg).join('; ')
+            : error.response?.data?.error || error.message || 'Failed to update personalization';
+        throw new Error(errorMessage);
     }
 };
 
