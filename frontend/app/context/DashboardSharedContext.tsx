@@ -33,7 +33,7 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
     const pathname = usePathname();
 
     // Define public routes that don't require authentication
-    const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+    const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
 
     const fetchNotifications = async () => {
         if (!user) return;
@@ -81,7 +81,6 @@ export const DashboardSharedProvider = ({ children }: { children: ReactNode }) =
                         router.push('/');
                     }
                 } catch (error: any) {
-                    console.error('Failed to fetch user:', error.message);
                     localStorage.removeItem('token');
                     setUser(null);
                     if (!publicRoutes.includes(pathname)) {

@@ -17,6 +17,7 @@ const {
     approveVerification,
     getPendingUsers,
     verifyEmail,
+    rejectVerification,
 } = require('../controllers/authController');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
@@ -86,6 +87,9 @@ router.post('/reset-password', [
 router.post('/request-verification', authenticate, requestVerification);
 router.get('/users/pending', authenticate, getPendingUsers);
 router.post('/approve-verification', authenticate, approveVerification);
+router.post('/reject-verification', authenticate, [
+    body('userId').notEmpty().withMessage('User ID is required'),
+], rejectVerification);
 router.get('/verify-email', verifyEmail);
 
 module.exports = router;

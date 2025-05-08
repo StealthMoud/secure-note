@@ -428,7 +428,6 @@ exports.getPendingUsers = async (req, res) => {
     }
 };
 
-// Existing approveVerification function
 exports.approveVerification = async (req, res) => {
     try {
         const { userId } = req.body;
@@ -475,16 +474,38 @@ exports.approveVerification = async (req, res) => {
     }
 };
 
-// Existing verifyEmail function
+
 exports.verifyEmail = async (req, res) => {
     try {
         const { token } = req.query;
+
+        if (!token) {
+            console.log('No token provided in verifyEmail request');
+            return res.status(400).json({ error: 'No verification token provided' });
+        }
+
+        console.log('Verifying email with token:', token);
         const user = await User.findOne({
             verificationToken: token,
-            verificationExpires: { $gt: Date.now() }, // Check expiration
+            verificationExpires: { $gt: Date.now() },
         });
-        if (!user) return res.status(400).json({ error: 'Invalid or expired verification token' });
 
+        if (!user) {
+            // Check if user is already verified
+            const verifiedUser = await User.findOne({
+                verificationToken: null,
+                verified: true,
+                email: { $exists: true }, // Ensure user has an email
+            });
+            if (verifiedUser) {
+                console.log('User already verified:', verifiedUser.email);
+                return res.status(200).json({ message: 'Email successfully verified, close this page.' });
+            }
+            console.log('No user found for token:', token);
+            return res.status(400).json({ error: 'Invalid or expired verification token' });
+        }
+
+        console.log('User found for verification:', user.email);
         user.verified = true;
         user.verificationToken = null;
         user.verificationExpires = null;
@@ -506,9 +527,59 @@ exports.verifyEmail = async (req, res) => {
             },
         });
 
-        res.json({ message: 'Email verified successfully' });
+        console.log('Email verified successfully for user:', user.email);
+        return res.status(200).json({ message: 'Email verified successfully' });
     } catch (err) {
         console.error('Email Verification Error:', err);
-        res.status(500).json({ error: 'Failed to verify email' });
+        return res.status(500).json({ error: 'Failed to verify email' });
     }
 };
+
+exports.rejectVerification = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (!user.verificationPending) {
+            return res.status(400).json({ error: 'No pending verification request' });
+        }
+
+        user.verificationPending = false;
+        await user.save();
+
+        await transporter.sendMail({
+            from: `"Secure Note" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Email Verification Request Rejected',
+            html: `<p>Your email verification request was rejected by an admin. Please contact support for further assistance.</p>`,
+        });
+
+        await logSecurityEvent({
+            event: 'reject_verification',
+            user: user._id.toString(),
+            details: {
+                ip: req.ip,
+                userAgent: req.headers['user-agent'],
+                location: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+                referrer: req.headers['referer'],
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                verified: user.verified,
+                verificationPending: user.verificationPending,
+            },
+        });
+
+        res.json({ message: 'User verification request rejected. Email sent to user.' });
+    } catch (err) {
+        console.error('Reject Verification Error:', err);
+        res.status(500).json({ error: 'Failed to reject verification' });
+    }
+};
+
