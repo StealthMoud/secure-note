@@ -1,0 +1,26 @@
+@startuml
+title Sharing Management Sequence Diagram
+
+actor Owner
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Sharing Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+== Update Permission ==
+Owner -> FE: Change Role (Viewer -> Editor)
+FE -> API: PUT /sharing/share/{noteId}/{userId}
+API -> Ctrl: Validate Owner
+Ctrl -> DB: Find Note & Update Shared Entry
+Ctrl --> API: Success
+
+== Remove User ==
+Owner -> FE: Stop Sharing
+FE -> API: DELETE /sharing/share/{noteId}/{userId}
+API -> Ctrl: Validate Owner
+Ctrl -> DB: Pull User from Shared List
+Ctrl -> Log: Log Unshare
+Ctrl --> API: Success
+
+@enduml

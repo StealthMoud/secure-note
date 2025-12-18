@@ -1,0 +1,44 @@
+@startuml
+title User Login Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Submit Login Form (id, password)
+activate FE
+FE -> API: POST /auth/login
+activate API
+API -> Ctrl: Validate Input
+activate Ctrl
+
+Ctrl -> DB: Find User & Verify Password
+activate DB
+DB --> Ctrl: User Data
+deactivate DB
+
+alt Invalid Credentials
+    Ctrl -> Log: Log Failed Login
+    Ctrl --> API: Error (401)
+    API --> FE: Show Error
+else Success
+    alt TOTP Enabled
+        Ctrl -> DB: Generate Temp Token
+        Ctrl --> API: 200 (Require 2FA)
+        API --> FE: Redirect to 2FA
+    else TOTP Disabled
+        Ctrl -> Ctrl: Generate JWT
+        Ctrl -> Log: Log Successful Login
+        Ctrl --> API: 200 (Token + User)
+        deactivate Ctrl
+        API --> FE: Login Success
+        deactivate API
+        FE --> User: Redirect to Dashboard
+        deactivate FE
+    end
+end
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+title User Registration Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+database "Database" as DB
+participant "Email Service" as Email
+participant "Security Log" as Log
+
+User -> FE: Submit Registration Form (username, email, password)
+activate FE
+FE -> API: POST /auth/register
+activate API
+API -> Ctrl: Validate Input
+activate Ctrl
+
+Ctrl -> DB: Check if user exists
+activate DB
+DB --> Ctrl: User exists?
+deactivate DB
+
+alt User Exists
+    Ctrl --> API: Error (400)
+    API --> FE: Show Error
+else New User
+    Ctrl -> DB: Create User (Unverified)
+    activate DB
+    DB --> Ctrl: Success
+    deactivate DB
+    
+    Ctrl -> Email: Send Verification Email
+    activate Email
+    Email --> Ctrl: Sent
+    deactivate Email
+
+    Ctrl -> Log: Log Registration Event
+    activate Log
+    Log --> Ctrl: Acknowledged
+    deactivate Log
+
+    Ctrl --> API: Success (201)
+    deactivate Ctrl
+    API --> FE: Show Success 
+    deactivate API
+    FE --> User: Check Email
+    deactivate FE
+end
+
+@enduml

@@ -1,0 +1,236 @@
+@startuml SecureNote_Architecture
+
+title SecureNote - Complete System Architecture
+
+' Define color scheme
+skinparam backgroundColor #f5f5f5
+skinparam componentBackgroundColor #e1f5ff
+skinparam componentBorderColor #01579b
+skinparam databaseBackgroundColor #fff3e0
+skinparam databaseBorderColor #e65100
+skinparam packageBackgroundColor #f3e5f5
+skinparam packageBorderColor #4a148c
+
+package "Frontend - Next.js/React/TypeScript" #e8f4f8 {
+    package "Pages" #e3f2fd {
+        component "Login" as LoginPage
+        component "Register" as RegisterPage
+        component "Dashboard" as DashboardPage
+        component "Notes" as NotesPage
+        component "Admin" as AdminPage
+        component "Friends" as FriendsPage
+        component "Profile" as ProfilePage
+        component "Account Settings" as SettingsPage
+        component "Notifications" as NotificationsPage
+    }
+    
+    package "Components" #e3f2fd {
+        component "ProtectedRoute" as ProtectedRoute
+        component "DashboardContent" as DashboardContent
+        component "NotesSection" as NotesSection
+        component "FriendsSection" as FriendsSection
+        component "ProfileSection" as ProfileSection
+        component "AccountSettingsSection" as SettingsSection
+    }
+    
+    package "Services" #e3f2fd {
+        component "AuthService" as AuthService
+        component "NotesService" as NotesService
+        component "UsersService" as UsersService
+        component "AdminService" as AdminService
+        component "API Client" as APIClient
+    }
+    
+    package "Hooks & Utils" #e3f2fd {
+        component "useAuthSettings" as useAuthSettings
+        component "useUserSettings" as useUserSettings
+        component "useLoginLogic" as useLoginLogic
+        component "useForgotPasswordLogic" as useForgotPasswordLogic
+        component "useRegisterLogic" as useRegisterLogic
+        component "useVerifyEmailLogic" as useVerifyEmailLogic
+        component "debounce" as debounce
+        component "darkMode" as darkMode
+    }
+    
+    package "Context" #e3f2fd {
+        component "DashboardContext" as DashboardContext
+        component "AdminDashboardContext" as AdminContext
+        component "DashboardSharedContext" as SharedContext
+    }
+}
+
+package "Backend - Express.js/Node.js" #fff3e0 {
+    package "Routes" #ffe0b2 {
+        component "Auth Routes" as AuthRoutes
+        component "Users Routes" as UsersRoutes
+        component "Notes Routes" as NotesRoutes
+        component "Admin Routes" as AdminRoutes
+        component "TOTP Routes" as TOTPRoutes
+        component "Sharing Routes" as SharingRoutes
+        component "Export Routes" as ExportRoutes
+    }
+    
+    package "Controllers" #ffe0b2 {
+        component "AuthController" as AuthController
+        component "UserController" as UserController
+        component "NoteController" as NoteController
+        component "AdminController" as AdminController
+    }
+    
+    package "Models (Mongoose)" #fff3e0 {
+        database "User" as UserModel {
+            note "- username, email, password\n- avatar, role, verified\n- publicKey, privateKey\n- TOTP secret\n- friends, friendRequests\n- profile fields" as UserFields
+        }
+        database "Note" as NoteModel {
+            note "- title, content\n- encrypted, format\n- owner (ref User)\n- sharedWith (ref User)\n- timestamps" as NoteFields
+        }
+        database "SecurityLog" as SecurityLogModel {
+            note "- event type\n- user (ref User)\n- timestamp\n- details (mixed)" as LogFields
+        }
+    }
+    
+    package "Middleware" #ffe0b2 {
+        component "Auth Middleware" as AuthMiddleware
+        component "Verification Middleware" as VerificationMiddleware
+        component "Rate Limiting" as RateLimiting
+        component "Helmet Security" as HelmetSecurity
+        component "CORS" as CORSMiddleware
+    }
+    
+    package "Utilities" #ffe0b2 {
+        component "Encryption Utils" as EncryptionUtils
+        component "Logger" as LoggerUtil
+    }
+    
+    package "Config" #ffe0b2 {
+        component "Database Config" as DBConfig
+        component "Passport Config" as PassportConfig
+    }
+    
+    package "External Services" #ffe0b2 {
+        component "Passport Auth" as PassportAuth
+        component "Google OAuth" as GoogleOAuth
+        component "GitHub OAuth" as GitHubOAuth
+        component "Nodemailer" as Nodemailer
+        component "PDF Kit" as PDFKit
+        component "QR Code" as QRCodeLib
+        component "Speakeasy TOTP" as SpeakeasyLib
+    }
+}
+
+database "MongoDB" #fff3e0 {
+    note "NoSQL Database" as DBNote
+}
+
+package "Docker & Deployment" #f3e5f5 {
+    component "Backend Container" as BackendContainer
+    component "Frontend Container" as FrontendContainer
+    component "docker-compose.yml" as ComposeFile
+    component "docker-compose.prod.yml" as ComposeFileProd
+}
+
+' Frontend to Backend connections
+LoginPage --> useLoginLogic
+RegisterPage --> useRegisterLogic
+DashboardPage --> DashboardContext
+DashboardPage --> DashboardContent
+NotesPage --> NotesSection
+AdminPage --> AdminContext
+FriendsPage --> FriendsSection
+ProfilePage --> ProfilePage
+SettingsPage --> SettingsSection
+
+useLoginLogic --> AuthService
+useRegisterLogic --> AuthService
+useAuthSettings --> AuthService
+useForgotPasswordLogic --> AuthService
+useVerifyEmailLogic --> AuthService
+useUserSettings --> UsersService
+
+ProtectedRoute --> AuthService
+DashboardContent --> NotesService
+NotesSection --> NotesService
+FriendsSection --> UsersService
+SettingsSection --> UsersService
+AdminPage --> AdminService
+
+AuthService --> APIClient
+NotesService --> APIClient
+UsersService --> APIClient
+AdminService --> APIClient
+
+APIClient --> AuthRoutes
+APIClient --> UsersRoutes
+APIClient --> NotesRoutes
+APIClient --> AdminRoutes
+APIClient --> TOTPRoutes
+APIClient --> SharingRoutes
+APIClient --> ExportRoutes
+
+' Backend internal connections
+AuthRoutes --> AuthController
+UsersRoutes --> UserController
+NotesRoutes --> NoteController
+AdminRoutes --> AdminController
+
+AuthController --> UserModel
+AuthController --> SecurityLogModel
+AuthController --> AuthMiddleware
+AuthController --> PassportAuth
+AuthController --> GoogleOAuth
+AuthController --> GitHubOAuth
+AuthController --> Nodemailer
+AuthController --> EncryptionUtils
+
+UserController --> UserModel
+UserController --> SecurityLogModel
+UserController --> VerificationMiddleware
+UserController --> EncryptionUtils
+UserController --> Nodemailer
+
+NoteController --> NoteModel
+NoteController --> UserModel
+NoteController --> SecurityLogModel
+NoteController --> EncryptionUtils
+NoteController --> PDFKit
+
+AdminController --> UserModel
+AdminController --> NoteModel
+AdminController --> SecurityLogModel
+
+TOTPRoutes --> SpeakeasyLib
+TOTPRoutes --> QRCodeLib
+TOTPRoutes --> UserModel
+
+SharingRoutes --> NoteModel
+SharingRoutes --> UserModel
+SharingRoutes --> SecurityLogModel
+SharingRoutes --> EncryptionUtils
+SharingRoutes --> Nodemailer
+
+ExportRoutes --> NoteModel
+ExportRoutes --> PDFKit
+
+AuthMiddleware --> UserModel
+VerificationMiddleware --> UserModel
+
+RateLimiting --> AuthRoutes
+HelmetSecurity --> AuthRoutes
+CORSMiddleware --> AuthRoutes
+
+DBConfig --> MongoDB
+UserModel --> MongoDB
+NoteModel --> MongoDB
+SecurityLogModel --> MongoDB
+
+BackendContainer --> AuthRoutes
+FrontendContainer --> LoginPage
+
+ComposeFile --> BackendContainer
+ComposeFile --> FrontendContainer
+
+PassportConfig --> PassportAuth
+PassportConfig --> GoogleOAuth
+PassportConfig --> GitHubOAuth
+
+@enduml

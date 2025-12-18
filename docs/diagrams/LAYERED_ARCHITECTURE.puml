@@ -1,0 +1,151 @@
+@startuml SecureNote_Layered_Architecture
+
+title SecureNote - Layered Architecture Overview
+
+' Force top-to-bottom layout
+top to bottom direction
+
+' Styling
+skinparam backgroundColor #f5f5f5
+skinparam defaultTextAlignment center
+skinparam PackagePadding 20
+skinparam PackageStereotypeFontSize 12
+
+skinparam rectangle {
+    RoundCorner 10
+    FontSize 14
+    FontStyle bold
+}
+
+skinparam package {
+    FontSize 12
+}
+
+' ============================================
+' LAYER 1: PRESENTATION (Top)
+' ============================================
+rectangle "<<Presentation Layer>>\nFrontend - Next.js / React / TypeScript" as PresentationLayer #e3f2fd {
+    package "User Interface" as PL1 {
+        [Interface Display\nReact Components, Next.js Pages]
+    }
+    package "Form Handling" as PL2 {
+        [Login, Register, Note Editor, Settings]
+    }
+    package "File Uploads" as PL3 {
+        [Avatar, Header Images]
+    }
+    package "API Client" as PL4 {
+        [Axios, JWT Headers, Error Handling]
+    }
+}
+
+' ============================================
+' LAYER 2: APPLICATION
+' ============================================
+rectangle "<<Application Layer>>\nBackend - Express.js Controllers & Services" as ApplicationLayer #fff3e0 {
+    package "Request Handling" as AL1 {
+        [Express Router\nRoute Handlers]
+    }
+    package "Access Control" as AL2 {
+        [JWT Verification\nRole-Based Access]
+    }
+    package "Validation" as AL3 {
+        [express-validator\nInput Sanitization]
+    }
+    package "Controllers" as AL4 {
+        [Auth | User | Note | Admin]
+    }
+    package "Logging" as AL5 {
+        [Security Events\nActivity Tracking]
+    }
+}
+
+' ============================================
+' LAYER 3: DATA
+' ============================================
+rectangle "<<Data Layer>>\nMongoDB + Mongoose ODM" as DataLayer #e8f5e9 {
+    package "Users" as DL1 {
+        [Authentication\nProfile, Friends\nEncryption Keys]
+    }
+    package "Notes" as DL2 {
+        [Content Storage\nSharing Permissions\nEncrypted Data]
+    }
+    package "SecurityLogs" as DL3 {
+        [Activity Records\nAudit Trail]
+    }
+    
+}
+
+' ============================================
+' LAYER 4: SECURITY (Cross-Cutting)
+' ============================================
+rectangle "<<Security Layer>>\nCross-Cutting Concerns" as SecurityLayer #ffebee {
+    package "Encryption" as SL1 {
+        [RSA Key Pairs\nNote Encryption]
+    }
+    package "Authentication" as SL2 {
+        [JWT Tokens\nPassword Hashing (Bcrypt)]
+    }
+    package "2FA / TOTP" as SL3 {
+        [Speakeasy\nQR Code Generation]
+    }
+    package "Headers" as SL4 {
+        [Helmet.js\nCORS, Rate Limiting]
+    }
+}
+
+' ============================================
+' LAYER 5: INFRASTRUCTURE (Bottom)
+' ============================================
+rectangle "<<Infrastructure Layer>>\nDeployment & Configuration" as InfrastructureLayer #f3e5f5 {
+    package "Containers" as IL1 {
+        [Docker\ndocker-compose]
+    }
+    package "Static Files" as IL2 {
+        [/uploads\n/certs]
+    }
+    package "Config" as IL3 {
+        [.env Files\nSecrets]
+    }
+    package "Database" as IL4 {
+        [MongoDB Connection\nConnection Pooling]
+    }
+}
+
+' ============================================
+' VERTICAL FLOW CONNECTIONS
+' ============================================
+PresentationLayer -[#1565c0,thickness=2]-> ApplicationLayer : "  HTTP / REST API  "
+ApplicationLayer -[#e65100,thickness=2]-> DataLayer : "  Mongoose Queries  "
+DataLayer -[#2e7d32,thickness=2]-> InfrastructureLayer : "  MongoDB Driver  "
+
+' Security cross-cutting (side connections)
+SecurityLayer -[#c62828,dashed]-> PresentationLayer : " JWT "
+SecurityLayer -[#c62828,dashed]-> ApplicationLayer : " Auth & RBAC "
+SecurityLayer -[#c62828,dashed]-> DataLayer : " Encryption "
+
+' ============================================
+' BENEFITS NOTE
+' ============================================
+note right of PresentationLayer
+  **Architecture Benefits:**
+  ─────────────────────
+  ✓ Separation of Concerns
+  ✓ Security Isolation
+  ✓ Scalability
+  ✓ Mobile App Ready
+  ✓ Real-time Extensible
+end note
+
+' ============================================
+' LEGEND
+' ============================================
+legend bottom
+  |<#e3f2fd>  Presentation  |  UI & User Interaction  |
+  |<#fff3e0>  Application  |  Business Logic & Controllers  |
+  |<#e8f5e9>  Data  |  Persistence & Models  |
+  |<#ffebee>  Security  |  Cross-Cutting Protection  |
+  |<#f3e5f5>  Infrastructure  |  Deployment & Config  |
+endlegend
+
+@enduml

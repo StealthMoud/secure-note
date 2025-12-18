@@ -1,0 +1,24 @@
+@startuml
+title Note Export Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Export Controller" as Ctrl
+participant "Encryption Service" as Enc
+database "Database" as DB
+
+User -> FE: Request Export (PDF/MD/TXT)
+FE -> API: GET /export/{id}?format=...
+API -> Ctrl: Check Permissions
+Ctrl -> DB: Fetch Note
+Ctrl -> Enc: Decrypt Content (Server-side)
+note right of Enc: Use User Private Key
+Enc --> Ctrl: Plain Text
+
+Ctrl -> Ctrl: Generate File (PDF generation etc.)
+Ctrl --> API: Download Stream
+API --> FE: File
+FE --> User: Save File
+
+@enduml

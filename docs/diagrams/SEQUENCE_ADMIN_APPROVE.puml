@@ -1,0 +1,35 @@
+@startuml
+title Admin Approve Verification Sequence Diagram
+
+actor Admin
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Admin Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+Admin -> FE: Request to approve verification
+activate FE
+FE -> API: POST /admin/approve
+activate API
+API -> Ctrl: Forward request
+activate Ctrl
+
+Ctrl -> DB: Update verification status
+activate DB
+DB --> Ctrl: Success
+deactivate DB
+
+Ctrl -> Log: IP & Action logging
+activate Log
+Log --> Ctrl: Acknowledged
+deactivate Log
+
+Ctrl --> API: Approved (200 OK)
+deactivate Ctrl
+API --> FE: Success Response
+deactivate API
+FE --> Admin: Show success message
+deactivate FE
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+title Share Note Sequence Diagram
+
+actor Owner
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Note Controller" as Ctrl
+participant "Encryption Service" as Enc
+entity "Note.sharedWith" as Shared
+participant "Security Log" as Log
+
+Owner -> FE: Request to share note
+activate FE
+FE -> API: POST /notes/{id}/share
+activate API
+API -> Ctrl: Forward request
+activate Ctrl
+
+Ctrl -> Enc: Re-encrypt key for recipient
+activate Enc
+Enc --> Ctrl: Encrypted key
+deactivate Enc
+
+Ctrl -> Shared: Update sharedWith list
+activate Shared
+Shared --> Ctrl: Success
+deactivate Shared
+
+Ctrl -> Log: IP & Action logging
+activate Log
+Log --> Ctrl: Acknowledged
+deactivate Log
+
+Ctrl --> API: Note Shared (200 OK)
+deactivate Ctrl
+API --> FE: Success Response
+deactivate API
+FE --> Owner: Show success message
+deactivate FE
+
+@enduml

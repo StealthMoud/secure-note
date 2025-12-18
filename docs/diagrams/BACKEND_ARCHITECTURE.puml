@@ -1,0 +1,237 @@
+@startuml SecureNote_Backend_Architecture
+
+title SecureNote - Backend Architecture (Express.js / Node.js)
+
+' Force top-to-bottom layout
+top to bottom direction
+
+' Styling
+skinparam backgroundColor #f5f5f5
+skinparam defaultTextAlignment center
+skinparam PackagePadding 20
+skinparam Padding 10
+skinparam TitleFontSize 24
+skinparam TitleFontStyle bold
+
+skinparam rectangle {
+    RoundCorner 10
+    FontSize 18
+    FontStyle bold
+}
+
+skinparam package {
+    FontSize 16
+    FontStyle bold
+}
+
+skinparam component {
+    FontSize 14
+}
+
+skinparam database {
+    FontSize 14
+}
+
+skinparam note {
+    FontSize 12
+}
+
+skinparam legend {
+    FontSize 14
+}
+
+' ============================================
+' LAYER 1: EXPRESS APPLICATION ENTRY
+' ============================================
+rectangle "<<Entry Point>>\nserver.js → app.js" as EntryPoint #e3f2fd {
+    [Express Server\nPort 5002] as Server
+}
+
+' ============================================
+' LAYER 2: MIDDLEWARE PIPELINE
+' ============================================
+rectangle "<<Middleware Pipeline>>\nRequest Processing Chain" as MiddlewareLayer #fff3e0 {
+    package "Security" {
+        [Helmet] as Helmet
+        [CORS] as CORS
+        [Rate Limiter\n500 req/15min] as RateLimit
+    }
+    package "Parsing" {
+        [express.json()] as BodyParser
+        [Multer\nFile Upload] as Multer
+    }
+    package "Authentication" {
+        [Passport Init] as Passport
+        [JWT Verify] as JWTVerify
+    }
+}
+
+' ============================================
+' LAYER 3: ROUTE MODULES
+' ============================================
+rectangle "<<API Routes>>\n/api/*" as RoutesLayer #e8f5e9 {
+    package "/auth" as AuthRoutes {
+        [register | login | logout\nforgot-password | reset-password\nverify-email | oauth-callback]
+    }
+    package "/users" as UserRoutes {
+        [me | profile | search\navatar | header | friends\nfriend-requests]
+    }
+    package "/notes" as NoteRoutes {
+        [CRUD Operations\nencrypt | decrypt]
+    }
+    package "/sharing" as SharingRoutes {
+        [share | unshare\nshared-with-me\npermissions]
+    }
+    package "/totp" as TOTPRoutes {
+        [setup | verify\ndisable | qr]
+    }
+    package "/export" as ExportRoutes {
+        [pdf | json]
+    }
+    package "/admin" as AdminRoutes {
+        [users | notes\nsecurity-logs\nverification]
+    }
+}
+
+' ============================================
+' LAYER 4: CONTROLLERS
+' ============================================
+rectangle "<<Controllers>>\nBusiness Logic" as ControllersLayer #ffe0b2 {
+    [AuthController\nregister, login, logout\npassword reset, email verify] as AuthCtrl
+    [UserController\nprofile CRUD, avatar\nfriends management] as UserCtrl
+    [NoteController\nnote CRUD, encryption\nformat handling] as NoteCtrl
+    [AdminController\nuser/note management\nsecurity logs, verification] as AdminCtrl
+}
+
+' ============================================
+' LAYER 5: DATA MODELS (MONGOOSE)
+' ============================================
+rectangle "<<Models>>\nMongoose Schemas" as ModelsLayer #e8f5e9 {
+    database "User" as UserModel {
+    }
+    database "Note" as NoteModel {
+    }
+    database "SecurityLog" as LogModel {
+    }
+}
+
+note bottom of UserModel
+  username, email, password
+  profile fields, avatar
+  publicKey, privateKey
+  friends[], friendRequests[]
+  TOTP secret, role
+end note
+
+note bottom of NoteModel
+  title, content
+  encryptedTitle/Content
+  owner, sharedWith[]
+  format, timestamps
+end note
+
+note bottom of LogModel
+  event (30+ types)
+  user reference
+  timestamp, details
+end note
+
+' ============================================
+' LAYER 6: UTILITIES & EXTERNAL SERVICES
+' ============================================
+rectangle "<<Utilities & External Services>>" as UtilitiesLayer #f3e5f5 {
+    package "Encryption" {
+        [encryption.js\nRSA encrypt/decrypt\nKey generation] as EncryptUtil
+    }
+    package "Auth Libraries" {
+        [Bcryptjs\nPassword Hashing] as Bcrypt
+        [jsonwebtoken\nJWT sign/verify] as JWT
+        [Speakeasy\nTOTP] as Speakeasy
+    }
+    package "External APIs" {
+        [Nodemailer\nEmail Service] as Nodemailer
+        [Passport OAuth\nGoogle, GitHub] as PassportOAuth
+    }
+    package "Export" {
+        [PDFKit] as PDFKit
+        [QRCode] as QRCode
+    }
+}
+
+' ============================================
+' LAYER 7: DATABASE & CONFIG
+' ============================================
+rectangle "<<Infrastructure>>" as InfraLayer #ffebee {
+    database "MongoDB\nusers | notes | securitylogs" as MongoDB
+    [db.js\nConnection Config] as DBConfig
+    [passport.js\nOAuth Strategies] as PassportConfig
+    [.env\nEnvironment Variables] as EnvConfig
+}
+
+' ============================================
+' FLOW CONNECTIONS
+' ============================================
+
+' Entry to Middleware
+Server -[#1565c0,thickness=2]-> MiddlewareLayer : "incoming request"
+
+' Middleware internal flow
+Helmet --> CORS
+CORS --> RateLimit
+RateLimit --> BodyParser
+BodyParser --> Passport
+Passport --> JWTVerify
+
+' Middleware to Routes
+MiddlewareLayer -[#e65100,thickness=2]-> RoutesLayer : "route matching"
+
+' Routes to Controllers
+AuthRoutes --> AuthCtrl
+UserRoutes --> UserCtrl
+NoteRoutes --> NoteCtrl
+SharingRoutes --> NoteCtrl
+TOTPRoutes --> AuthCtrl
+ExportRoutes --> NoteCtrl
+AdminRoutes --> AdminCtrl
+
+' Controllers to Models
+AuthCtrl --> UserModel
+AuthCtrl --> LogModel
+UserCtrl --> UserModel
+NoteCtrl --> NoteModel
+NoteCtrl --> UserModel
+AdminCtrl --> UserModel
+AdminCtrl --> NoteModel
+AdminCtrl --> LogModel
+
+' Models to Database
+UserModel -[#2e7d32,thickness=2]-> MongoDB
+NoteModel -[#2e7d32,thickness=2]-> MongoDB
+LogModel -[#2e7d32,thickness=2]-> MongoDB
+
+' Controllers to Utilities
+AuthCtrl -[#7b1fa2,dashed]-> Bcrypt
+AuthCtrl -[#7b1fa2,dashed]-> JWT
+AuthCtrl -[#7b1fa2,dashed]-> Nodemailer
+AuthCtrl -[#7b1fa2,dashed]-> Speakeasy
+NoteCtrl -[#7b1fa2,dashed]-> EncryptUtil
+NoteCtrl -[#7b1fa2,dashed]-> PDFKit
+UserCtrl -[#7b1fa2,dashed]-> EncryptUtil
+
+' Config connections
+DBConfig --> MongoDB
+PassportConfig --> PassportOAuth
+
+' ============================================
+' LEGEND
+' ============================================
+legend bottom
+  |<#e3f2fd>  Entry Point  |  Server startup  |
+  |<#fff3e0>  Middleware  |  Request processing  |
+  |<#e8f5e9>  Routes & Models  |  API & Data  |
+  |<#ffe0b2>  Controllers  |  Business logic  |
+  |<#f3e5f5>  Utilities  |  Helper services  |
+  |<#ffebee>  Infrastructure  |  Database & config  |
+endlegend
+
+@enduml

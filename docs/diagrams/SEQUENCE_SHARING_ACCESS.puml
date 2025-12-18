@@ -1,0 +1,26 @@
+@startuml
+title Sharing Access Sequence Diagram
+
+actor Recipient
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Sharing Controller" as Ctrl
+participant "Encryption Service" as Enc
+database "Database" as DB
+
+Recipient -> FE: View Shared Notes
+FE -> API: GET /sharing/shared-with-me
+API -> Ctrl: Authenticate
+Ctrl -> DB: Find Notes where sharedWith.user == me
+DB --> Ctrl: List of Notes (With My Encrypted Key)
+
+loop For Each Note
+    Ctrl -> Enc: Decrypt Content (Using Recipient Private Key)
+    note right of Enc: Use Recipient's Encrypted Key Copy
+    Enc --> Ctrl: Decrypted Content
+end
+
+Ctrl --> API: List of Decrypted Notes
+API --> FE: Display Notes
+
+@enduml

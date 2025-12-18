@@ -1,0 +1,35 @@
+@startuml
+title User Profile Update Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "User Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Update Profile (Bio, Avatar, etc.)
+activate FE
+FE -> API: PUT /users/profile OR /users/personalization
+activate API
+API -> Ctrl: Validate Input
+activate Ctrl
+
+Ctrl -> DB: Update User Document
+activate DB
+DB --> Ctrl: Success
+deactivate DB
+
+Ctrl -> Log: Log Profile Update
+activate Log
+Log --> Ctrl: Acknowledged
+deactivate Log
+
+Ctrl --> API: Success (Updated User)
+deactivate Ctrl
+API --> FE: Show Success
+deactivate API
+FE --> User: View Updated Profile
+deactivate FE
+
+@enduml

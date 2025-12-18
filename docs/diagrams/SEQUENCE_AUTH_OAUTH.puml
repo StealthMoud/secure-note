@@ -1,0 +1,48 @@
+@startuml
+title OAuth Login Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+participant "OAuth Provider" as Prov
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Click Login with Google/GitHub
+activate FE
+FE -> API: GET /auth/{provider}
+activate API
+API -> Prov: Redirect to Provider
+activate Prov
+Prov -> User: Request Authorization
+User -> Prov: Grant Access
+Prov --> API: Callback with Code
+deactivate Prov
+API -> Ctrl: Handle Callback
+activate Ctrl
+
+Ctrl -> Prov: Exchange Code for Profile
+activate Prov
+Prov --> Ctrl: User Profile (Email, ID)
+deactivate Prov
+
+Ctrl -> DB: Find or Create User
+activate DB
+DB --> Ctrl: User Data
+deactivate DB
+
+Ctrl -> Ctrl: Generate JWT
+Ctrl -> Log: Log OAuth Login
+activate Log
+Log --> Ctrl: Acknowledged
+deactivate Log
+
+Ctrl --> API: Redirect to Frontend (with Token)
+deactivate Ctrl
+API --> FE: Login Success
+deactivate API
+FE --> User: Redirect to Dashboard
+deactivate FE
+
+@enduml

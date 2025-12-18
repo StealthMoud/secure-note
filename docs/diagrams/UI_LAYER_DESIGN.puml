@@ -1,0 +1,194 @@
+@startuml UI_LAYER_DESIGN
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #666666
+skinparam RectangleBorderColor #444444
+skinparam PackageBorderColor #444444
+
+title SecureNote - UI Layer Design Diagram
+
+legend right
+  |= Color |= Description |
+  | <#E3F2FD> | Pages (Routes) |
+  | <#E8F5E9> | Sections/Components |
+  | <#FFF3E0> | Sub-Components/Tabs |
+  | <#FCE4EC> | Shared Context/State |
+  | <#F3E5F5> | Layout Components |
+  | <#ECEFF1> | Services/Hooks |
+endlegend
+
+' ============================================
+' ENTRY POINTS - AUTH PAGES
+' ============================================
+package "Authentication Flow" #E3F2FD {
+    rectangle "LoginPage\n(/login)\n---\nuseLoginLogic\nOAuth + 2FA/TOTP" as LoginPage #E3F2FD
+    rectangle "RegisterPage\n(/register)\n---\nuseRegisterLogic\nPassword Strength" as RegisterPage #E3F2FD
+    rectangle "ForgotPasswordPage\n(/forgot-password)\n---\nEmail Reset Flow" as ForgotPage #E3F2FD
+    rectangle "VerifyEmailPage\n(/verify-email)\n---\nToken Verification" as VerifyPage #E3F2FD
+}
+
+' ============================================
+' ROOT LAYOUT
+' ============================================
+package "Root Layout" #F3E5F5 {
+    rectangle "RootLayout (layout.tsx)" as MainLayout #F3E5F5
+    rectangle "Navigation Bar" as Navbar #F3E5F5
+    rectangle "Dark Mode Toggle" as DarkMode #F3E5F5
+    rectangle "Profile Dropdown" as ProfileDropdown #F3E5F5
+    
+    MainLayout --> Navbar
+    MainLayout --> DarkMode
+    MainLayout --> ProfileDropdown
+}
+
+' ============================================
+' SHARED CONTEXT
+' ============================================
+package "Shared State Management" #FCE4EC {
+    rectangle "DashboardSharedContext\n---\nUser State\nLoading State\nSidebar Toggle\nNotification Count" as SharedContext #FCE4EC
+    rectangle "DashboardContext\n---\nActive Tab\nTab Navigation" as DashContext #FCE4EC
+    rectangle "AdminDashboardContext\n---\nAdmin State" as AdminContext #FCE4EC
+}
+
+' ============================================
+' HOME PAGE
+' ============================================
+rectangle "HomePage (/)\n---\nGuest: Welcome Card\nUser: Dashboard\nAdmin: Redirect" as HomePage #E3F2FD
+
+' ============================================
+' USER DASHBOARD
+' ============================================
+package "User Dashboard Flow" #E8F5E9 {
+    rectangle "DashboardContent\n---\nProtectedRoute\nSidebar Navigation" as DashboardContent #E8F5E9
+    
+    rectangle "DashboardSection\n(/dashboard)\n---\nuseDashboardLogic\nProfile Card\nVerification Status" as DashboardSection #E8F5E9
+    
+    package "NotesSection (/notes)" #E8F5E9 {
+        rectangle "NoteInputForm" as NoteInput #FFF3E0
+        rectangle "NotesList" as NotesList #FFF3E0
+        rectangle "NoteCard" as NoteCard #FFF3E0
+        rectangle "ShareModal" as ShareModal #FFF3E0
+    }
+    
+    package "FriendsSection (/friends)" #E8F5E9 {
+        rectangle "SendFriendRequestCard" as SendRequest #FFF3E0
+        rectangle "FriendRequestsCard" as RequestsCard #FFF3E0
+        rectangle "FriendsListCard" as FriendsListCard #FFF3E0
+    }
+    
+    package "ProfileSection (/profile)" #E8F5E9 {
+        rectangle "Header Image" as HeaderImg #FFF3E0
+        rectangle "Avatar Upload" as AvatarUpload #FFF3E0
+        rectangle "Profile Fields" as ProfileFields #FFF3E0
+    }
+    
+    package "AccountSettingsSection (/account-settings)" #E8F5E9 {
+        rectangle "ProfileTab\n---\nBio, Name\nLocation, Birthday" as ProfileTab #FFF3E0
+        package "SecurityTab" #FFF3E0 {
+            rectangle "Username SubTab" as UsernameTab #FFFDE7
+            rectangle "Email SubTab" as EmailTab #FFFDE7
+            rectangle "Password SubTab" as PasswordTab #FFFDE7
+            rectangle "2FA/TOTP SubTab" as TOTPTab #FFFDE7
+        }
+        rectangle "OtherTab\n---\nPersonalization\nPreferences" as OtherTab #FFF3E0
+    }
+    
+    package "NotificationsSection (/notifications)" #E8F5E9 {
+        rectangle "Friend Requests List" as FriendReqList #FFF3E0
+        rectangle "Shared Notes List" as SharedNotesList #FFF3E0
+    }
+}
+
+' ============================================
+' ADMIN DASHBOARD
+' ============================================
+package "Admin Dashboard Flow" #E8F5E9 {
+    rectangle "AdminLayout (/admin)\n---\nAdmin Sidebar\nOverview | Users | Logs" as AdminLayout #F3E5F5
+    
+    rectangle "OverviewPage\n(/admin/overview)\n---\nTotal Users\nVerified Users\nTotal Notes\nPending Verifications" as AdminOverview #E8F5E9
+    
+    package "UsersPage (/admin/users)" #E8F5E9 {
+        rectangle "All Users Tab" as AllUsersTab #FFF3E0
+        rectangle "Create User Tab" as CreateUserTab #FFF3E0
+        rectangle "User Activity Tab" as ActivityTab #FFF3E0
+        rectangle "Pending Verifications Tab" as PendingTab #FFF3E0
+    }
+    
+    package "SecurityLogsPage (/admin/security-logs)" #E8F5E9 {
+        rectangle "All Logs Tab" as AllLogsTab #FFF3E0
+        rectangle "Log Details Modal" as LogDetails #FFF3E0
+    }
+}
+
+' ============================================
+' SERVICES LAYER
+' ============================================
+package "Services and Hooks" #ECEFF1 {
+    rectangle "api.ts" as ApiService #ECEFF1
+    rectangle "authService.ts" as AuthService #ECEFF1
+    rectangle "adminService.ts" as AdminService #ECEFF1
+    rectangle "useAuthSettings" as AuthSettings #ECEFF1
+    rectangle "useUserSettings" as UserSettings #ECEFF1
+}
+
+' ============================================
+' NAVIGATION FLOWS
+' ============================================
+
+' Auth Flow
+LoginPage --> HomePage : Login Success
+RegisterPage --> LoginPage : Registration Complete
+ForgotPage --> LoginPage : Password Reset
+VerifyPage --> LoginPage : Email Verified
+
+' Home to Dashboard/Admin
+HomePage --> DashboardContent : Regular User
+HomePage --> AdminLayout : Admin User
+
+' Dashboard Navigation
+DashboardContent --> DashboardSection
+DashboardContent --> NoteInput
+DashboardContent --> SendRequest
+DashboardContent --> HeaderImg
+DashboardContent --> ProfileTab
+DashboardContent --> FriendReqList
+
+' Notes Flow
+NoteInput --> NotesList : Create/Update
+NotesList --> NoteCard : Display
+NoteCard --> ShareModal : Share Note
+
+' Friends Flow
+SendRequest --> RequestsCard : Send Request
+RequestsCard --> FriendsListCard : Accept Request
+
+' Account Settings Flow
+ProfileTab --> UsernameTab
+ProfileTab --> OtherTab
+
+' Admin Flow
+AdminLayout --> AdminOverview
+AdminLayout --> AllUsersTab
+AdminLayout --> AllLogsTab
+AllUsersTab --> CreateUserTab
+AllUsersTab --> ActivityTab
+AllUsersTab --> PendingTab
+AllLogsTab --> LogDetails
+
+' Context Dependencies
+SharedContext ..> DashboardContent
+SharedContext ..> AdminLayout
+DashContext ..> DashboardContent
+AdminContext ..> AdminLayout
+
+' Services Dependencies
+AuthService ..> LoginPage
+AuthService ..> RegisterPage
+AdminService ..> AllUsersTab
+AdminService ..> AllLogsTab
+ApiService ..> NoteInput
+ApiService ..> SendRequest
+
+@enduml

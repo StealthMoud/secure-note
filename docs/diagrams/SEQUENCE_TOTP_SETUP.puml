@@ -1,0 +1,33 @@
+@startuml
+title TOTP Setup Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "TOTP Controller" as Ctrl
+participant "TOTP Service" as TP
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Request 2FA Setup
+FE -> API: GET /totp/setup
+API -> Ctrl: Authenticate
+Ctrl -> TP: Generate Secret
+Ctrl -> DB: Save Secret (Temp)
+Ctrl -> Log: Log Setup Init
+Ctrl --> API: Return QR Code
+API --> FE: Display QR Code
+
+User -> FE: Scan & Enter Code
+FE -> API: POST /totp/verify
+API -> Ctrl: Validate Code
+Ctrl -> TP: Verify Token
+alt Valid
+    Ctrl -> DB: Set isTotpEnabled = true
+    Ctrl -> Log: Log TOTP Enabled
+    Ctrl --> API: Success
+else Invalid
+    Ctrl --> API: Error
+end
+
+@enduml

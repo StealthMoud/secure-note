@@ -1,0 +1,41 @@
+@startuml
+title Create Note Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Note Controller" as Ctrl
+participant "Encryption Service" as Enc
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Request to create note
+activate FE
+FE -> API: POST /notes
+activate API
+API -> Ctrl: Forward request
+activate Ctrl
+
+Ctrl -> Enc: Encrypt note content
+activate Enc
+Enc --> Ctrl: Encrypted content
+deactivate Enc
+
+Ctrl -> DB: Save note (encrypted)
+activate DB
+DB --> Ctrl: Success
+deactivate DB
+
+Ctrl -> Log: IP & Action logging
+activate Log
+Log --> Ctrl: Acknowledged
+deactivate Log
+
+Ctrl --> API: Note Created (201 Created)
+deactivate Ctrl
+API --> FE: Success Response
+deactivate API
+FE --> User: Show success message
+deactivate FE
+
+@enduml

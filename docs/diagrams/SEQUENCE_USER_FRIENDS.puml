@@ -1,0 +1,27 @@
+@startuml
+title User Friends Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "User Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+== Send Request ==
+User -> FE: Send Friend Request
+FE -> API: POST /users/friend/request
+API -> Ctrl: Validate Target
+Ctrl -> DB: Find User & Update Requests
+Ctrl -> Log: Log Friend Request
+Ctrl --> API: Success
+
+== Respond to Request ==
+User -> FE: Accept/Reject Request
+FE -> API: POST /users/friend/respond
+API -> Ctrl: Validate
+Ctrl -> DB: Update Friend List
+Ctrl -> Log: Log Response
+Ctrl --> API: Success
+
+@enduml

@@ -1,0 +1,232 @@
+@startuml SecureNote_Database_Design
+
+title SecureNote - MongoDB Database Design (Entity Relationship Diagram)
+
+' Define color scheme
+skinparam backgroundColor #f5f5f5
+skinparam classBackgroundColor #e8f5e9
+skinparam classBorderColor #2e7d32
+skinparam classAttributeFontColor #1b5e20
+skinparam stereotypeCBackgroundColor #c8e6c9
+
+' Hide circle on entities
+hide circle
+
+' Use class for entities
+skinparam class {
+    BackgroundColor #e8f5e9
+    BorderColor #2e7d32
+    ArrowColor #1b5e20
+}
+
+entity "users" as User #e8f5e9 {
+    * **_id** : ObjectId <<PK>>
+    --
+    **Authentication**
+    --
+    * username : String <<unique, required>>
+    * email : String <<unique, required>>
+    * password : String <<hashed, required>>
+    githubId : String <<unique, sparse>>
+    --
+    **Profile Information**
+    --
+    firstName : String
+    lastName : String
+    nickname : String
+    birthday : Date
+    country : String
+    bio : String <<max 500 chars>>
+    gender : Enum [male, female, other, prefer-not-to-say]
+    avatar : String <<file path>>
+    header : String <<file path>>
+    --
+    **Role & Status**
+    --
+    role : Enum [admin, user] <<default: user>>
+    verified : Boolean <<default: false>>
+    isActive : Boolean <<default: true>>
+    --
+    **Two-Factor Authentication**
+    --
+    totpSecret : String <<encrypted>>
+    isTotpEnabled : Boolean <<default: false>>
+    --
+    **Encryption Keys**
+    --
+    * publicKey : String <<required>>
+    * privateKey : String <<encrypted, required>>
+    --
+    **Email Verification**
+    --
+    verificationToken : String
+    verificationExpires : Date <<24h expiry>>
+    verificationPending : Boolean <<default: false>>
+    --
+    **Password Reset**
+    --
+    resetPasswordToken : String
+    resetPasswordExpires : Date
+    --
+    **Timestamps**
+    --
+    createdAt : Date <<auto>>
+    updatedAt : Date <<auto>>
+}
+
+entity "users.friends[]" as Friends #c8e6c9 {
+    **Embedded Array in User**
+    --
+    user : ObjectId <<FK -> users>>
+}
+
+entity "users.friendRequests[]" as FriendRequests #c8e6c9 {
+    **Embedded Array in User**
+    --
+    requestId : ObjectId
+    sender : ObjectId <<FK -> users>>
+    receiver : ObjectId <<FK -> users>>
+    status : Enum [pending, accepted, rejected]
+    createdAt : Date
+    updatedAt : Date
+}
+
+entity "notes" as Note #fff3e0 {
+    * **_id** : ObjectId <<PK>>
+    --
+    **Content**
+    --
+    * title : String <<required, max 100>>
+    content : String
+    format : Enum [plain, markdown] <<default: plain>>
+    --
+    **Encrypted Content**
+    --
+    encrypted : Boolean <<default: false>>
+    encryptedTitle : String <<null if unencrypted>>
+    encryptedContent : String <<null if unencrypted>>
+    --
+    **Ownership**
+    --
+    * owner : ObjectId <<FK -> users, required>>
+    --
+    **Timestamps**
+    --
+    createdAt : Date <<auto>>
+    updatedAt : Date <<auto>>
+}
+
+entity "notes.sharedWith[]" as SharedWith #ffe0b2 {
+    **Embedded Array in Note**
+    --
+    user : ObjectId <<FK -> users>>
+    permission : Enum [viewer, editor] <<default: viewer>>
+    encryptedTitle : String <<per-user encrypted>>
+    encryptedContent : String <<per-user encrypted>>
+}
+
+entity "securitylogs" as SecurityLog #e3f2fd {
+    * **_id** : ObjectId <<PK>>
+    --
+    **Event Information**
+    --
+    * event : Enum <<required>>
+    * user : ObjectId <<FK -> users, required>>
+    timestamp : Date <<default: now>>
+    --
+    **Event Details**
+    --
+    details : Mixed <<flexible JSON>>
+    --
+    **Timestamps**
+    --
+    createdAt : Date <<auto>>
+    updatedAt : Date <<auto>>
+}
+
+note right of SecurityLog
+    **Event Types:**
+    - login, logout, register
+    - failed_login
+    - login_google, login_github
+    - note_created, note_updated
+    - note_deleted, note_shared
+    - note_unshared
+    - user_verified, user_deactivated
+    - user_deleted, user_created
+    - email_verified
+    - friend_request_sent
+    - friend_request_accepted
+    - friend_request_rejected
+    - password_reset_request
+    - password_reset, password_changed
+    - request_verification
+    - approve_verification
+    - reject_verification
+    - totp_setup, totp_enabled
+    - totp_disabled
+    - profile_updated
+    - username_updated
+    - personalization_updated
+    - email_change_requested
+end note
+
+' Relationships
+User ||--o{ Friends : "has many"
+User ||--o{ FriendRequests : "has many"
+User ||--o{ Note : "owns"
+User ||--o{ SecurityLog : "generates"
+Note ||--o{ SharedWith : "shared with"
+
+Friends }o--|| User : "references"
+FriendRequests }o--|| User : "sender references"
+FriendRequests }o--|| User : "receiver references"
+SharedWith }o--|| User : "references"
+
+' Indexes
+note bottom of User
+    **Indexes:**
+    - email_1 (unique)
+    - username_1 (unique)
+    - githubId_1 (unique, sparse)
+    - friendRequests.sender_1
+    - friendRequests.receiver_1
+end note
+
+note bottom of Note
+    **Indexes:**
+    - owner_1
+    - sharedWith.user_1
+end note
+
+note bottom of SecurityLog
+    **Indexes:**
+    - timestamp_-1 (descending)
+    - user_1
+end note
+
+' Database info
+package "MongoDB Database" #f5f5f5 {
+    note as DBInfo
+        **Database:** SecureNote
+        **Engine:** MongoDB
+        **ODM:** Mongoose 8.x
+        
+        **Collections:**
+        - users
+        - notes
+        - securitylogs
+        
+        **Features Used:**
+        - Document embedding (friends, sharedWith)
+        - References (ObjectId refs)
+        - Sparse indexes
+        - Compound indexes
+        - TTL for tokens (manual)
+        - Pre-save hooks (password hashing)
+        - Virtual methods (comparePassword)
+        - toJSON transform (hide sensitive)
+    end note
+}
+
+@enduml

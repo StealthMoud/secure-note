@@ -1,0 +1,244 @@
+@startuml SecureNote_Frontend_Architecture
+
+title SecureNote - Frontend Architecture (Next.js / React / TypeScript)
+
+' Force top-to-bottom layout
+top to bottom direction
+
+' Styling
+skinparam backgroundColor #f5f5f5
+skinparam defaultTextAlignment center
+skinparam PackagePadding 20
+skinparam Padding 10
+skinparam TitleFontSize 24
+skinparam TitleFontStyle bold
+
+skinparam rectangle {
+    RoundCorner 10
+    FontSize 18
+    FontStyle bold
+}
+
+skinparam package {
+    FontSize 16
+    FontStyle bold
+}
+
+skinparam component {
+    FontSize 14
+}
+
+skinparam database {
+    FontSize 14
+}
+
+skinparam note {
+    FontSize 12
+}
+
+skinparam legend {
+    FontSize 14
+}
+
+' ============================================
+' LAYER 1: NEXT.JS APP ENTRY
+' ============================================
+rectangle "<<Entry Point>>\nNext.js App Router" as EntryPoint #e3f2fd {
+    [layout.tsx\nRoot Layout] as RootLayout
+    [globals.css\nTailwind Styles] as GlobalCSS
+}
+
+' ============================================
+' LAYER 2: PAGES (APP ROUTER)
+' ============================================
+rectangle "<<Pages>>\nApp Router Structure" as PagesLayer #fff3e0 {
+    package "Authentication" {
+        [/login] as LoginPage
+        [/register] as RegisterPage
+        [/forgot-password] as ForgotPage
+        [/verify-email] as VerifyPage
+    }
+    package "User Dashboard" {
+        [/dashboard] as DashboardPage
+        [/notes] as NotesPage
+        [/friends] as FriendsPage
+        [/profile] as ProfilePage
+        [/notifications] as NotifPage
+    }
+    package "Settings" {
+        [/account-settings\nProfileTab | SecurityTab | OtherTab] as SettingsPage
+    }
+    package "Admin Panel" {
+        [/admin\noverview | users | notes | logs] as AdminPage
+    }
+}
+
+' ============================================
+' LAYER 3: SECTION COMPONENTS
+' ============================================
+rectangle "<<Section Components>>\nPage UI Components" as SectionsLayer #e8f5e9 {
+    [DashboardSection\nQuick stats, overview] as DashboardSection
+    [NotesSection\nNote list, editor, share modal] as NotesSection
+    [FriendsSection\nFriend list, requests, search] as FriendsSection
+    [ProfileSection\nUser profile view] as ProfileSection
+    [NotificationsSection\nNotification list] as NotifSection
+    [AccountSettingsSection\nSettings tabs UI] as SettingsSection
+}
+
+' ============================================
+' LAYER 4: PAGE LOGIC HOOKS
+' ============================================
+rectangle "<<Page Logic>>\nCustom Hooks & Logic" as LogicLayer #ffe0b2 {
+    package "Auth Logic" {
+        [useLoginLogic\nhandleLogin, handle2FA] as LoginLogic
+        [useRegisterLogic\nhandleRegister, validation] as RegisterLogic
+        [useForgotPasswordLogic] as ForgotLogic
+        [useVerifyEmailLogic] as VerifyLogic
+    }
+    package "Feature Logic" {
+        [dashboardLogic\nstats calculation] as DashLogic
+        [notesLogic\nnote operations] as NotesLogic
+        [friendsLogic\nfriend operations] as FriendsLogic
+        [profileLogic\nprofile operations] as ProfileLogic
+        [accountSettingsLogic] as SettingsLogic
+    }
+}
+
+' ============================================
+' LAYER 5: CONTEXT PROVIDERS
+' ============================================
+rectangle "<<Context Providers>>\nGlobal State Management" as ContextLayer #e8f5e9 {
+    [DashboardContext\nactiveTab, navigateToTab] as DashContext
+    [DashboardSharedContext\nshared state, user data] as SharedContext
+    [AdminDashboardContext\nadmin state, operations] as AdminContext
+}
+
+' ============================================
+' LAYER 6: API SERVICES
+' ============================================
+rectangle "<<API Services>>\nBackend Communication" as ServicesLayer #f3e5f5 {
+    package "Core" {
+        [api.ts\nAxios Instance\nBase URL, Headers] as APIClient
+    }
+    package "Service Modules" {
+        [auth.ts\nregister, login, logout\nTOTP, password reset] as AuthService
+        [notes.ts\nCRUD, share, encrypt\nexport] as NotesService
+        [users.ts\nprofile, friends\navatar, search] as UsersService
+        [adminService.ts\nusers, notes, logs] as AdminService
+    }
+}
+
+' ============================================
+' LAYER 7: SHARED HOOKS & UTILITIES
+' ============================================
+rectangle "<<Shared Hooks & Utilities>>" as UtilsLayer #fff3e0 {
+    package "Auth Hooks" {
+        [useAuthSettings\nisAuthenticated, logout] as AuthHook
+        [useUserSettings\nuser preferences] as UserHook
+    }
+    package "Utilities" {
+        [darkMode.ts\ntheme toggle] as DarkMode
+        [debounce.ts\nsearch optimization] as Debounce
+    }
+    package "Components" {
+        [ProtectedRoute\nauth check, redirect] as ProtectedRoute
+    }
+}
+
+' ============================================
+' LAYER 8: EXTERNAL LIBRARIES
+' ============================================
+rectangle "<<External Libraries>>" as LibsLayer #ffebee {
+    [Axios\nHTTP Client] as Axios
+    [Next.js\nRouter, Link, Image] as NextJS
+    [React Context\nState Management] as ReactCtx
+    [jwt-decode\nToken Parsing] as JWTDecode
+    [marked\nMarkdown Render] as Marked
+    [jspdf\nPDF Export] as JSPDF
+    [Heroicons\nIcons] as Icons
+    [Tailwind CSS\nStyling] as Tailwind
+}
+
+cloud "Backend API\nExpress.js /api/*" as BackendAPI #e0e0e0
+
+' ============================================
+' FLOW CONNECTIONS
+' ============================================
+
+' Entry to Pages
+RootLayout -[#1565c0,thickness=2]-> PagesLayer : "renders"
+
+' Pages to Sections
+LoginPage --> LoginLogic
+RegisterPage --> RegisterLogic
+ForgotPage --> ForgotLogic
+VerifyPage --> VerifyLogic
+DashboardPage --> DashboardSection
+NotesPage --> NotesSection
+FriendsPage --> FriendsSection
+ProfilePage --> ProfileSection
+NotifPage --> NotifSection
+SettingsPage --> SettingsSection
+AdminPage --> AdminContext
+
+' Sections to Logic
+DashboardSection --> DashLogic
+NotesSection --> NotesLogic
+FriendsSection --> FriendsLogic
+ProfileSection --> ProfileLogic
+SettingsSection --> SettingsLogic
+
+' Logic to Context
+DashLogic --> DashContext
+DashLogic --> SharedContext
+
+' Logic to Services
+LoginLogic --> AuthService
+RegisterLogic --> AuthService
+ForgotLogic --> AuthService
+VerifyLogic --> AuthService
+DashLogic --> NotesService
+NotesLogic --> NotesService
+FriendsLogic --> UsersService
+ProfileLogic --> UsersService
+SettingsLogic --> AuthService
+SettingsLogic --> UsersService
+
+' Services to API Client
+AuthService --> APIClient
+NotesService --> APIClient
+UsersService --> APIClient
+AdminService --> APIClient
+
+' API Client to Backend
+APIClient -[#2e7d32,thickness=2]-> BackendAPI : "HTTP / REST"
+
+' Shared Hooks
+AuthHook -[#7b1fa2,dashed]-> AuthService
+UserHook -[#7b1fa2,dashed]-> UsersService
+ProtectedRoute -[#7b1fa2,dashed]-> AuthService
+
+' Libraries
+APIClient --> Axios
+RootLayout --> NextJS
+RootLayout --> Tailwind
+RootLayout --> Icons
+SharedContext --> ReactCtx
+NotesSection --> Marked
+NotesSection --> JSPDF
+AuthService --> JWTDecode
+RootLayout --> DarkMode
+
+' ============================================
+' LEGEND
+' ============================================
+legend bottom
+  |<#e3f2fd>  Entry Point  |  App initialization  |
+  |<#fff3e0>  Pages & Utils  |  Routes & helpers  |
+  |<#e8f5e9>  Components & Context  |  UI & State  |
+  |<#ffe0b2>  Logic Hooks  |  Business logic  |
+  |<#f3e5f5>  Services  |  API communication  |
+  |<#ffebee>  Libraries  |  External dependencies  |
+endlegend
+
+@enduml

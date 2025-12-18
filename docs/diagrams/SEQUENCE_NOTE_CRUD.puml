@@ -1,0 +1,44 @@
+@startuml
+title Note CRUD Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Note Controller" as Ctrl
+participant "Encryption Service" as Enc
+database "Database" as DB
+participant "Security Log" as Log
+
+== List Notes ==
+User -> FE: View Dashboard
+FE -> API: GET /notes
+API -> Ctrl: Fetch Notes
+Ctrl -> DB: Find Notes (Owner)
+DB --> Ctrl: Notes List
+Ctrl --> API: Notes
+API --> FE: Display Notes
+
+== Read Note ==
+User -> FE: Click Note
+FE -> API: GET /notes (already fetched usually)
+FE -> FE: Decrypt (Local/Client-side often, but server handles storage)
+note right of FE: Backend sends encrypted content,\nFrontend/User decrypts if key available
+
+== Update Note ==
+User -> FE: Edit Note
+FE -> API: PUT /notes/{id}
+API -> Ctrl: Validate Access
+Ctrl -> Enc: Encrypt New Content
+Ctrl -> DB: Update Note
+Ctrl -> Log: Log Update
+Ctrl --> API: Success
+
+== Delete Note ==
+User -> FE: Delete Note
+FE -> API: DELETE /notes/{id}
+API -> Ctrl: Validate Owner
+Ctrl -> DB: Remove Note
+Ctrl -> Log: Log Delete
+Ctrl --> API: Success
+
+@enduml

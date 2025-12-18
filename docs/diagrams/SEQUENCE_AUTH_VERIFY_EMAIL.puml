@@ -1,0 +1,43 @@
+@startuml
+title Email Verification Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Click Verification Link
+activate FE
+FE -> API: POST /auth/verify-email (token)
+activate API
+API -> Ctrl: Verify Token
+activate Ctrl
+
+Ctrl -> DB: Find User by Token
+activate DB
+DB --> Ctrl: User Data
+deactivate DB
+
+alt Token Valid
+    Ctrl -> DB: Set verified=true, remove token
+    activate DB
+    DB --> Ctrl: Success
+    deactivate DB
+
+    Ctrl -> Log: Log Email Verified
+    activate Log
+    Log --> Ctrl: Acknowledged
+    deactivate Log
+
+    Ctrl --> API: Success
+    deactivate Ctrl
+    API --> FE: Success Message
+    FE --> User: Redirect onto login
+else Token Invalid
+    Ctrl --> API: Error (400)
+    API --> FE: Show Error
+end
+
+@enduml

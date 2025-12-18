@@ -1,0 +1,39 @@
+@startuml
+title User Security Update Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "User Controller" as Ctrl
+database "Database" as DB
+participant "Email Service" as Email
+participant "Security Log" as Log
+
+== Change Password ==
+User -> FE: Change Password
+FE -> API: PUT /users/password
+API -> Ctrl: Verify Current Password
+Ctrl -> DB: Check Password
+alt Correct
+    Ctrl -> DB: Update Hash
+    Ctrl -> Log: Log Password Change
+    Ctrl --> API: Success
+else Incorrect
+    Ctrl --> API: Error
+end
+
+== Change Email ==
+User -> FE: Change Email
+FE -> API: PUT /users/email
+API -> Ctrl: Check availability
+Ctrl -> DB: Check existing email
+alt Available
+    Ctrl -> DB: Set Verification Token
+    Ctrl -> Email: Send Verification Link
+    Ctrl -> Log: Log Email Change Request
+    Ctrl --> API: Success (Pending Verification)
+else Taken
+    Ctrl --> API: Error
+end
+
+@enduml

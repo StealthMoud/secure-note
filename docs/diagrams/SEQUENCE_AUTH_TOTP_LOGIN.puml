@@ -1,0 +1,48 @@
+@startuml
+title TOTP Login Verification Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+participant "TOTP Service" as TOTP
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Enter 2FA Code
+activate FE
+FE -> API: POST /auth/verify-totp-login
+activate API
+API -> Ctrl: Validate Input
+activate Ctrl
+
+Ctrl -> DB: Validate Temp Token
+activate DB
+DB --> Ctrl: User Data
+deactivate DB
+
+Ctrl -> TOTP: Verify Code
+activate TOTP
+TOTP --> Ctrl: Valid/Invalid
+deactivate TOTP
+
+alt Invalid Code
+    Ctrl -> Log: Log Failed 2FA
+    Ctrl --> API: Error (400)
+    API --> FE: Show Error
+else Valid Code
+    Ctrl -> Ctrl: Generate JWT
+    Ctrl -> Log: Log Successful 2FA Login
+    activate Log
+    Log --> Ctrl: Acknowledged
+    deactivate Log
+
+    Ctrl --> API: 200 (Token + User)
+    deactivate Ctrl
+    API --> FE: Login Success
+    deactivate API
+    FE --> User: Redirect to Dashboard
+    deactivate FE
+end
+
+@enduml

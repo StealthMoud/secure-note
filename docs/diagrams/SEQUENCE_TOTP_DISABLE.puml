@@ -1,0 +1,24 @@
+@startuml
+title TOTP Disable Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "TOTP Controller" as Ctrl
+participant "TOTP Service" as TP
+database "Database" as DB
+participant "Security Log" as Log
+
+User -> FE: Disable 2FA (Enter Code)
+FE -> API: POST /totp/disable
+API -> Ctrl: Verify Code & Password
+Ctrl -> TP: Verify Token
+alt Valid
+    Ctrl -> DB: Clear Secret & Set isTotpEnabled=false
+    Ctrl -> Log: Log TOTP Disabled
+    Ctrl --> API: Success
+else Invalid
+    Ctrl --> API: Error
+end
+
+@enduml

@@ -1,0 +1,101 @@
+@startuml
+title Component Diagram
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+package "Frontend (Next.js Application)" {
+    package "Pages / Routes" {
+        component "Auth Pages" as AuthPage
+        component "Dashboard" as DashPage
+        component "Admin Panel" as AdminPage
+        component "Shared Note View" as SharedPage
+    }
+
+    package "Client Logic" {
+        component "Auth Context" as AuthCtx
+        component "Encryption Utils (Client)" as ClientEnc
+    }
+
+    package "API Services" {
+        component "AuthService" as AuthSvc
+        component "NoteService" as NoteSvc
+        component "UserService" as UserSvc
+    }
+
+    AuthPage ..> AuthSvc
+    DashPage ..> NoteSvc
+    AdminPage ..> UserSvc
+    SharedPage ..> NoteSvc
+    
+    AuthCtx --> AuthSvc : Manage Session
+    SharedPage ..> ClientEnc : Decrypt Note (Client-Side)
+}
+
+package "Backend (Node.js/Express)" {
+    component "API Gateway" as Gateway
+
+    package "Middleware Layer" {
+        component "Rate Limiter" as RateLimit
+        component "Auth Middleware" as AuthMW
+        component "Validation Middleware" as ValMW
+    }
+
+    package "Controllers (Business Logic)" {
+        component "Auth Controller" as AuthCtrl
+        component "Note Controller" as NoteCtrl
+        component "User Controller" as UserCtrl
+        component "Sharing Controller" as ShareCtrl
+    }
+
+    package "Utilities" {
+        component "Encryption Service" as EncSvc
+        component "TOTP Service" as TotpSvc
+        component "Email Util" as EmailUtil
+    }
+
+    package "Data Access Layer (Mongoose Models)" {
+        component "User Model" as UserM
+        component "Note Model" as NoteM
+        component "Security Log" as LogM
+    }
+}
+
+package "External Systems" {
+    database "MongoDB" as DB
+    component "SMTP Server" as SMTP
+    component "OAuth Providers" as OAuth
+}
+
+' wiring
+AuthSvc --> Gateway
+NoteSvc --> Gateway
+UserSvc --> Gateway
+
+Gateway --> RateLimit
+RateLimit --> AuthMW
+AuthMW --> ValMW
+
+ValMW --> AuthCtrl
+ValMW --> UserCtrl
+ValMW --> NoteCtrl
+ValMW --> ShareCtrl
+
+AuthCtrl --> UserM : CRUD
+AuthCtrl --> TotpSvc : Verify 2FA
+AuthCtrl --> EmailUtil : Send Verification
+AuthCtrl --> OAuth : Federated Login
+
+NoteCtrl --> NoteM : CRUD
+NoteCtrl --> EncSvc : Encrypt/Decrypt (Server-Side)
+ShareCtrl --> NoteM : Update Permissions
+ShareCtrl --> EncSvc : Re-encrypt Keys
+
+UserM --> DB
+NoteM --> DB
+LogM --> DB
+
+Controllers ..> LogM : Audit Events
+EmailUtil --> SMTP : Send Mail
+
+@enduml
