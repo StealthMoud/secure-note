@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
 });
 
-// Existing registerUser function
+
 exports.registerUser = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -150,7 +150,7 @@ exports.verifyTotpLogin = async (req, res) => {
     }
 };
 
-// Moved totpSetup function
+
 exports.totpSetup = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -174,7 +174,7 @@ exports.totpSetup = async (req, res) => {
     }
 };
 
-// Moved totpVerify function
+
 exports.totpVerify = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -237,7 +237,7 @@ exports.totpDisable = async (req, res) => {
     }
 };
 
-// Existing googleCallback function
+
 exports.googleCallback = async (req, res) => {
     try {
         const token = jwt.sign({ id: req.user._id, role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -263,7 +263,7 @@ exports.googleCallback = async (req, res) => {
     }
 };
 
-// Existing githubCallback function
+
 exports.githubCallback = async (req, res) => {
     try {
         if (!req.user) {
@@ -292,7 +292,7 @@ exports.githubCallback = async (req, res) => {
     }
 };
 
-// Existing requestPasswordReset function
+
 exports.requestPasswordReset = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -336,7 +336,7 @@ exports.requestPasswordReset = async (req, res) => {
     }
 };
 
-// Existing resetPassword function
+
 exports.resetPassword = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -375,7 +375,6 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-// Existing requestVerification function
 exports.requestVerification = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -416,7 +415,7 @@ exports.requestVerification = async (req, res) => {
     }
 };
 
-// Existing getPendingUsers function
+
 exports.getPendingUsers = async (req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
@@ -440,7 +439,7 @@ exports.approveVerification = async (req, res) => {
         const verificationToken = crypto.randomBytes(32).toString('hex');
         user.verificationToken = verificationToken;
         user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-        user.verificationPending = false; // Clear pending
+        user.verificationPending = false;
         await user.save();
 
         const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
@@ -491,11 +490,10 @@ exports.verifyEmail = async (req, res) => {
         });
 
         if (!user) {
-            // Check if user is already verified
             const verifiedUser = await User.findOne({
                 verificationToken: null,
                 verified: true,
-                email: { $exists: true }, // Ensure user has an email
+                email: { $exists: true },
             });
             if (verifiedUser) {
                 console.log('User already verified:', verifiedUser.email);

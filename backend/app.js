@@ -24,7 +24,7 @@ app.use(helmet({
         },
     },
 }));
-app.use(cors({ origin: [process.env.FRONTEND_URL, 'http://securenote:3000'], credentials: true }));
+app.use(cors({ origin: [process.env.FRONTEND_URL, 'http://localhost:3000'], credentials: true }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: "Too many requests..." }));
 app.use(express.json());
 app.use(passport.initialize());

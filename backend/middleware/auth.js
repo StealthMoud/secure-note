@@ -23,7 +23,7 @@ const authenticate = async (req, res, next) => {
         req.user = {
             id: user._id,
             role: user.role || 'user',
-            verified: user.verified, // Include verified field
+            verified: user.verified,
         };
         console.log('Authenticated user:', { id: req.user.id, role: req.user.role, verified: req.user.verified });
         next();
