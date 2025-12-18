@@ -30,34 +30,34 @@ SecureNote follows a modern layered architecture, separating concerns between th
 
 ```mermaid
 graph TD
-    subgraph Frontend [Frontend (Next.js)]
-        UI[User Interface / Pages]
+    subgraph Frontend ["Frontend (Next.js)"]
+        UI["User Interface / Pages"]
         Components
-        Services[API Services]
-        Context[State Management]
+        Services["API Services"]
+        Context["State Management"]
         
         UI --> Components
         Components --> Context
         Context --> Services
     end
 
-    subgraph Backend [Backend (Express.js)]
-        API[API Routes]
+    subgraph Backend ["Backend (Express.js)"]
+        API["API Routes"]
         Controllers
-        Middleware[Auth & Security Middleware]
-        Models[Mongoose Models]
+        Middleware["Auth & Security Middleware"]
+        Models["Mongoose Models"]
         
         API --> Middleware
         Middleware --> Controllers
         Controllers --> Models
     end
 
-    subgraph Database [Data Storage]
-        MongoDB[(MongoDB)]
+    subgraph Database ["Data Storage"]
+        MongoDB[("MongoDB")]
     end
     
-    Services -- HTTP/JSON --> API
-    Models -- Mongoose --> MongoDB
+    Services -- "HTTP/JSON" --> API
+    Models -- "Mongoose" --> MongoDB
 ```
 
 ---
