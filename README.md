@@ -1,47 +1,124 @@
 # 🔐 SecureNote
-A robust, full-stack web application designed for **secure note-sharing and access control**. Built with a strong focus on security, encryption, two-factor authentication, and user/admin access segregation.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)
+
+**SecureNote** is a robust, full-stack web application designed for **secure note-sharing and access control**. Built with a privacy-first approach, it features end-to-end encryption principles, two-factor authentication (TOTP), and granular role-based access control.
 
 ---
 
 ## 🚀 Overview
 
-SecureNote enables users to **create, share, and manage encrypted notes** in a privacy-first environment. It integrates **JWT authentication**, **TOTP-based two-factor authentication**, and **role-based access control** to ensure security and accountability at every level.
+SecureNote empowers users to **create, share, and manage encrypted notes** securely. Whether you are an individual wanting to keep private thoughts safe or a team sharing sensitive information, SecureNote provides the tools you need.
+
+### Key Features
+-   ✅ **Secure Authentication**: Robust JWT-based auth with Passport.js strategies (Local, Google, GitHub).
+-   🔐 **Two-Factor Authentication**: Integrated TOTP (Time-based One-Time Password) for an extra layer of security.
+-   🛡️ **Role-Based Access Control**: Distinct User and Admin roles with specialized dashboards.
+-   ✉️ **Verified Identity**: Email verification and secure password reset workflows.
+-   🤝 **Secure Sharing**: Share notes with friends with view or edit permissions.
+-   📝 **Rich Note Management**: Create, edit, and delete notes with support for Markdown.
+-   🧾 **Audit Logging**: Comprehensive security logging for admins to monitor suspicious activities.
+-   🐳 **Dockerized**: Fully containerized for consistent deployment across environments.
+
+---
+
+## 🏗️ System Architecture
+
+SecureNote follows a modern layered architecture, separating concerns between the presentation, business logic, and data access layers.
+
+```mermaid
+graph TD
+    subgraph Frontend [Frontend (Next.js)]
+        UI[User Interface / Pages]
+        Components
+        Services[API Services]
+        Context[State Management]
+        
+        UI --> Components
+        Components --> Context
+        Context --> Services
+    end
+
+    subgraph Backend [Backend (Express.js)]
+        API[API Routes]
+        Controllers
+        Middleware[Auth & Security Middleware]
+        Models[Mongoose Models]
+        
+        API --> Middleware
+        Middleware --> Controllers
+        Controllers --> Models
+    end
+
+    subgraph Database [Data Storage]
+        MongoDB[(MongoDB)]
+    end
+    
+    Services -- HTTP/JSON --> API
+    Models -- Mongoose --> MongoDB
+```
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer      | Tech Used                                  |
-|------------|---------------------------------------------|
-| **Frontend** | Next.js, TypeScript, Tailwind CSS             |
-| **Backend**  | Node.js, Express.js, MongoDB, Mongoose       |
-| **Security** | JWT, TOTP (Two-Factor Auth), Passport.js     |
-| **Containerization** | Docker, Docker Compose                     |
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [Tailwind CSS](https://tailwindcss.com/) |
+| **Backend** | [Node.js](https://nodejs.org/), [Express.js](https://expressjs.com/), [Passport.js](https://www.passportjs.org/) |
+| **Database** | [MongoDB](https://www.mongodb.com/), [Mongoose](https://mongoosejs.com/) |
+| **Security** | [Bcrypt](https://www.npmjs.com/package/bcryptjs), [JsonWebToken](https://jwt.io/), [Speakeasy](https://github.com/speakeasyjs/speakeasy) (TOTP), [Helmet](https://helmetjs.github.io/) |
+| **DevOps** | [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/) |
+
 ---
 
-## 📁 Project Structure
+## 💾 Database Design
 
-```
-secure-note/
-├── backend/         # Node.js API
-│   ├── config/      # DB, Passport configs
-│   ├── controllers/ # Business logic
-│   ├── middleware/  # Auth, Verification
-│   ├── models/      # Mongoose schemas
-│   ├── routes/      # API endpoints
-│   ├── utils/       # Encryption, logging
-│   └── server.js
-│
-├── frontend/        # Next.js App
-│   ├── app/         # Pages (Admin, User)
-│   ├── context/     # React Context Providers
-│   ├── src/         # Reusable components, services
-│   ├── public/      # Static assets
-│   └── config/      # Tailwind, ESLint, etc.
-│
-├── docs/            # UI screenshots
-├── docker-compose.yml
-└── README.md
+The database schema is designed to support secure user management, relationship handling, and encrypted note storage.
+
+```mermaid
+erDiagram
+    USERS ||--o{ NOTES : owns
+    USERS ||--o{ SECURITY_LOGS : generates
+    USERS ||--o{ FRIENDS : has
+    NOTES ||--o{ SHARED_WITH : "shared with"
+
+    USERS {
+        ObjectId _id PK
+        string username
+        string email
+        string password "hashed"
+        string role "user|admin"
+        boolean isTotpEnabled
+        string publicKey
+        string privateKey "encrypted"
+    }
+
+    NOTES {
+        ObjectId _id PK
+        string title
+        string content
+        boolean encrypted
+        ObjectId owner FK
+        date createdAt
+    }
+
+    SHARED_WITH {
+        ObjectId user FK
+        enum permission "viewer|editor"
+        string encryptedTitle
+        string encryptedContent
+    }
+
+    SECURITY_LOGS {
+        ObjectId _id PK
+        enum event
+        ObjectId user FK
+        date timestamp
+        json details
+    }
 ```
 
 ---
@@ -50,94 +127,87 @@ secure-note/
 
 ### 👤 User Dashboard
 
-| Dashboard | Notes | Friends | Notifications | Profile | Account Settings |
-|----------|-------|---------|---------------|---------|------------------|
-| ![](docs/User%20Panel%20%7C%20Dashboard.png) | ![](docs/User%20Panel%20%7C%20Notes.png) | ![](docs/User%20Panel%20%7C%20Friends.png) | ![](docs/User%20Panel%20%7C%20Notifications.png) | ![](docs/User%20Panel%20%7C%20Profile.png) | ![](docs/User%20Panel%20%7C%20Account%20Settigs.png) |
+| Dashboard | Notes | Friends |
+| :---: | :---: | :---: |
+| ![](docs/User%20Panel%20%7C%20Dashboard.png) | ![](docs/User%20Panel%20%7C%20Notes.png) | ![](docs/User%20Panel%20%7C%20Friends.png) |
+
+**User Tools:**
+| Notifications | Profile | Account Settings |
+| :---: | :---: | :---: |
+| ![](docs/User%20Panel%20%7C%20Notifications.png) | ![](docs/User%20Panel%20%7C%20Profile.png) | ![](docs/User%20Panel%20%7C%20Account%20Settigs.png) |
 
 ### 🛡️ Admin Panel
 
-| Overview | Users | Security Logs |
-|----------|-------|----------------|
+| Overview | Users Management | Security Logs |
+| :---: | :---: | :---: |
 | ![](docs/Admin%20Panel%20%7C%20Overview.png) | ![](docs/Admin%20Panel%20%7C%20Users.png) | ![](docs/Admin%20Panel%20%7C%20Security%20Logs.png) |
 
 ---
 
 ## ⚙️ Getting Started
 
+This project is set up as an **NPM Workspace** for better dependency management.
+
 ### 🔧 Prerequisites
 
-- [Node.js](https://nodejs.org)
-- [Docker](https://www.docker.com/)
-- [MongoDB (Dockerized)] or local instance
+-   [Node.js](https://nodejs.org/) (v18+)
+-   [Docker](https://www.docker.com/) (Optional, for containerized DB/App)
+-   [MongoDB](https://www.mongodb.com/) (If running locally without Docker)
 
----
+### 📥 Installation
 
-### 🧪 Local Setup (with Docker)
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/StealthMoud/secure-note.git
+    cd secure-note
+    ```
 
+2.  **Install dependencies**:
+    From the root directory, install dependencies for both backend and frontend:
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Setup**:
+    -   Copy `.env.example` to `.env` in `backend/`.
+    -   Copy `.env.local.example` (if exists) or create `.env.local` in `frontend/`.
+    -   Fill in your secrets (MongoDB URI, JWT Secret, OAuth Client IDs).
+
+### 🚀 Running the Application
+
+**Option 1: Using Docker (Recommended)**
 ```bash
-git clone git@github.com:StealthMoud/secure-note.git
-cd secure-note
 docker-compose up --build
 ```
+-   Frontend: `http://localhost:3000`
+-   Backend API: `http://localhost:5000`
 
-Frontend will be accessible at: [http://localhost:3000](http://localhost:3000)  
-Backend API available at: [http://localhost:5000/api](http://localhost:5000/api)
+**Option 2: Manual Local Dev**
+You can run the backend and frontend individually using the workspace scripts from the root:
 
----
-
-### 🔐 Environment Variables
-
-#### backend/.env
-
-```env
-PORT=5000
-MONGO_URI=mongodb://mongo:27017/securenote
-JWT_SECRET=your_jwt_secret
-TOTP_SECRET=your_totp_secret
-```
-
-#### frontend/.env.local
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
----
-
-## 🔒 Key Features
-
-- ✅ Secure user authentication (JWT + TOTP)
-- ✉️ Email verification & password reset
-- 🗂️ Note creation & encryption
-- 🤝 Friend & note sharing system
-- 🛡️ Admin dashboard for user & log management
-- 🧾 Real-time security event logging
-- 🌐 Fully Dockerized setup
-
----
-
-## 📌 Roadmap
-
-- [ ] File uploads to notes
-- [ ] Note expiry and revocation
-- [ ] Export/import notes feature
-- [ ] Role-based permission customization
-- [ ] Enhanced audit trail & analytics
+*   **Start Backend**:
+    ```bash
+    npm run start:backend
+    ```
+*   **Start Frontend**:
+    ```bash
+    npm run dev:frontend
+    ```
 
 ---
 
 ## 🤝 Contribution Guidelines
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add new feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a Pull Request
+We welcome contributions! Please follow these steps:
+
+1.  **Fork** the repository.
+2.  Create a **Feature Branch** (`git checkout -b feature/AmazingFeature`).
+3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  **Push** to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a **Pull Request**.
 
 ---
 
 ## 📝 License
 
-This project is licensed under the [MIT License](LICENSE).
-
----
+Distributed under the MIT License. See `LICENSE` for more information.
