@@ -1,4 +1,4 @@
-# 🔐 SecureNote
+[![SecureNote](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=40&pause=1000&color=2E7D32&width=435&lines=SecureNote;Encrypted+Notes;Private+Sharing;Secure+Access)](https://github.com/StealthMoud/secure-note)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
@@ -11,6 +11,10 @@
 ## 🚀 Overview
 
 SecureNote empowers users to **create, share, and manage encrypted notes** securely. Whether you are an individual wanting to keep private thoughts safe or a team sharing sensitive information, SecureNote provides the tools you need.
+
+### 🎬 Live Demo
+
+![Application Demo](docs/app-demo.webp)
 
 ### Key Features
 -   ✅ **Secure Authentication**: Robust JWT-based auth with Passport.js strategies (Local, Google, GitHub).
