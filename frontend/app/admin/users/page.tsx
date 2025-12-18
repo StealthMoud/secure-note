@@ -79,7 +79,7 @@ export default function UsersPage() {
                 clearTimeout(timeout);
                 notificationTimeoutRef.current.delete(id);
             }
-        }, 300); // Match animation duration
+        }, 300);
     };
 
     // Cleanup timeouts on unmount

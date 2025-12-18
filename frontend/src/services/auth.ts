@@ -168,7 +168,6 @@ export const rejectVerification = async (userId: string): Promise<{ message: str
 export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
     try {
         const response = await api.get<VerifyEmailResponse>(`/auth/verify-email?token=${encodeURIComponent(token)}`);
-        console.log('verifyEmail API response:', response.data);
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.error || 'Email verification failed');

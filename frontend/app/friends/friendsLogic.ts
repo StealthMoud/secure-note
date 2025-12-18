@@ -96,7 +96,7 @@ export const useFriendsLogic = () => {
     const handleSendFriendRequest = async () => {
         if (!friendRequestUsername.trim()) {
             setError('Username or email is required to send a friend request');
-            setIsExitingError(false); // Reset exiting state for new error
+            setIsExitingError(false);
             return;
         }
 

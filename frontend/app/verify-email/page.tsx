@@ -15,18 +15,12 @@ export default function VerifyEmailPage() {
             {!isLoading && message && (
                 <>
                     <p className="text-green-500 text-sm mb-4">{message}</p>
-                    <p className="text-gray-600 text-sm">
-                        Your email has been successfully verified. You can now log in and start using your account.
-                    </p>
                 </>
             )}
 
             {!isLoading && !message && error && (
                 <>
                     <p className="text-red-500 text-sm mb-4">{error}</p>
-                    <p className="text-gray-600 text-sm">
-                        If you believe this is a mistake, try clicking the verification link again or request a new one.
-                    </p>
                 </>
             )}
         </div>
