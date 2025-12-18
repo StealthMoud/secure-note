@@ -168,10 +168,23 @@ This project is set up as an **NPM Workspace** for better dependency management.
     npm install
     ```
 
-3.  **Environment Setup**:
-    -   Copy `.env.example` to `.env` in `backend/`.
-    -   Copy `.env.local.example` (if exists) or create `.env.local` in `frontend/`.
-    -   Fill in your secrets (MongoDB URI, JWT Secret, OAuth Client IDs).
+### ⚙️ Environment Setup
+
+1.  **Backend & Docker**:
+    Copy the example environment file to the root directory (for Docker) AND to the backend directory (for manual runs).
+    ```bash
+    cp .env.example .env
+    cp .env.example backend/.env
+    ```
+
+2.  **Frontend**:
+    Create a local environment file in the frontend directory.
+    ```bash
+    cp frontend/.env.local.example frontend/.env.local
+    ```
+
+3.  **Configure Secrets**:
+    Open the `.env` files and update the `JWT_SECRET`, `MONGO_URI`, and OAuth credentials with your own values.
 
 ### 🚀 Running the Application
 
