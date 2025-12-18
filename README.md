@@ -1,4 +1,4 @@
-[![SecureNote](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=40&pause=1000&color=2E7D32&width=435&lines=SecureNote;Encrypted+Notes;Private+Sharing;Secure+Access)](https://github.com/StealthMoud/secure-note)
+[![SecureNote](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=40&pause=1000&color=2E7D32&width=600&height=100&lines=SecureNote;Encrypted+Notes;Private+Sharing;Secure+Access)](https://github.com/StealthMoud/secure-note)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
