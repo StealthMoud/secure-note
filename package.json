@@ -1,12 +1,18 @@
 {
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "multer": "^1.4.5-lts.1",
-    "next-themes": "^0.4.6",
-    "node-fetch": "^3.3.2",
-    "nodemailer": "^6.10.0",
-    "passport": "^0.7.0",
-    "passport-github2": "^0.1.12",
-    "passport-google-oauth20": "^2.0.0"
+  "name": "secure-note-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "start:backend": "npm start --workspace=backend",
+    "start:frontend": "npm start --workspace=frontend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "test": "npm test --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
