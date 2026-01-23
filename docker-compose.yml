@@ -18,13 +18,14 @@ services:
       - "5002:5002"
     volumes:
       - ./backend:/app
+      - /app/node_modules
     env_file:
       - .env
     environment:
       - NODE_ENV=development
     depends_on:
       - mongodb
-    command: npx nodemon server.js
+    command: npm run dev
 
   # FRONTEND SERVICE (Next.js)
   frontend:
@@ -36,6 +37,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
     depends_on:

@@ -10,25 +10,35 @@
 !.yarn/releases
 !.yarn/versions
 
-# Ignore node_modules
+# Ignore node_modules in all subdirectories
 node_modules
+**/node_modules
 
 /frontend/.next
 
+# certificates
 /certs
+backend/certs
 
-# environment
+# environment files
 .env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env.local
 
 # testing
 /coverage
+**/coverage
 
 # next.js
 /.next/
 /out/
+**/out/
 
 # production
 /build
+**/build
 
 # misc
 .DS_Store
@@ -40,16 +50,20 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-frontend/.env.local
-
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
+# uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
