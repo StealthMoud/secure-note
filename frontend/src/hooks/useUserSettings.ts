@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { updateProfile, updatePersonalization } from '@/services/users';
-import { useDashboardSharedContext } from '@/app/context/DashboardSharedContext';
+import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { useApi } from '@/hooks/useApi';
 
 interface UserData {
     user: {
@@ -40,12 +41,16 @@ interface Personalization {
 
 export const useUserSettings = () => {
     const { user, setUser } = useDashboardSharedContext();
+    const {
+        loading,
+        error,
+        message,
+        execute,
+        setLoading
+    } = useApi();
 
     const [avatar, setAvatar] = useState<File | null>(null);
     const [header, setHeader] = useState<File | null>(null);
-    const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
 
     const [originalProfile, setOriginalProfileState] = useState<Profile>(() => ({
         firstName: user?.user.firstName || '',
@@ -99,29 +104,14 @@ export const useUserSettings = () => {
             (key) => data[key as keyof Profile] !== originalProfile[key as keyof Profile] && (data[key as keyof Profile] || originalProfile[key as keyof Profile])
         );
 
-        if (!hasChanges) {
-            console.log('No changes detected in profile data:', data);
-            console.log('Original profile:', originalProfile);
-            return;
-        }
+        if (!hasChanges) return;
 
-        console.log('Sending profile update:', data);
-
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
+        await execute(async () => {
             const response = await updateProfile(data);
-            console.log('Profile update response:', response);
-            setUser({ ...user!, user: { ...user!.user, ...response.user } }); // Use backend response
+            setUser({ ...user!, user: { ...user!.user, ...response.user } });
             setOriginalProfileState(data);
-            setMessage('Profile updated successfully');
-        } catch (err: any) {
-            setError(err.message || 'Failed to update profile');
-            console.error('Update profile error:', err);
-        } finally {
-            setLoading(false);
-        }
+            return response;
+        }, 'Profile updated successfully');
     };
 
     const handleUpdatePersonalization = async () => {
@@ -138,34 +128,20 @@ export const useUserSettings = () => {
             data.avatar ||
             data.header;
 
-        if (!hasChanges) {
-            console.log('No changes detected in personalization data:', data);
-            return;
-        }
+        if (!hasChanges) return;
 
-        console.log('Sending personalization update:', data);
-
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-        try {
+        await execute(async () => {
             const response = await updatePersonalization(data);
-            console.log('Personalization update response:', response);
             setUser({
                 ...user!,
-                user: { ...user!.user, ...response.user }, // Use backend response
+                user: { ...user!.user, ...response.user },
             });
             setOriginalPersonalizationState({ bio: response.user.bio || '', gender: response.user.gender || 'prefer-not-to-say' });
             setAvatar(null);
             setHeader(null);
-            setMessage('Personalization updated successfully');
             window.dispatchEvent(new Event('resetFileInputs'));
-        } catch (err: any) {
-            setError(err.message || 'Failed to update personalization');
-            console.error('Update personalization error:', err);
-        } finally {
-            setLoading(false);
-        }
+            return response;
+        }, 'Personalization updated successfully');
     };
 
     return {

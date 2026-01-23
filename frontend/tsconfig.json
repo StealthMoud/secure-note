@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,10 +23,33 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./src/components/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/hooks/*": ["./src/hooks/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/context/*": [
+        "./src/context/*"
+      ],
+      "@/types/*": [
+        "./src/types/*"
+      ],
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/constants/*": [
+        "./src/constants/*"
+      ],
+      "@/hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@/services/*": [
+        "./src/services/*"
+      ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ]
     }
   },
   "include": [
@@ -32,5 +59,7 @@
     "**/*.d.ts",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

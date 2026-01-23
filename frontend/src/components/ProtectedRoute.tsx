@@ -13,6 +13,7 @@ export default function ProtectedRoute({ children }: Props) {
 
     useEffect(() => {
         const checkAuth = async () => {
+            // check if user has valid token in localstorage
             const token = localStorage.getItem('token');
             if (!token) {
                 router.push('/login');
@@ -22,6 +23,7 @@ export default function ProtectedRoute({ children }: Props) {
                 await getCurrentUser(token);
                 setLoading(false);
             } catch (error) {
+                // remove invalid token and redirect to login
                 localStorage.removeItem('token');
                 router.push('/login');
             }
