@@ -1,0 +1,34 @@
+@startuml ZeroTrustAPIRequest
+title API Request Under Zero Trust Model
+
+actor User
+participant "Frontend" as FE
+participant "Backend API" as API
+participant "Auth Middleware" as Auth
+participant "Database" as DB
+
+User -> FE: Initiate Action (e.g., Create Note)
+FE -> FE: Attach JWT Token to Request
+FE -> API: POST /api/notes (with JWT)
+API -> Auth: Verify JWT Token
+Auth -> Auth: Validate Signature & Expiry
+alt Token Invalid
+    Auth -> API: Reject (401 Unauthorized)
+    API -> FE: Error Response
+    FE -> User: Show Error
+else Token Valid
+    Auth -> API: Proceed with Request
+    API -> DB: Check User Permissions
+    DB -> API: Return Access Rights
+    alt Insufficient Permissions
+        API -> FE: 403 Forbidden
+        FE -> User: Access Denied
+    else Authorized
+        API -> DB: Execute Operation
+        DB -> API: Success
+        API -> FE: 200 OK + Data
+        FE -> User: Display Result
+    end
+end
+
+@enduml

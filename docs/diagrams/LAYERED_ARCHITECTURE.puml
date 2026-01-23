@@ -130,11 +130,11 @@ SecurityLayer -[#c62828,dashed]-> DataLayer : " Encryption "
 note right of PresentationLayer
   **Architecture Benefits:**
   ─────────────────────
-  ✓ Separation of Concerns
-  ✓ Security Isolation
-  ✓ Scalability
-  ✓ Mobile App Ready
-  ✓ Real-time Extensible
+  - Separation of Concerns
+  - Security Isolation
+  - Scalability
+  - Mobile App Ready
+  - Real-time Extensible
 end note
 
 ' ============================================

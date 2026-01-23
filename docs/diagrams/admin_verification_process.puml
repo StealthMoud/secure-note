@@ -1,0 +1,51 @@
+@startuml AdminVerificationProcess
+title User Verification Lifecycle
+
+|User|
+start
+:Phase 1: Registration;
+:Sign up (Email/OAuth);
+:System creates account\n(verified: false);
+
+package "Restricted State" {
+    :Login & Create Personal Notes;
+    if (Try to Share Note?) then (yes)
+        :Error 403 Forbidden;
+        stop
+    else (no)
+    endif
+}
+
+:Phase 2: Verification Request;
+:Click "Request Verification";
+:System logs request;
+
+|Admin|
+:Phase 3: Admin Review;
+:Receive Notification;
+:Login to Admin Panel;
+:Review Profile & Activity;
+
+if (Decision?) then (Approve)
+    :Phase 4: Approval;
+    :Click "Approve";
+    :Update User: verified = true;
+    :Log "user_verified";
+    
+    |User|
+    :Receive Email Confirmation;
+    :Unlock All Features;
+    :Can Share Notes;
+    stop
+else (Reject)
+    |Admin|
+    :Phase 5: Rejection;
+    :Click "Reject";
+    :Log "user_rejected";
+    
+    |User|
+    :Receive Notification;
+    :Remain Restricted;
+    stop
+endif
+@enduml

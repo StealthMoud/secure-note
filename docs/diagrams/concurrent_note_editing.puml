@@ -1,0 +1,37 @@
+@startuml ConcurrentNoteEditingConflict
+title Concurrent Note Update with Version Conflict
+
+participant "User A" as UserA
+participant "User B" as UserB
+participant "Backend Server" as Server
+participant "MongoDB" as DB
+
+== Initial State: Both Users Fetch Same Note ==
+UserA -> Server: GET /api/notes/1
+Server -> DB: findById(1)
+DB --> Server: Note {id: 1, content: "Original", __v: 1}
+Server --> UserA: 200 OK {version: 1, content: "Original"}
+
+UserB -> Server: GET /api/notes/1
+Server -> DB: findById(1)
+DB --> Server: Note {id: 1, content: "Original", __v: 1}
+Server --> UserB: 200 OK {version: 1, content: "Original"}
+
+== User A Saves First ==
+note over UserA: Edits locally:\n"Original" → "A's Changes"
+UserA -> Server: PUT /api/notes/1\n{content: "A's Changes", version: 1}
+Server -> DB: findOneAndUpdate(\n  {_id: 1, __v: 1},\n  {content: "A's Changes", $inc: {__v: 1}}\n)
+DB --> Server: Success {__v: 2}
+Server --> UserA: 200 OK {version: 2}
+
+== User B Attempts Save (Conflict) ==
+note over UserB: Edits locally:\n"Original" → "B's Changes"
+UserB -> Server: PUT /api/notes/1\n{content: "B's Changes", version: 1}
+Server -> DB: findOneAndUpdate(\n  {_id: 1, __v: 1},\n  {content: "B's Changes", $inc: {__v: 1}}\n)
+note over DB: Version mismatch!\nCurrent __v is 2,\nrequest expects 1
+DB --> Server: null (No document matched)
+Server -> DB: Check if note exists\nfindOne({_id: 1, owner: UserB.id})
+DB --> Server: Note exists (version conflict confirmed)
+Server --> UserB: 409 Conflict\n"Note modified by another user.\nPlease refresh and try again."
+
+@enduml
