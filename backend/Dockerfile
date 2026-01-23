@@ -16,5 +16,5 @@ COPY . .
 # Expose port 5002
 EXPOSE 5002
 
-# Start the server using nodemon for hot-reloading in development
-CMD ["npx", "nodemon", "server.js"]
+# Start the server in dev mode
+CMD ["npm", "run", "dev"]
