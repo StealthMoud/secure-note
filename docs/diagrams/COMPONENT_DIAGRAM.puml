@@ -1,4 +1,4 @@
-@startuml
+@startuml Component_Diagram
 title Component Diagram
 
 skinparam componentStyle uml2

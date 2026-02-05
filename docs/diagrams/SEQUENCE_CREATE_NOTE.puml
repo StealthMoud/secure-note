@@ -1,4 +1,4 @@
-@startuml
+@startuml Create_Note
 title Create Note Sequence Diagram
 
 actor User
@@ -16,13 +16,22 @@ activate API
 API -> Ctrl: Forward request
 activate Ctrl
 
-Ctrl -> Enc: Encrypt note content
-activate Enc
-Enc --> Ctrl: Encrypted content
-deactivate Enc
-
-Ctrl -> DB: Save note (encrypted)
+Ctrl -> DB: Get User & Note Count
 activate DB
+DB --> Ctrl: User Object, Count
+deactivate DB
+
+alt Unverified User & Count >= 1
+    Ctrl --> API: Error (403 Forbidden)
+else Valid
+    alt Encryption Not Required
+        Ctrl -> DB: Save Note (Plain Text)
+    else Hybrid Encryption (Implicit for shares)
+        Ctrl -> Enc: Generate Symmetric Key
+        Ctrl -> Enc: Encrypt Note Data
+        Ctrl -> DB: Save Note (Encrypted)
+    end
+end
 DB --> Ctrl: Success
 deactivate DB
 

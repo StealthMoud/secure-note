@@ -1,5 +1,5 @@
 @startuml UI_LAYER_DESIGN
-!theme plain
+' !theme plain
 skinparam backgroundColor #FEFEFE
 skinparam defaultFontName Arial
 skinparam defaultFontSize 12
@@ -11,12 +11,12 @@ title SecureNote - UI Layer Design Diagram
 
 legend right
   |= Color |= Description |
-  | <#E3F2FD> | Pages (Routes) |
-  | <#E8F5E9> | Sections/Components |
-  | <#FFF3E0> | Sub-Components/Tabs |
-  | <#FCE4EC> | Shared Context/State |
-  | <#F3E5F5> | Layout Components |
-  | <#ECEFF1> | Services/Hooks |
+  |#E3F2FD| Pages (Routes) |
+  |#E8F5E9| Sections/Components |
+  |#FFF3E0| Sub-Components/Tabs |
+  |#FCE4EC| Shared Context/State |
+  |#F3E5F5| Layout Components |
+  |#ECEFF1| Services/Hooks |
 endlegend
 
 ' ============================================
@@ -105,18 +105,18 @@ package "User Dashboard Flow" #E8F5E9 {
 ' ADMIN DASHBOARD
 ' ============================================
 package "Admin Dashboard Flow" #E8F5E9 {
-    rectangle "AdminLayout (/admin)\n---\nAdmin Sidebar\nOverview | Users | Logs" as AdminLayout #F3E5F5
+    rectangle "AdminLayout (/admin)\n---\nAdmin Sidebar\nOverview \\| Users \\| Logs" as AdminLayout #F3E5F5
     
     rectangle "OverviewPage\n(/admin/overview)\n---\nTotal Users\nVerified Users\nTotal Notes\nPending Verifications" as AdminOverview #E8F5E9
     
-    package "UsersPage (/admin/users)" #E8F5E9 {
+    package "Admin Users Section" #E8F5E9 {
         rectangle "All Users Tab" as AllUsersTab #FFF3E0
         rectangle "Create User Tab" as CreateUserTab #FFF3E0
         rectangle "User Activity Tab" as ActivityTab #FFF3E0
         rectangle "Pending Verifications Tab" as PendingTab #FFF3E0
     }
     
-    package "SecurityLogsPage (/admin/security-logs)" #E8F5E9 {
+    package "Security Logs Section" #E8F5E9 {
         rectangle "All Logs Tab" as AllLogsTab #FFF3E0
         rectangle "Log Details Modal" as LogDetails #FFF3E0
     }

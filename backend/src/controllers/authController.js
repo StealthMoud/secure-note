@@ -51,13 +51,21 @@ exports.registerUser = asyncHandler(async (req, res) => {
         verificationExpires: newUser.verificationExpires,
     }).catch(err => console.error('Background log error:', err));
 
-    res.status(201).json({ message: 'User registered successfully!' });
+    res.status(201).json({ message: 'User registered successfully!', user: newUser.toJSON() });
 });
 
 exports.loginUser = asyncHandler(async (req, res) => {
     const { identifier, password } = req.body;
+    const lowerIdentifier = identifier.toLowerCase();
 
-    const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    // allow case-insensitive login for both email and username
+    const user = await User.findOne({
+        $or: [
+            { email: lowerIdentifier },
+            { username: { $regex: new RegExp(`^${identifier}$`, 'i') } }
+        ]
+    });
+
     if (!user || !(await user.comparePassword(password))) {
         return res.status(401).json({ errors: [{ msg: 'Invalid credentials' }] });
     }

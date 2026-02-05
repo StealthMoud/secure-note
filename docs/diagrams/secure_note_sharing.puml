@@ -1,4 +1,4 @@
-@startuml SecureNoteSharing
+@startuml Secure_Note_Sharing
 title Secure Note Sharing with Encryption
 
 actor "Note Owner" as Owner
@@ -20,25 +20,29 @@ alt Friend Not Found or Not in Friends List
     API --> Owner: 403 Forbidden\n"You can only share with friends"
 end
 
-== Step 3: Encrypt Note Content for Friend ==
-note over API: Retrieve note's symmetric key\nor content to share
-API -> API: Encrypt data using\nFriend's RSA Public Key
-note over API: Only Friend's private key\ncan decrypt this
+== Step 3: Hybrid Encryption for Friend ==
+alt Note not encrypted
+    API -> API: Generate AES Symmetric Key
+    API -> API: Encrypt Note with AES Key
+    API -> API: Encrypt AES Key with Owner RSA PK
+end
+
+API -> API: Encrypt AES Key with\nFriend's RSA Public Key
+note over API: Only Friend's private key\ncan decrypt the AES key
 
 == Step 4: Store Sharing Permission ==
-API -> DB: Update Note:\n$push to sharedWith array\n{\n  user: 456,\n  permission: "viewer",\n  encryptedKey: "ENCRYPTED_DATA"\n}
+API -> DB: Update Note:\n$push to sharedWith array\n{\n  user: 456,\n  permission: "viewer",\n  encryptedKey: "AES_KEY_ENCRYPTED_WITH_FRIEND_RSA_PK"\n}
 DB --> API: Success
 
-API --> Owner: 200 OK\n"Note shared successfully with friend@email.com"
+API --> Owner: 200 OK\n"Note shared successfully"
 
 == Step 5: Friend Accesses Shared Note ==
 Friend -> API: GET /api/notes/123
-API -> DB: Find Note where:\n_id = 123 AND\n(owner = 456 OR sharedWith.user = 456)
-DB --> API: Note found with encrypted content
+API -> DB: Find Note (Access Check)
+DB --> API: Note found (Encrypted Data + Encrypted AES Key)
 
-API -> API: Check Friend's permission level\n(viewer vs editor)
-note over API: Friend decrypts content\nusing their private key\n(client-side)
-
-API --> Friend: 200 OK\n{note: {...}, permission: "viewer"}
+Friend -> Friend: Decrypt AES Key with private RSA key
+Friend -> Friend: Decrypt Note with AES Key
+API --> Friend: 200 OK
 
 @enduml

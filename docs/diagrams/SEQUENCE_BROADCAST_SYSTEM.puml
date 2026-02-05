@@ -1,0 +1,31 @@
+@startuml Broadcast_System
+title Broadcast System Sequence Diagram
+
+actor Admin
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Admin Controller" as ACtrl
+participant "User Controller" as UCtrl
+database "Database" as DB
+participant "Security Log" as Log
+
+== Admin: Send Broadcast ==
+Admin -> FE: Compose Broadcast
+FE -> API: POST /admin/broadcast
+API -> ACtrl: Create Broadcast
+ACtrl -> DB: Save Broadcast {message, type, active: true}
+ACtrl -> Log: Log "broadcast_sent"
+ACtrl --> API: Success
+API --> FE: Refresh Admin UI
+
+== User: Receive Broadcast ==
+User -> FE: App Load / Polling
+FE -> API: GET /users/broadcast
+API -> UCtrl: Fetch Active Broadcast
+UCtrl -> DB: Find One Broadcast {active: true, expiresAt: {$gt: now}}
+DB --> UCtrl: Broadcast Data
+UCtrl --> API: Broadcast
+API --> FE: Show Banner to User
+
+@enduml

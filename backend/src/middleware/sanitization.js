@@ -45,6 +45,9 @@ const sanitizeInputs = (req, res, next) => {
     // sanitize body
     if (req.body && typeof req.body === 'object') {
         Object.keys(req.body).forEach(key => {
+            // skip sanitization for passwords to avoid modification
+            if (key.toLowerCase().includes('password')) return;
+
             if (typeof req.body[key] === 'string') {
                 req.body[key] = sanitizeString(req.body[key]);
             }

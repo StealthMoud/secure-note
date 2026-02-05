@@ -51,6 +51,9 @@ export default function AccountSettingsSection() {
         handleDisableTotp,
         handleUpdatePersonalization,
         loading,
+        setLoading,
+        setError,
+        setMessage
     } = useAccountSettingsLogic();
 
     const isAdmin = user?.user.role === 'admin' || user?.user.role === 'superadmin';
@@ -113,7 +116,16 @@ export default function AccountSettingsSection() {
                                 setNewEmail={setNewEmail}
                             />
                         )}
-                        {activeTab === 'profile' && <ProfileTab handleUpdateProfile={handleUpdateProfile} />}
+                        {activeTab === 'profile' && (
+                            <ProfileTab
+                                handleUpdateProfile={handleUpdateProfile}
+                                setError={setError}
+                                setMessage={setMessage}
+                                setLoading={setLoading}
+                                loading={loading}
+                                user={user}
+                            />
+                        )}
                         {activeTab === 'security' && (
                             <SecurityTab
                                 user={user}
@@ -138,10 +150,23 @@ export default function AccountSettingsSection() {
                                 handleSetupTotp={handleSetupTotp}
                                 handleVerifyTotp={handleVerifyTotp}
                                 handleDisableTotp={handleDisableTotp}
+                                setError={setError}
+                                setMessage={setMessage}
+                                setLoading={setLoading}
                                 loading={loading}
                             />
                         )}
-                        {activeTab === 'other' && <OtherTab handleUpdatePersonalization={handleUpdatePersonalization} />}
+                        {activeTab === 'other' && (
+                            <OtherTab
+                                handleUpdatePersonalization={handleUpdatePersonalization}
+                                setMessage={setMessage}
+                                setError={setError}
+                                setLoading={setLoading}
+                                loading={loading}
+                                error={error}
+                                user={user}
+                            />
+                        )}
                     </div>
                 </section>
 
@@ -168,7 +193,7 @@ export default function AccountSettingsSection() {
             </main>
 
             {/* Floating Messages Area */}
-            <div className="fixed top-24 right-4 z-50 flex flex-col gap-3 pointer-events-none">
+            <div className="fixed top-24 right-4 z-[110] flex flex-col gap-3 pointer-events-none">
                 {error && (
                     <div
                         className={`pointer-events-auto bg-rose-500/10 backdrop-blur-md border border-rose-500/20 text-rose-600 dark:text-rose-400 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 transition-all duration-500 ${isExitingError ? 'opacity-0 translate-x-full' : 'animate-slide-in-right'}`}

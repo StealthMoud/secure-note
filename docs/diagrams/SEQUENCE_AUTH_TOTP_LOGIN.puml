@@ -1,4 +1,4 @@
-@startuml
+@startuml Auth_TOTP_Login
 title TOTP Login Verification Sequence Diagram
 
 actor User

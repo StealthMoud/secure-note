@@ -2,7 +2,7 @@
 import React from 'react';
 import { SettingInput } from '@/components/forms';
 import {
-    IdentificationIcon, // Keeping this as it's used for username input, and the snippet's UserIcon might be a general example.
+    IdentificationIcon,
     EnvelopeIcon,
     ShieldCheckIcon,
     CheckCircleIcon,
@@ -38,8 +38,8 @@ export default function AdminIdentityTab({
             <div className="flex flex-col md:flex-row md:items-center gap-8 p-6 rounded-[2rem] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-inner">
                 <div className="relative group">
                     <div className={`w-36 h-36 rounded-full flex items-center justify-center transition-all duration-700 bg-white dark:bg-gray-900 border-2 ${user?.user.role === 'superadmin'
-                            ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] animate-orb-glow'
-                            : 'border-slate-400 dark:border-slate-600'
+                        ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] animate-orb-glow'
+                        : 'border-slate-400 dark:border-slate-600'
                         }`}>
                         {user?.user.role === 'superadmin' ? (
                             <ShieldCheckIcon className="w-16 h-16 text-blue-500 animate-pulse-subtle" />
@@ -55,8 +55,8 @@ export default function AdminIdentityTab({
                     </h3>
                     <div className="flex items-center gap-2">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${user?.user.role === 'superadmin'
-                                ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
-                                : 'bg-slate-500/10 text-slate-600 border border-slate-500/20'
+                            ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
+                            : 'bg-slate-500/10 text-slate-600 border border-slate-500/20'
                             }`}>
                             Role Tier: {user?.user.role === 'superadmin' ? 'Level 3' : 'Level 2'}
                         </span>

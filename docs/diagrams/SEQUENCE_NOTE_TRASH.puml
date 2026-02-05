@@ -1,0 +1,38 @@
+@startuml Note_Trash
+title Note Trash Management Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Note Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+== View Trash ==
+User -> FE: Open Trash Folder
+FE -> API: GET /notes/trash/all
+API -> Ctrl: Fetch Trash Notes
+Ctrl -> DB: Find Notes where {owner: userId, deletedAt: {$ne: null}}
+DB --> Ctrl: Trash Notes List
+Ctrl --> API: Notes
+API --> FE: Display Trash
+
+== Restore Note ==
+User -> FE: Click Restore
+FE -> API: POST /notes/{id}/restore
+API -> Ctrl: Validate Owner
+Ctrl -> DB: Update Note {deletedAt: null}
+Ctrl -> Log: Log "note_restored"
+Ctrl --> API: Success
+API --> FE: Refresh View
+
+== Permanent Delete ==
+User -> FE: Click Delete Permanently
+FE -> API: DELETE /notes/{id}/permanent
+API -> Ctrl: Validate Owner
+Ctrl -> DB: Remove Note Document
+Ctrl -> Log: Log "note_deleted_permanent"
+Ctrl --> API: Success
+API --> FE: Remove from List
+
+@enduml

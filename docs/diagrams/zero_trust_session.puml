@@ -1,0 +1,48 @@
+@startuml zero_trust_session
+title Zero-Trust Session Architecture (Token Rotation)
+
+actor User
+participant "Frontend (Memory)" as Client
+participant "Frontend (Axios)" as Interceptor
+participant "Backend API" as API
+database "DB (User Version)" as DB
+
+== Initial Login ==
+User -> Client: Login(username, password)
+Client -> API: POST /auth/login
+API -> DB: Validate Credentials
+DB --> API: User Valid
+API -> API: Generate AccessToken (15m)\nGenerate RefreshToken (7d)
+API --> Client: Return AccessToken & User Info\nSet-Cookie: refreshToken (HttpOnly, Secure)
+Client -> Client: Store AccessToken in Memory
+
+== Normal Request (Token Valid) ==
+Client -> API: GET /notes (Bearer AccessToken)
+API -> API: Verify AccessToken
+API -> DB: Query Data
+DB --> API: Data
+API --> Client: 200 OK + Data
+
+== Token Expiration & Rotation ==
+note over Client: 15 minutes passes...
+Client -> API: GET /notes (Expired AccessToken)
+API -> API: Verify AccessToken -> EXPIRED
+API --> Client: 401 Unauthorized
+
+group Transparent Rotation
+    Interceptor -> Interceptor: Catch 401 Error
+    Interceptor -> API: POST /auth/refresh-token (Cookie)
+    API -> API: Read Cookie (RefreshToken)
+    API -> API: Verify RefreshToken Signature
+    API -> DB: Check tokenVersion
+    DB --> API: Version Match
+    API -> API: Generate NEW AccessToken (15m)
+    API --> Interceptor: 200 OK + New AccessToken
+    Interceptor -> Client: Update Memory with New Token
+    Interceptor -> API: Retry Original Request (New Token)
+    API -> DB: Query Data
+    DB --> API: Data
+    API --> Client: 200 OK + Data
+end
+
+@enduml

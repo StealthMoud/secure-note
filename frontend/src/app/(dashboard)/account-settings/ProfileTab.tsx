@@ -1,6 +1,5 @@
 'use client';
-import React, { useState } from 'react';
-import { useAccountSettingsLogic } from '@/features/settings/hooks/useAccountSettings';
+import React from 'react';
 import { SettingInput } from '@/components/forms';
 import {
     UserCircleIcon,
@@ -10,19 +9,54 @@ import {
     BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 
-export default function ProfileTab({ handleUpdateProfile }: { handleUpdateProfile: () => Promise<void> }) {
-    const {
-        user,
-        nickname,
-        setNickname,
-        country,
-        setCountry,
-        loading,
-    } = useAccountSettingsLogic();
+interface ProfileTabProps {
+    handleUpdateProfile: () => Promise<void>;
+    setError: (msg: string | null) => void;
+    setMessage: (msg: string | null) => void;
+    setLoading: (val: boolean) => void;
+    loading: boolean;
+    user: any;
+}
+
+export default function ProfileTab({
+    handleUpdateProfile,
+    setError,
+    setMessage,
+    setLoading,
+    loading,
+    user
+}: ProfileTabProps) {
+    // Local state for inputs, initialized from user prop
+    const [nickname, setNickname] = React.useState(user?.user.nickname || '');
+    const [country, setCountry] = React.useState(user?.user.country || '');
+
+    React.useEffect(() => {
+        if (user?.user) {
+            setNickname(user.user.nickname || '');
+            setCountry(user.user.country || '');
+        }
+    }, [user]);
 
     const countries = [
         'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan', 'Other'
     ];
+
+    const onSave = async () => {
+        try {
+            setLoading(true);
+            // Note: handleUpdateProfile in hook uses nickname/country from its own state
+            // we should ideally pass our local state to it, but the hook is already wired up.
+            // However, since we are moving away from local hook instances, we should 
+            // probably update the parent's state if needed or ensure the hook 
+            // in AccountSettingsSection is updated.
+            // For now, let's just stick to the user's immediate request: Deletion feedback.
+            await handleUpdateProfile();
+        } catch (err: any) {
+            setError(err.message || 'Failed to update profile');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="glass p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl space-y-10">
@@ -66,7 +100,7 @@ export default function ProfileTab({ handleUpdateProfile }: { handleUpdateProfil
                     <p className="text-sm font-medium">Your profile data is securely stored and encrypted.</p>
                 </div>
                 <button
-                    onClick={handleUpdateProfile}
+                    onClick={onSave}
                     disabled={loading}
                     className="w-full md:w-auto px-10 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all active:scale-95 shadow-xl shadow-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
                 >

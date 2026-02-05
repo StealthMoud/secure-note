@@ -1,4 +1,4 @@
-@startuml
+@startuml Auth_Login
 title User Login Sequence Diagram
 
 actor User

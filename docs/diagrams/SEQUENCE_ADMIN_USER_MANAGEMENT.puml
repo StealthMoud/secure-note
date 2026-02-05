@@ -1,4 +1,4 @@
-@startuml
+@startuml Admin_User_Management
 title Admin User Management Sequence Diagram
 
 actor Admin

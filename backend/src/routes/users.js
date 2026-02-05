@@ -14,7 +14,8 @@ const {
     updateProfile,
     updatePersonalization,
     updateEmail,
-    updatePassword
+    updatePassword,
+    deleteSelfAccount
 } = require('../controllers/userController');
 const {
     updateProfileValidation,
@@ -76,6 +77,8 @@ router.put('/email', authenticate, [
 ], validateRequest, updateEmail);
 
 router.put('/password', authenticate, updatePasswordValidation, validateRequest, updatePassword);
+
+router.delete('/me', authenticate, deleteSelfAccount);
 
 // Friend Management Routes
 

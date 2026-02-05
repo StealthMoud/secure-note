@@ -52,24 +52,24 @@ rectangle "<<Entry Point>>\nNext.js App Router" as EntryPoint #e3f2fd {
 ' LAYER 2: PAGES (APP ROUTER)
 ' ============================================
 rectangle "<<Pages>>\nApp Router Structure" as PagesLayer #fff3e0 {
-    package "Authentication" {
+    package "(auth)" {
         [/login] as LoginPage
         [/register] as RegisterPage
         [/forgot-password] as ForgotPage
         [/verify-email] as VerifyPage
     }
-    package "User Dashboard" {
+    package "(dashboard)" {
         [/dashboard] as DashboardPage
         [/notes] as NotesPage
         [/friends] as FriendsPage
         [/profile] as ProfilePage
         [/notifications] as NotifPage
+        [/account-settings] as SettingsPage
     }
-    package "Settings" {
-        [/account-settings\nProfileTab | SecurityTab | OtherTab] as SettingsPage
-    }
-    package "Admin Panel" {
-        [/admin\noverview | users | notes | logs] as AdminPage
+    package "(admin)" {
+        [/admin/overview] as AdminOverview
+        [/admin/users] as AdminUsers
+        [/admin/security-logs] as AdminLogs
     }
 }
 

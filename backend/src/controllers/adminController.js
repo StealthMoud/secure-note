@@ -81,13 +81,7 @@ exports.deleteUser = async (req, res) => {
             return res.status(403).json({ error: 'Access Denied: Regular Administrators cannot delete fellow Admin accounts' });
         }
 
-        await userService.deleteUser(req.params.id);
-
-        logSecurityEvent({
-            event: 'user_deleted',
-            user: req.params.id,
-            details: { by: req.user.id },
-        }).catch(err => console.error('Background log error:', err));
+        await userService.deleteFullAccount(req.params.id, { deletedBy: req.user.id });
 
         res.json({ message: 'User deleted successfully' });
     } catch (err) {

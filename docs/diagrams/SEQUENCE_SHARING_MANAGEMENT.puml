@@ -1,4 +1,4 @@
-@startuml
+@startuml Sharing_Management
 title Sharing Management Sequence Diagram
 
 actor Owner

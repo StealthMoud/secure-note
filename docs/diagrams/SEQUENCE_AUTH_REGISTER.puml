@@ -1,4 +1,4 @@
-@startuml
+@startuml Auth_Register
 title User Registration Sequence Diagram
 
 actor User
@@ -25,7 +25,9 @@ alt User Exists
     Ctrl --> API: Error (400)
     API --> FE: Show Error
 else New User
-    Ctrl -> DB: Create User (Unverified)
+    Ctrl -> Ctrl: Generate RSA Key Pair\n(publicKey, privateKey)
+    
+    Ctrl -> DB: Create User (Unverified)\n{..., publicKey, privateKey}
     activate DB
     DB --> Ctrl: Success
     deactivate DB

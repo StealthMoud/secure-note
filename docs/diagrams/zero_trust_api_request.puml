@@ -10,6 +10,10 @@ participant "Database" as DB
 User -> FE: Initiate Action (e.g., Create Note)
 FE -> FE: Attach JWT Token to Request
 FE -> API: POST /api/notes (with JWT)
+API -> Auth: Rate Limiting & Helmet
+Auth -> Auth: Check Request Frequency
+API -> Auth: Input Sanitization
+Auth -> Auth: XSS/NoSQL Injection Check
 API -> Auth: Verify JWT Token
 Auth -> Auth: Validate Signature & Expiry
 alt Token Invalid

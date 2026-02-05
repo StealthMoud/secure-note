@@ -27,6 +27,7 @@ entity "users" as User #e8f5e9 {
     * username : String <<unique, required>>
     * email : String <<unique, required>>
     * password : String <<hashed, required>>
+    * passwordHistory : String[] <<default: []>>
     githubId : String <<unique, sparse>>
     --
     **Profile Information**
@@ -43,7 +44,7 @@ entity "users" as User #e8f5e9 {
     --
     **Role & Status**
     --
-    role : Enum [admin, user] <<default: user>>
+    role : Enum [superadmin, admin, user] <<default: user>>
     verified : Boolean <<default: false>>
     isActive : Boolean <<default: true>>
     --
@@ -62,11 +63,16 @@ entity "users" as User #e8f5e9 {
     verificationToken : String
     verificationExpires : Date <<24h expiry>>
     verificationPending : Boolean <<default: false>>
+    verificationRejected : Boolean <<default: false>>
     --
     **Password Reset**
     --
     resetPasswordToken : String
     resetPasswordExpires : Date
+    --
+    **Internal State**
+    --
+    tokenVersion : Number <<default: 0>>
     --
     **Timestamps**
     --
@@ -83,12 +89,12 @@ entity "users.friends[]" as Friends #c8e6c9 {
 entity "users.friendRequests[]" as FriendRequests #c8e6c9 {
     **Embedded Array in User**
     --
-    requestId : ObjectId
     sender : ObjectId <<FK -> users>>
     receiver : ObjectId <<FK -> users>>
-    status : Enum [pending, accepted, rejected]
+    status : Enum [pending, accepted, rejected] <<default: pending>>
     createdAt : Date
     updatedAt : Date
+    requestId : ObjectId
 }
 
 entity "notes" as Note #fff3e0 {
@@ -100,15 +106,22 @@ entity "notes" as Note #fff3e0 {
     content : String
     format : Enum [plain, markdown] <<default: plain>>
     --
-    **Encrypted Content**
+    **Hybrid Encryption**
     --
     encrypted : Boolean <<default: false>>
-    encryptedTitle : String <<null if unencrypted>>
-    encryptedContent : String <<null if unencrypted>>
+    encryptedData : String <<null if unencrypted>>
+    ownerEncryptedKey : String <<null if unencrypted>>
     --
-    **Ownership**
+    **Ownership & Sharing**
     --
     * owner : ObjectId <<FK -> users, required>>
+    --
+    **Metadata & Organization**
+    --
+    images : String[] <<file paths>>
+    tags : String[]
+    isPinned : Boolean <<default: false>>
+    deletedAt : Date <<null if not in trash>>
     --
     **Timestamps**
     --
@@ -121,8 +134,7 @@ entity "notes.sharedWith[]" as SharedWith #ffe0b2 {
     --
     user : ObjectId <<FK -> users>>
     permission : Enum [viewer, editor] <<default: viewer>>
-    encryptedTitle : String <<per-user encrypted>>
-    encryptedContent : String <<per-user encrypted>>
+    encryptedKey : String <<per-user encrypted symmetric key>>
 }
 
 entity "securitylogs" as SecurityLog #e3f2fd {
@@ -131,7 +143,8 @@ entity "securitylogs" as SecurityLog #e3f2fd {
     **Event Information**
     --
     * event : Enum <<required>>
-    * user : ObjectId <<FK -> users, required>>
+    * user : ObjectId <<FK -> users, optional>>
+    severity : Enum [low, medium, high, critical] <<default: low>>
     timestamp : Date <<default: now>>
     --
     **Event Details**
@@ -144,31 +157,34 @@ entity "securitylogs" as SecurityLog #e3f2fd {
     updatedAt : Date <<auto>>
 }
 
+entity "broadcasts" as Broadcast #fff9c4 {
+    * **_id** : ObjectId <<PK>>
+    --
+    message : String <<required>>
+    type : Enum [info, warning, alert] <<default: info>>
+    active : Boolean <<default: true>>
+    createdBy : ObjectId <<FK -> users>>
+    expiresAt : Date
+    --
+    **Timestamps**
+    --
+    createdAt : Date <<auto>>
+}
+
 note right of SecurityLog
-    **Event Types:**
-    - login, logout, register
-    - failed_login
+    **Event Types (40+):**
+    - login, logout, register, failed_login
     - login_google, login_github
-    - note_created, note_updated
-    - note_deleted, note_shared
-    - note_unshared
-    - user_verified, user_deactivated
-    - user_deleted, user_created
-    - email_verified
-    - friend_request_sent
-    - friend_request_accepted
-    - friend_request_rejected
-    - password_reset_request
-    - password_reset, password_changed
-    - request_verification
-    - approve_verification
-    - reject_verification
-    - totp_setup, totp_enabled
-    - totp_disabled
-    - profile_updated
-    - username_updated
-    - personalization_updated
-    - email_change_requested
+    - note_created, note_updated, note_deleted
+    - note_shared, note_unshared
+    - user_verified, user_unverified, user_deleted
+    - role_update, authentication_failed
+    - friend_request_sent, accepted, rejected
+    - password_reset_request, password_reset
+    - request_verification, approve_verification
+    - totp_setup, totp_enabled, totp_disabled
+    - profile_updated, username_updated
+    - bulk_users_verified/unverified/deleted
 end note
 
 ' Relationships
@@ -176,6 +192,7 @@ User ||--o{ Friends : "has many"
 User ||--o{ FriendRequests : "has many"
 User ||--o{ Note : "owns"
 User ||--o{ SecurityLog : "generates"
+User ||--o{ Broadcast : "creates"
 Note ||--o{ SharedWith : "shared with"
 
 Friends }o--|| User : "references"
@@ -216,6 +233,7 @@ package "MongoDB Database" #f5f5f5 {
         - users
         - notes
         - securitylogs
+        - broadcasts
         
         **Features Used:**
         - Document embedding (friends, sharedWith)

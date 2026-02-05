@@ -72,11 +72,25 @@ interface SecurityTabProps {
     handleSetupTotp: () => Promise<void>;
     handleVerifyTotp: () => Promise<void>;
     handleDisableTotp: () => Promise<void>;
+    setError: (msg: string | null) => void;
+    setMessage: (msg: string | null) => void;
+    setLoading: (val: boolean) => void;
     loading: boolean;
     isAdmin?: boolean;
 }
 
 export default function SecurityTab(props: SecurityTabProps) {
+    const wrapAction = (fn: () => Promise<void>, errorPrefix: string) => async () => {
+        try {
+            props.setLoading(true);
+            await fn();
+        } catch (err: any) {
+            props.setError(err.message || `Failed to ${errorPrefix}`);
+        } finally {
+            props.setLoading(false);
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {!props.isAdmin && (
@@ -84,7 +98,7 @@ export default function SecurityTab(props: SecurityTabProps) {
                     <SecurityCard
                         title="Update Name"
                         icon={PencilIcon}
-                        onSubmit={props.handleUpdateUsername}
+                        onSubmit={wrapAction(props.handleUpdateUsername, 'update username')}
                         loading={props.loading}
                         buttonText="Save Name"
                     >
@@ -100,7 +114,7 @@ export default function SecurityTab(props: SecurityTabProps) {
                     <SecurityCard
                         title="Update Email"
                         icon={EnvelopeIcon}
-                        onSubmit={props.handleChangeEmail}
+                        onSubmit={wrapAction(props.handleChangeEmail, 'update email')}
                         loading={props.loading}
                         buttonText="Save Email"
                     >
@@ -118,7 +132,7 @@ export default function SecurityTab(props: SecurityTabProps) {
             <SecurityCard
                 title="Change Password"
                 icon={LockClosedIcon}
-                onSubmit={props.handleChangePassword}
+                onSubmit={wrapAction(props.handleChangePassword, 'change password')}
                 loading={props.loading}
                 buttonText="Update Password"
             >
@@ -153,7 +167,10 @@ export default function SecurityTab(props: SecurityTabProps) {
             <SecurityCard
                 title="Two-Factor Authentication"
                 icon={ShieldCheckIcon}
-                onSubmit={props.totpEnabled ? (props.totpQrCode ? props.handleVerifyTotp : props.handleDisableTotp) : (props.totpQrCode ? props.handleVerifyTotp : props.handleSetupTotp)}
+                onSubmit={wrapAction(
+                    props.totpEnabled ? (props.totpQrCode ? props.handleVerifyTotp : props.handleDisableTotp) : (props.totpQrCode ? props.handleVerifyTotp : props.handleSetupTotp),
+                    'handle 2FA'
+                )}
                 loading={props.loading}
                 buttonText={props.totpEnabled ? (props.totpQrCode ? "Verify Code" : "Disable 2FA") : (props.totpQrCode ? "Verify & Enable" : "Enable 2FA")}
             >
@@ -200,7 +217,7 @@ export default function SecurityTab(props: SecurityTabProps) {
     );
 }
 
-// helper icon component since heroicons naming can be confusing
+// helper icon component
 const IdentificationIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />

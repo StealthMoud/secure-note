@@ -1,4 +1,4 @@
-@startuml
+@startuml Auth_OAuth
 title OAuth Login Sequence Diagram
 
 actor User

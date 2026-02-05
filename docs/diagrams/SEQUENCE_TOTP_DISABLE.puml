@@ -1,4 +1,4 @@
-@startuml
+@startuml TOTP_Disable
 title TOTP Disable Sequence Diagram
 
 actor User

@@ -141,5 +141,7 @@ export const useAccountSettingsLogic = () => {
         dismissMessage,
         loading: isLoading,
         setLoading,
+        setError,
+        setMessage
     };
 };

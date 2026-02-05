@@ -12,7 +12,9 @@ const securityHeaders = (req, res, next) => {
     res.setHeader('X-XSS-Protection', '1; mode=block');
 
     // strict transport security (https only)
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    if (process.env.NODE_ENV === 'production') {
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
 
     // referrer policy
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -62,11 +64,11 @@ const helmetConfig = {
             frameSrc: ["'none'"],
         },
     },
-    hsts: {
+    hsts: process.env.NODE_ENV === 'production' ? {
         maxAge: 31536000,
         includeSubDomains: true,
         preload: true,
-    },
+    } : false,
     frameguard: {
         action: 'deny',
     },

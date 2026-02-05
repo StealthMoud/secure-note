@@ -9,7 +9,12 @@ const User = require('../../src/models/User');
 jest.mock('../../src/models/Note');
 jest.mock('../../src/models/User');
 jest.mock('../../src/utils/logger', () => ({
-    logSecurityEvent: jest.fn()
+    logSecurityEvent: jest.fn(),
+    logUserEvent: jest.fn()
+}));
+jest.mock('../../src/services/note/encryptionHelper', () => ({
+    decryptNoteForUser: jest.fn().mockImplementation((note) => note),
+    reEncryptNoteData: jest.fn().mockReturnValue('encrypted-data')
 }));
 
 // Create a simple express app for testing the controller directly
@@ -27,6 +32,22 @@ app.put('/notes/:noteId', noteController.updateNote);
 describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        // Setup default mock for Note.findById chain
+        const mockPopulate = jest.fn().mockReturnThis();
+        Note.findById.mockReturnValue({
+            populate: mockPopulate,
+            toObject: jest.fn().mockImplementation(function () {
+                return this.data || {
+                    _id: 'note123',
+                    owner: 'user123',
+                    __v: 3,
+                    encrypted: false,
+                    title: 'Mock Title',
+                    content: 'Mock Content',
+                    format: 'plain'
+                };
+            })
+        });
     });
 
     it('should REJECT concurrent update with stale version (409 Conflict)', async () => {
@@ -37,11 +58,17 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
         // Setup: User exists and is verified
         User.findById.mockResolvedValue({ _id: 'user123', verified: true, privateKey: 'key' });
 
-        // Setup: Note exists but findOneAndUpdate returns null (meaning mismatch or not found)
-        Note.findOneAndUpdate.mockResolvedValue(null);
+        // Setup: First findOne (with version) returns null, second one (just ID) returns note
+        Note.findOne
+            .mockResolvedValueOnce(null)
+            .mockResolvedValueOnce({ _id: 'note123', owner: 'user123', __v: 5, sharedWith: [] });
 
-        // Setup: Note exists when checked with just ID (meaning it was a version mismatch)
-        Note.findOne.mockResolvedValue({ _id: 'note123', owner: 'user123', __v: 5 });
+        // Setup: findById should return note for population
+        const mockPopulate = jest.fn().mockReturnThis();
+        Note.findById.mockReturnValue({
+            populate: mockPopulate,
+            toObject: jest.fn().mockReturnValue({ _id: 'note123', owner: 'user123', __v: 5 })
+        });
 
         const res = await request(app)
             .put('/notes/note123')
@@ -64,9 +91,18 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
         // Setup: User exists
         User.findById.mockResolvedValue({ _id: 'user123', verified: true });
 
+        // Setup: findOne returns note
+        Note.findOne.mockResolvedValue({ _id: 'note123', owner: 'user123', __v: 2, sharedWith: [] });
+
         // Setup: Update succeeds
         const updatedNote = { _id: 'note123', title: 'Updated Title', __v: 3 };
         Note.findOneAndUpdate.mockResolvedValue(updatedNote);
+
+        // Setup: Note.findById should return the updated version
+        Note.findById.mockReturnValue({
+            populate: jest.fn().mockReturnThis(),
+            toObject: jest.fn().mockReturnValue({ ...updatedNote })
+        });
 
         const res = await request(app)
             .put('/notes/note123')
@@ -95,8 +131,17 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
 
         User.findById.mockResolvedValue({ _id: 'user123', verified: true });
 
+        // Setup: findOne returns note
+        Note.findOne.mockResolvedValue({ _id: 'note123', owner: 'user123', __v: 9, sharedWith: [] });
+
         const updatedNote = { _id: 'note123', title: 'Test', __v: 10 };
         Note.findOneAndUpdate.mockResolvedValue(updatedNote);
+
+        // Setup: Note.findById should return the updated version
+        Note.findById.mockReturnValue({
+            populate: jest.fn().mockReturnThis(),
+            toObject: jest.fn().mockReturnValue({ ...updatedNote })
+        });
 
         const res = await request(app)
             .put('/notes/note123')

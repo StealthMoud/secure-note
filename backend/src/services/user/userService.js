@@ -60,6 +60,50 @@ class UserService {
         return await User.findByIdAndDelete(id);
     }
 
+    /**
+     * per GDPR NFR-9.1: fully erase user data + notes + files
+     */
+    async deleteFullAccount(userId, metadata = {}) {
+        const mongoose = require('mongoose');
+        const Note = require('../../models/Note');
+        const SecurityLog = require('../../models/SecurityLog');
+        const fs = require('fs');
+        const path = require('path');
+
+        // 1. Create a deletion log record first (so it can be anonymized too)
+        await SecurityLog.create({
+            event: 'user_deleted',
+            user: userId,
+            timestamp: new Date(),
+            details: { ...metadata, reason: 'gdpr_deletion' },
+            severity: 'critical'
+        });
+
+        // 2. Delete all notes owned by user
+        await Note.deleteMany({ owner: userId });
+
+        // 3. Remove user from all shared notes
+        await Note.updateMany(
+            { 'sharedWith.user': userId },
+            { $pull: { sharedWith: { user: userId } } }
+        );
+
+        // 4. Delete upload directory
+        const uploadDir = path.join(__dirname, '../../../uploads', userId.toString());
+        if (fs.existsSync(uploadDir)) {
+            fs.rmSync(uploadDir, { recursive: true, force: true });
+        }
+
+        // 5. Anonymize Security Logs (keep for audit but remove user link)
+        await SecurityLog.updateMany(
+            { user: userId },
+            { $set: { user: null }, $push: { 'details.anonymized': true } }
+        );
+
+        // 6. Finally delete user
+        return await User.findByIdAndDelete(userId);
+    }
+
     async getAllUsers(filters = {}) {
         return await User.find(filters).select('-password');
     }

@@ -17,7 +17,6 @@ function encryptText(text, publicKey) {
         const encrypted = crypto.publicEncrypt(publicKey, buffer);
         return encrypted.toString('base64');
     } catch (error) {
-        console.error('encryption error:', error.message, { text, publicKey });
         throw new Error('encryption failed: ' + error.message);
     }
 }
@@ -38,7 +37,6 @@ function encryptSymmetric(text, key) {
         // return iv + authTag + encrypted content as a single string
         return iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted;
     } catch (error) {
-        console.error('symmetric encryption error:', error.message);
         throw new Error('symmetric encryption failed');
     }
 }
@@ -56,7 +54,6 @@ function decryptText(encryptedText, privateKey) {
         const decrypted = crypto.privateDecrypt(privateKey, buffer);
         return decrypted.toString('utf8');
     } catch (error) {
-        console.error('decryption error:', error.message, { encryptedText, privateKey });
         throw new Error('decryption failed: ' + error.message);
     }
 }
@@ -73,7 +70,6 @@ function decryptSymmetric(encryptedData, key) {
         decrypted += decipher.final('utf8');
         return decrypted;
     } catch (error) {
-        console.error('symmetric decryption error:', error.message);
         throw new Error('symmetric decryption failed');
     }
 }

@@ -1,4 +1,4 @@
-@startuml
+@startuml User_Security_Update
 title User Security Update Sequence Diagram
 
 actor User

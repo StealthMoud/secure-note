@@ -107,12 +107,10 @@ rectangle "<<Controllers>>\nBusiness Logic" as ControllersLayer #ffe0b2 {
 ' LAYER 5: DATA MODELS (MONGOOSE)
 ' ============================================
 rectangle "<<Models>>\nMongoose Schemas" as ModelsLayer #e8f5e9 {
-    database "User" as UserModel {
-    }
-    database "Note" as NoteModel {
-    }
-    database "SecurityLog" as LogModel {
-    }
+    database "User" as UserModel
+    database "Note" as NoteModel
+    database "SecurityLog" as LogModel
+    database "Broadcast" as BroadcastModel
 }
 
 note bottom of UserModel
@@ -124,10 +122,16 @@ note bottom of UserModel
 end note
 
 note bottom of NoteModel
-  title, content
-  encryptedTitle/Content
+  title, content, encryptedData
+  ownerEncryptedKey
   owner, sharedWith[]
-  format, timestamps
+  images, tags, isPinned
+  format, deletedAt
+end note
+
+note bottom of BroadcastModel
+  message, type, active
+  createdBy, expiresAt
 end note
 
 note bottom of LogModel

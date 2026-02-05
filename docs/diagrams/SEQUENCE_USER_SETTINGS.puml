@@ -1,0 +1,32 @@
+@startuml User_Settings
+title User Settings Update Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "User Controller" as Ctrl
+database "Database" as DB
+participant "Security Log" as Log
+
+== Personalization (Avatar/Header) ==
+User -> FE: Upload Image & Save
+FE -> API: PUT /users/personalization
+note right of API: Handles Multipart/Form-Data
+
+API -> Ctrl: Update User Profile
+Ctrl -> DB: FindOne & Update {avatar, header, theme}
+Ctrl -> Log: Log "profile_updated"
+Ctrl --> API: Success {user}
+API --> FE: Update Local User Context
+
+== Email Update ==
+User -> FE: Enter New Email
+FE -> API: PUT /users/email
+API -> Ctrl: Initiate Email Change
+Ctrl -> DB: Check Email Uniqueness
+Ctrl -> DB: Set emailChangeToken & NewEmail (Temp)
+Ctrl -> Log: Log "email_change_requested"
+Ctrl --> API: Success (Check Inbox)
+API --> FE: Show Verification Needed UI
+
+@enduml

@@ -1,4 +1,4 @@
-@startuml
+@startuml TOTP_Setup
 title TOTP Setup Sequence Diagram
 
 actor User

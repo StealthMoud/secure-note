@@ -1,0 +1,52 @@
+@startuml defense_in_depth
+title Defense-in-Depth Security Pipeline
+
+actor "Malicious\nRequest" as Attacker
+actor "Legitimate\nRequest" as User
+
+box "Deployment Environment" #LightBlue
+    participant "Layer 1: The Gateway\nrateLimiter.js" as Layer1
+    participant "Layer 2: The Shield\nsecurity.js (Helmet)" as Layer2
+    participant "Layer 3: The Filter\nsanitization.js" as Layer3
+    participant "Layer 4: The Bouncer\nvalidation & auth" as Layer4
+    participant "Core Business Logic\nControllers" as Core
+end box
+
+== Attack Scenario ==
+Attacker -[#red]> Layer1: DDoS / Brute Force
+Layer1 -[#red]-> Attacker: 429 Too Many Requests\n(Block IP)
+
+== Normal Pipeline Flow ==
+User -> Layer1: Normal Request
+activate Layer1
+Layer1 -> Layer2: Forward
+deactivate Layer1
+
+activate Layer2
+Layer2 -> Layer2: Add Security Headers\n(CSP, HSTS, X-Frame-Options)
+Layer2 -> Layer3: Forward
+deactivate Layer2
+
+activate Layer3
+group Sanitization Process
+    Layer3 -> Layer3: Scan Req.Body & Query
+    Layer3 -> Layer3: Detect "<script>alert(1)</script>"
+    Layer3 -> Layer3: Strip Malicious Tags
+end 
+Layer3 -> Layer4: Clean Request
+deactivate Layer3
+
+activate Layer4
+group Validation & Auth
+    Layer4 -> Layer4: Validate Schema (Email format)
+    Layer4 -> Layer4: Verify JWT Signature
+end
+
+Layer4 -> Core: Execute Logic
+deactivate Layer4
+
+activate Core
+Core --> User: 200 OK (Secure Response)
+deactivate Core
+
+@enduml

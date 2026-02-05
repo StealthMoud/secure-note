@@ -33,9 +33,11 @@ describe('NFR-5: Security Requirements', () => {
         it('should enforce global rate limit headers (prevent DDoS)', async () => {
             const res = await request(app).get('/');
 
-            expect(res.headers['x-ratelimit-limit']).toBeDefined();
+            expect(res.headers['ratelimit-limit']).toBeDefined();
             console.log('   ✓ Global Rate Limit Header: PRESENT');
-            console.log('   ✓ Limit: 500 requests / 15 mins');
+
+            expect(res.headers['ratelimit-remaining']).toBeDefined();
+            console.log('   ✓ Global Rate Limit Remaining: PRESENT');
         });
 
         // Note: Testing the specific login rate limit (5/15min) works best in integration

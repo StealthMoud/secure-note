@@ -41,7 +41,8 @@ else (Reject)
     |Admin|
     :Phase 5: Rejection;
     :Click "Reject";
-    :Log "user_rejected";
+    :Update User: \nverificationPending = false\nverificationRejected = true;
+    :Log "reject_verification";
     
     |User|
     :Receive Notification;

@@ -27,11 +27,9 @@ Server --> UserA: 200 OK {version: 2}
 == User B Attempts Save (Conflict) ==
 note over UserB: Edits locally:\n"Original" → "B's Changes"
 UserB -> Server: PUT /api/notes/1\n{content: "B's Changes", version: 1}
-Server -> DB: findOneAndUpdate(\n  {_id: 1, __v: 1},\n  {content: "B's Changes", $inc: {__v: 1}}\n)
-note over DB: Version mismatch!\nCurrent __v is 2,\nrequest expects 1
-DB --> Server: null (No document matched)
-Server -> DB: Check if note exists\nfindOne({_id: 1, owner: UserB.id})
-DB --> Server: Note exists (version conflict confirmed)
-Server --> UserB: 409 Conflict\n"Note modified by another user.\nPlease refresh and try again."
+Server -> Server: Find note with __v: 1
+Server -> DB: findOne({_id: 1, __v: 1})
+DB --> Server: No match (Current __v is 2)
+Server --> UserB: 409 Conflict\n"Note modified by another user."
 
 @enduml

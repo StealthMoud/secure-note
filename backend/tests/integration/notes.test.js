@@ -1,5 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const connectDB = require('../../src/config/db');
 const app = require('../../src/app');
 const User = require('../../src/models/User');
 const Note = require('../../src/models/Note');
@@ -9,9 +10,8 @@ describe('Notes Integration Tests', () => {
     let userId;
 
     beforeAll(async () => {
-        const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/secure-note-test';
         if (mongoose.connection.readyState === 0) {
-            await mongoose.connect(uri.replace('mongodb://mongodb:', 'mongodb://localhost:'));
+            await connectDB();
         }
     });
 
@@ -32,12 +32,14 @@ describe('Notes Integration Tests', () => {
                 password: 'Password123!'
             });
 
-        userId = userRes.body.user.id;
+        userId = userRes.body.user._id;
+        // Verify user so they can create notes
+        await User.findByIdAndUpdate(userId, { verified: true });
 
         const loginRes = await request(app)
             .post('/api/auth/login')
             .send({
-                email: 'notes@example.com',
+                identifier: 'notes@example.com',
                 password: 'Password123!'
             });
 
@@ -74,8 +76,9 @@ describe('Notes Integration Tests', () => {
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toEqual(200);
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body.length).toBe(1);
-        expect(res.body[0].title).toBe('Note 1');
+        expect(res.body).toHaveProperty('notes');
+        expect(Array.isArray(res.body.notes)).toBe(true);
+        expect(res.body.notes.length).toBe(1);
+        expect(res.body.notes[0].title).toBe('Note 1');
     });
 });

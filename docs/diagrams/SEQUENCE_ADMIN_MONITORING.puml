@@ -1,4 +1,4 @@
-@startuml
+@startuml Admin_Monitoring
 title Admin Monitoring Sequence Diagram
 
 actor Admin

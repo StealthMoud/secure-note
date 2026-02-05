@@ -12,50 +12,37 @@ skinparam packageBackgroundColor #f3e5f5
 skinparam packageBorderColor #4a148c
 
 package "Frontend - Next.js/React/TypeScript" #e8f4f8 {
-    package "Pages" #e3f2fd {
-        component "Login" as LoginPage
-        component "Register" as RegisterPage
-        component "Dashboard" as DashboardPage
-        component "Notes" as NotesPage
-        component "Admin" as AdminPage
-        component "Friends" as FriendsPage
-        component "Profile" as ProfilePage
-        component "Account Settings" as SettingsPage
-        component "Notifications" as NotificationsPage
+    package "App Router (src/app)" #e3f2fd {
+        component "(auth)" as AuthGroup
+        component "(dashboard)" as DashGroup
+        component "(admin)" as AdminGroup
+        component "Layout & Globals" as RootLayout
     }
     
-    package "Components" #e3f2fd {
-        component "ProtectedRoute" as ProtectedRoute
-        component "DashboardContent" as DashboardContent
-        component "NotesSection" as NotesSection
-        component "FriendsSection" as FriendsSection
-        component "ProfileSection" as ProfileSection
-        component "AccountSettingsSection" as SettingsSection
+    package "Features" #e3f2fd {
+        component "Auth Logic" as AuthLogic
+        component "Notes Logic" as NotesLogic
+        component "Friends Logic" as FriendsLogic
     }
     
-    package "Services" #e3f2fd {
+    package "Services (src/services)" #e3f2fd {
         component "AuthService" as AuthService
         component "NotesService" as NotesService
         component "UsersService" as UsersService
         component "AdminService" as AdminService
-        component "API Client" as APIClient
+        component "API Client (Axios)" as APIClient
     }
     
-    package "Hooks & Utils" #e3f2fd {
+    package "Hooks (src/hooks)" #e3f2fd {
         component "useAuthSettings" as useAuthSettings
         component "useUserSettings" as useUserSettings
-        component "useLoginLogic" as useLoginLogic
-        component "useForgotPasswordLogic" as useForgotPasswordLogic
-        component "useRegisterLogic" as useRegisterLogic
-        component "useVerifyEmailLogic" as useVerifyEmailLogic
-        component "debounce" as debounce
-        component "darkMode" as darkMode
+        component "ProtectedRoute" as ProtectedRoute
     }
     
-    package "Context" #e3f2fd {
+    package "Context (src/context)" #e3f2fd {
         component "DashboardContext" as DashboardContext
-        component "AdminDashboardContext" as AdminContext
-        component "DashboardSharedContext" as SharedContext
+        component "AdminContext" as AdminContext
+        component "SharedContext" as SharedContext
     }
 }
 
@@ -78,43 +65,28 @@ package "Backend - Express.js/Node.js" #fff3e0 {
     }
     
     package "Models (Mongoose)" #fff3e0 {
-        database "User" as UserModel {
-            note "- username, email, password\n- avatar, role, verified\n- publicKey, privateKey\n- TOTP secret\n- friends, friendRequests\n- profile fields" as UserFields
-        }
-        database "Note" as NoteModel {
-            note "- title, content\n- encrypted, format\n- owner (ref User)\n- sharedWith (ref User)\n- timestamps" as NoteFields
-        }
-        database "SecurityLog" as SecurityLogModel {
-            note "- event type\n- user (ref User)\n- timestamp\n- details (mixed)" as LogFields
-        }
+        database "User" as UserModel
+        database "Note" as NoteModel
+        database "SecurityLog" as SecurityLogModel
+        database "Broadcast" as BroadcastModel
     }
     
-    package "Middleware" #ffe0b2 {
-        component "Auth Middleware" as AuthMiddleware
-        component "Verification Middleware" as VerificationMiddleware
+    package "Middleware Stack" #ffe0b2 {
+        component "Security (Helmet/CORS)" as SecurityMW
         component "Rate Limiting" as RateLimiting
-        component "Helmet Security" as HelmetSecurity
-        component "CORS" as CORSMiddleware
+        component "Sanitization" as Sanitization
+        component "Auth (Passport/JWT)" as AuthMiddleware
     }
     
-    package "Utilities" #ffe0b2 {
-        component "Encryption Utils" as EncryptionUtils
-        component "Logger" as LoggerUtil
+    package "Internal Services" #ffe0b2 {
+        component "Encryption Service" as EncryptionService
+        component "Email Service" as EmailService
+        component "Token Service" as TokenService
     }
     
-    package "Config" #ffe0b2 {
-        component "Database Config" as DBConfig
-        component "Passport Config" as PassportConfig
-    }
-    
-    package "External Services" #ffe0b2 {
+    package "External" #ffe0b2 {
         component "Passport Auth" as PassportAuth
-        component "Google OAuth" as GoogleOAuth
-        component "GitHub OAuth" as GitHubOAuth
         component "Nodemailer" as Nodemailer
-        component "PDF Kit" as PDFKit
-        component "QR Code" as QRCodeLib
-        component "Speakeasy TOTP" as SpeakeasyLib
     }
 }
 

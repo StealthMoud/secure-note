@@ -1,4 +1,4 @@
-@startuml
+@startuml Sharing_Access
 title Sharing Access Sequence Diagram
 
 actor Recipient

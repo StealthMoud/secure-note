@@ -1,0 +1,34 @@
+@startuml Auth_Refresh
+title JWT Token Refresh Sequence Diagram
+
+actor User
+participant "Frontend" as FE
+participant "API Gateway" as API
+participant "Auth Controller" as Ctrl
+participant "Token Service" as Token
+database "Database" as DB
+
+User -> FE: Session Expiring / App Load
+FE -> API: POST /auth/refresh
+note right of FE: Sends Refresh Token (Cookie/Body)
+
+API -> Ctrl: Handle Refresh
+Ctrl -> Token: Verify Refresh Token
+Token -> Token: Validate Signature & Expiry
+
+alt Token Invalid/Expired
+    Token --> Ctrl: Error
+    Ctrl --> API: 401 Unauthorized
+    API --> FE: Logout User
+else Token Valid
+    Ctrl -> DB: Find User by ID
+    DB --> Ctrl: User Object
+    
+    Ctrl -> Token: Generate New Access Token
+    Token --> Ctrl: Access Token
+    
+    Ctrl --> API: 200 OK {accessToken}
+    API --> FE: Store Access Token
+end
+
+@enduml

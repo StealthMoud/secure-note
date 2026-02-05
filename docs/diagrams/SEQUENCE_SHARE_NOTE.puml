@@ -1,4 +1,4 @@
-@startuml
+@startuml Share_Note
 title Share Note Sequence Diagram
 
 actor Owner
@@ -13,15 +13,23 @@ Owner -> FE: Request to share note
 activate FE
 FE -> API: POST /notes/{id}/share
 activate API
-API -> Ctrl: Forward request
-activate Ctrl
+Ctrl -> DB: Get Target User Public Key
+activate DB
+DB --> Ctrl: Public Key
+deactivate DB
 
-Ctrl -> Enc: Re-encrypt key for recipient
+alt Note Not Yet Encrypted
+    Ctrl -> Enc: Generate Symmetric Key
+    Ctrl -> Enc: Encrypt Note Content
+    Ctrl -> Enc: Encrypt Symmetric Key with Owner PK
+end
+
+Ctrl -> Enc: Encrypt Symmetric Key with Recipient PK
 activate Enc
-Enc --> Ctrl: Encrypted key
+Enc --> Ctrl: Encrypted Key (Recipient)
 deactivate Enc
 
-Ctrl -> Shared: Update sharedWith list
+Ctrl -> Shared: Update sharedWith list\n{user, permission, encryptedKey}
 activate Shared
 Shared --> Ctrl: Success
 deactivate Shared

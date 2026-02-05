@@ -1,0 +1,52 @@
+@startuml search_privacy_paradox
+title The Search-Privacy Paradox (Blind Storage, Seeing Runtime)
+
+actor User
+participant "Frontend" as UI
+participant "Backend Service" as Service
+database "MongoDB" as DB
+
+== The "Blind" Fetch ==
+User -> UI: Search "Mystery" (Title Keyword)
+UI -> Service: GET /notes?search=Mystery
+activate Service
+
+Service -> DB: Query { owner: UserID }
+note right of DB
+    **Blind Fetch**
+    DB cannot read "Mystery".
+    It returns ALL encrypted notes
+    belonging to the user.
+end note
+DB --> Service: Return [Encrypted Note A, Encrypted Note B, ...]
+
+== The "Seeing" Runtime (In-Memory) ==
+Service -> Service: Decrypt All Notes (in RAM)
+note right of Service
+    **Ephemereal Decryption**
+    1. Keys unlocked with User Context
+    2. Notes A & B decrypted in Memory
+    3. RAM contains Plaintext for milliseconds
+end note
+
+Service -> Service: Filter(note => note.title.includes("Mystery"))
+note left of Service
+    **Application Filter**
+    Note A (Title: "Mystery Box") -> **MATCH**
+    Note B (Title: "Groceries") -> **IGNORE**
+end note
+
+== The Result ==
+Service -> Service: Wipe Decrypted Data from RAM
+Service --> UI: Return [Note A]
+deactivate Service
+
+UI --> User: Shows "Mystery Box"
+
+note over UI, DB
+    **Paradox Resolved:**
+    Storage is BLIND (Zero Knowledge at Rest).
+    Runtime is SEEING (Authorized Search).
+end note
+
+@enduml

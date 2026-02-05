@@ -1,14 +1,13 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const connectDB = require('../../src/config/db');
 const app = require('../../src/app');
 const User = require('../../src/models/User');
 
 describe('Auth Integration Tests', () => {
     beforeAll(async () => {
-        // use a test database if possible, or just be careful
-        const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/secure-note-test';
         if (mongoose.connection.readyState === 0) {
-            await mongoose.connect(uri.replace('mongodb://mongodb:', 'mongodb://localhost:'));
+            await connectDB();
         }
     });
 
@@ -32,7 +31,7 @@ describe('Auth Integration Tests', () => {
             .send(testUser);
 
         expect(res.statusCode).toEqual(201);
-        expect(res.body).toHaveProperty('message', 'Registration successful');
+        expect(res.body).toHaveProperty('message', 'User registered successfully!');
         expect(res.body).toHaveProperty('user');
         expect(res.body.user.username).toBe(testUser.username);
     });
@@ -44,7 +43,7 @@ describe('Auth Integration Tests', () => {
         const res = await request(app)
             .post('/api/auth/login')
             .send({
-                email: testUser.email,
+                identifier: testUser.email,
                 password: testUser.password
             });
 
@@ -59,11 +58,11 @@ describe('Auth Integration Tests', () => {
         const res = await request(app)
             .post('/api/auth/login')
             .send({
-                email: testUser.email,
+                identifier: testUser.email,
                 password: 'wrongpassword'
             });
 
         expect(res.statusCode).toEqual(401);
-        expect(res.body).toHaveProperty('error');
+        expect(res.body).toHaveProperty('errors');
     });
 });

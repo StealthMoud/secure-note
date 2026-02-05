@@ -1,4 +1,4 @@
-@startuml
+@startuml Note_Export
 title Note Export Sequence Diagram
 
 actor User
@@ -11,10 +11,10 @@ database "Database" as DB
 User -> FE: Request Export (PDF/MD/TXT)
 FE -> API: GET /export/{id}?format=...
 API -> Ctrl: Check Permissions
-Ctrl -> DB: Fetch Note
-Ctrl -> Enc: Decrypt Content (Server-side)
-note right of Enc: Use User Private Key
-Enc --> Ctrl: Plain Text
+Ctrl -> DB: Fetch Note & User Keys
+Ctrl -> Enc: Decrypt Note (using Hybrid logic)
+note right of Enc: Use Symmetric Key encrypted\nwith User PK
+Enc --> Ctrl: Plain Text content
 
 Ctrl -> Ctrl: Generate File (PDF generation etc.)
 Ctrl --> API: Download Stream

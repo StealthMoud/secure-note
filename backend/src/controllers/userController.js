@@ -280,3 +280,25 @@ exports.updatePassword = asyncHandler(async (req, res) => {
 
     res.json({ message: 'Password changed successfully' });
 });
+
+exports.deleteSelfAccount = asyncHandler(async (req, res) => {
+    const { password } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // for oauth users we might not have a password
+    if (user.password) {
+        if (!password) {
+            return res.status(400).json({ error: 'Password is required to delete account' });
+        }
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+    }
+
+    const { getRequestMetadata } = require('../utils/logger');
+    await userService.deleteFullAccount(req.user.id, getRequestMetadata(req));
+
+    res.json({ message: 'Account and all associated data deleted successfully' });
+});

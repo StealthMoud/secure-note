@@ -59,6 +59,9 @@ app.use((req, res, next) => {
 
 // global error handler
 app.use((err, req, res, next) => {
+    if (process.env.NODE_ENV !== 'production') {
+        console.error("DEBUG ERROR HANDLER:", err);
+    }
     console.error("Server error:", err);
 
     // dont leak error details in production

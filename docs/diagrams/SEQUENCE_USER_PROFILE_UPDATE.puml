@@ -1,4 +1,4 @@
-@startuml
+@startuml User_Profile_Update
 title User Profile Update Sequence Diagram
 
 actor User

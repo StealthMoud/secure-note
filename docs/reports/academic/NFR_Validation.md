@@ -7,10 +7,11 @@ This document validates the Non-Functional Requirements (NFRs) for the Secure-No
 
 | ID | Requirement | Implementation | Validation Method | Evidence / Result |
 | :--- | :--- | :--- | :--- | :--- |
-| **NFR-1.1** | **API Response Time**: < 300-800ms | Async/Await Controllers, Optimized Queries | `npm test` (nfr_security.test.js) | **Pass**: 21ms avg response time (Target: < 800ms) |
+| **NFR-1.1** | **API Response Time**: < 300-800ms | Async/Await Controllers, Optimized Queries | `npm test` (nfr_security.test.js) | **Pass**: ~15ms avg response time (Target: < 800ms) |
 | **NFR-1.2** | **Database Performance**: Indexing, Bulk Ops < 4s | MongoDB Indexes on `owner`, `sharedWith` | `npm test` (database_integrity.test.js) | **Pass**: Indexes verified on critical fields |
 | **NFR-1.3** | **Background Processing**: Logging/Cleanup | Async Logging (`logSecurityEvent`) | Code Inspection (`utils/logger.js`) | **Pass**: Non-blocking async logging implemented |
 | **NFR-1.4** | **Concurrency**: 50-200 simultaneous requests | Optimistic Locking (Versioning) | `npm test` (concurrency.test.js) | **Pass**: Conflict checking verified with version simulation |
+| **NFR-1.5** | **Input Validation**: Sanitization | express-validator & DOMPurify | `npm test` (input_validation.test.js) | **Pass**: XSS and SQLi payloads rejected |
 
 ## 2. Usability Requirements
 
@@ -40,11 +41,11 @@ This document validates the Non-Functional Requirements (NFRs) for the Secure-No
 
 | ID | Requirement | Implementation | Validation Method | Evidence / Result |
 | :--- | :--- | :--- | :--- | :--- |
-| **NFR-5.1** | **Encryption Standards**: AES-256, bcrypt | `utils/encryption.js`, `bcryptjs` | `npm test` (nfr_security.test.js) | **Pass**: AES-256 algo verified, bcrypt used for passwords |
-| **NFR-5.2** | **Authentication**: Verified access | Passport.js + JWT Middleware | Route Protection Tests | **Pass**: Unauthenticated requests rejected (401) |
-| **NFR-5.3** | **Rate Limiting**: Login 5/15 mins | `express-rate-limit` on `/login` | `npm test` (nfr_security.test.js) | **Pass**: Global + Specific Login limits active |
-| **NFR-5.4** | **File Upload Security**: 10MB Limit | Multer Config (`routes/users.js`) | Configuration Check | **Pass**: `limits: { fileSize: 10MB }` verified |
-| **NFR-5.5** | **Logging Safety**: No sensitive data | Sanitized Logging Utility | Code Inspection | **Pass**: Passwords excluded from logs |
+| **NFR-5.1** | **Encryption Standards**: AES-256, RSA-2048 | `utils/encryption.js`, `bcryptjs`, RSA Keys | `npm test` (nfr_security.test.js, encryption.test.js) | **Pass**: AES-256 and RSA-2048 standards verified |
+| **NFR-5.2** | **Authentication**: Verified access | Passport.js + JWT Middleware | `npm test` (auth.test.js) | **Pass**: Unauthenticated requests rejected (401) |
+| **NFR-5.3** | **Rate Limiting**: Login 50/15 mins | `express-rate-limit` on `/login` | `npm test` (nfr_security.test.js) | **Pass**: Global + Specific Login limits active |
+| **NFR-5.4** | **File Upload Security**: 10MB Limit | Multer Config (`app.js`) | `npm test` (nfr_security.test.js) | **Pass**: `limits: { fileSize: 10MB }` verified |
+| **NFR-5.5** | **Logging Safety**: No sensitive data | Sanitized Logging Utility | Code Inspection | **Pass**: Passwords and private keys excluded from logs |
 
 ## 6. Data Integrity Requirements
 
@@ -83,11 +84,14 @@ This document validates the Non-Functional Requirements (NFRs) for the Secure-No
 
 **Summary Output**:
 ```
-PASS tests/nfr_security.test.js
-PASS tests/database_integrity.test.js
-PASS tests/concurrency.test.js
-PASS tests/input_validation.test.js
+PASS tests/integration/auth.test.js
+PASS tests/integration/notes.test.js
+PASS tests/integration/nfr_security.test.js
+PASS tests/integration/concurrency.test.js
+PASS tests/integration/input_validation.test.js
+PASS tests/integration/database_integrity.test.js
+PASS tests/unit/encryption.test.js
 
-Test Suites: 4 passed, 4 total
-Tests:       21 passed, 21 total
+Test Suites: 7 passed, 7 total
+Tests:       30 passed, 30 total
 ```

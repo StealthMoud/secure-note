@@ -1,4 +1,4 @@
-@startuml
+@startuml Admin_Approve
 title Admin Approve Verification Sequence Diagram
 
 actor Admin

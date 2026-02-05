@@ -63,3 +63,10 @@ export const getFriends = async (): Promise<FriendsResponse> => {
     const response = await api.get<FriendsResponse>('/users/friends');
     return response.data;
 };
+
+export const deleteAccount = async (password?: string): Promise<MessageResponse> => {
+    const response = await (api as any).delete('/users/me', {
+        data: { password }
+    });
+    return response.data;
+};
