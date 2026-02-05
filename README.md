@@ -144,23 +144,12 @@ erDiagram
    cd secure-note
    ```
 
-2. **Backend Config**:
-   Copy the example env file and fill in your secrets (JWT, OAuth, etc.).
+2. **Auto Setup**:
+   Run the setup script to install dependencies, generate keys, and configure environments automatically.
    ```bash
-   cp backend/.env.example backend/.env
-   # Also copy it to the root if you're using Docker
-   cp backend/.env.example .env
-   ```
-
-3. **Frontend Config**:
-   ```bash
-   cp frontend/.env.local.example frontend/.env.local
-   ```
-
-4. **Install everything**:
-   We use NPM workspaces, so one command handles both:
-   ```bash
-   npm install
+   chmod +x scripts/setup_project.sh
+   ./scripts/setup_project.sh
+   # This will create your .env files with fresh cryptographic keys and install npm packages.
    ```
 
 ### Running the app
@@ -172,14 +161,22 @@ docker compose up --build
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:5002`
 
+**Creating an Admin User**
+Once the app is running (and the database is up), you can create a superadmin account by running this script in your terminal:
+```bash
+node scripts/db/create-superadmin.js <username> <email> <password>
+# Example: node scripts/db/create-superadmin.js admin admin@example.com mysecretpass
+```
+
 **Manual Dev Mode**
-Run these in separate terminals:
+If you prefer running without Docker:
 ```bash
 # Start backend
 npm run start:backend
 
 # Start frontend
 npm run dev:frontend
+# Note: You'll need a local MongoDB instance running on port 27017.
 ```
 
 ---
