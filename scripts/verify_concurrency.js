@@ -1,11 +1,18 @@
 const mongoose = require('mongoose');
-const User = require('../src/models/User');
-const Note = require('../src/models/Note');
-const noteService = require('../src/services/note/noteService');
+const User = require('../backend/src/models/User');
+const Note = require('../backend/src/models/Note');
+const noteService = require('../backend/src/services/note/noteService');
 const crypto = require('crypto');
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
-const DB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/secure-note';
+const getMongoUri = () => {
+    let uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/secure-note';
+    // replace 'mongodb' host with 'localhost' for local script execution
+    return uri.replace('mongodb://mongodb:', 'mongodb://localhost:');
+};
+
+const DB_URI = getMongoUri();
 
 // Helper to generate keys
 const genKeys = () => crypto.generateKeyPairSync('rsa', {
