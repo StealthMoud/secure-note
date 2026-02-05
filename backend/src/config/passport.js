@@ -30,7 +30,7 @@ passport.use(new GoogleStrategy({
             user = new User({
                 username: profile.displayName || `google_${profile.id}`,
                 email: profile.emails[0].value,
-                password: crypto.randomBytes(16).toString('hex'), // Dummy password
+                password: crypto.randomBytes(16).toString('hex'), // dummy password
                 role: 'user',
                 publicKey,
                 privateKey,

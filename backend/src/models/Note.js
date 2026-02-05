@@ -40,6 +40,7 @@ const NoteSchema = new mongoose.Schema({
             encryptedKey: { type: String }, // Encrypted Symmetric Key for this user
         },
     ],
+    // images attached to notes
     images: [{ type: String }],
     // tags for organizing notes
     tags: [{ type: String, trim: true }],
@@ -51,12 +52,14 @@ const NoteSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Indexes for better query performance
+// indexes for better query performance
 NoteSchema.index({ owner: 1 });
 NoteSchema.index({ 'sharedWith.user': 1 });
 // index tags for fast searchin
 NoteSchema.index({ tags: 1 });
-// index deletedAt for filtered queries
+// index deletedAt for soft delete filterin
 NoteSchema.index({ deletedAt: 1 });
+// index isPinned for dashboard sortin
+NoteSchema.index({ isPinned: -1 });
 
 module.exports = mongoose.models.Note || mongoose.model('Note', NoteSchema);

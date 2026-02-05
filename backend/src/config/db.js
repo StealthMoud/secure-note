@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load environment variables from the project root .env file
+// load environment variables from the project root .env file
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const connectDB = async () => {
@@ -11,7 +11,7 @@ const connectDB = async () => {
         throw new Error('MONGO_URI is not defined in the environment variables.');
     }
 
-    // Isolate test database to prevent data loss in dev/prod
+    // isolate test database to prevent data loss in dev/prod
     if (process.env.NODE_ENV === 'test') {
         // use localhost instead of mongodb host when running tests on host machine
         MONGO_URI = MONGO_URI.replace('mongodb://mongodb:', 'mongodb://localhost:');

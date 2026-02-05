@@ -37,9 +37,11 @@ const SecurityLogSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-// Indexes for performance
+// indexes for performance
 SecurityLogSchema.index({ timestamp: -1 });
 SecurityLogSchema.index({ user: 1 });
 SecurityLogSchema.index({ severity: 1 });
+// index event type for dashboard stats
+SecurityLogSchema.index({ event: 1 });
 
 module.exports = mongoose.models.SecurityLog || mongoose.model('SecurityLog', SecurityLogSchema);

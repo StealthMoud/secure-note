@@ -30,7 +30,6 @@ const UserSchema = new mongoose.Schema({
         updatedAt: { type: Date, default: Date.now },
         requestId: { type: mongoose.Schema.Types.ObjectId }
     }],
-    // New fields
     firstName: { type: String, trim: true, default: '' },
     lastName: { type: String, trim: true, default: '' },
     nickname: { type: String, trim: true, default: '' },
@@ -41,7 +40,7 @@ const UserSchema = new mongoose.Schema({
     header: { type: String, default: '' }, // url or path to header image
 }, { timestamps: true });
 
-// pre-save hook for password hashing
+// pre-save hook for password hashin
 UserSchema.pre('save', async function () {
     // only hash password if it was modified to avoid rehashing on every save
     if (!this.isModified('password')) return;
@@ -70,5 +69,8 @@ UserSchema.methods.toJSON = function () {
 // create indexes for friend request queries to improve performence
 UserSchema.index({ 'friendRequests.sender': 1 });
 UserSchema.index({ 'friendRequests.receiver': 1 });
+// index role and verified status for admin panel
+UserSchema.index({ role: 1 });
+UserSchema.index({ verified: 1 });
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
