@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const User = require('../backend/src/models/User');
-const Note = require('../backend/src/models/Note');
-const noteService = require('../backend/src/services/note/noteService');
+const User = require('../../backend/src/models/User');
+const Note = require('../../backend/src/models/Note');
+const noteService = require('../../backend/src/services/note/noteService');
 const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });

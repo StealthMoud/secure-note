@@ -6,8 +6,8 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const setRole = async () => {
     const args = process.argv.slice(2);
     if (args.length !== 2) {
-        console.log('Usage: node scripts/db/set-role.js <email> <role>');
-        console.log('Roles: superadmin, admin, moderator, user');
+        console.log('Usage: node scripts/database/set-role.js <email> <role>');
+        console.log('Roles: superadmin, admin, user');
         process.exit(1);
     }
 

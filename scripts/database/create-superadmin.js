@@ -7,7 +7,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const createSuperAdmin = async () => {
     const args = process.argv.slice(2);
     if (args.length !== 3) {
-        console.log('Usage: node scripts/db/create-superadmin.js <username> <email> <password>');
+        console.log('Usage: node scripts/database/create-superadmin.js <username> <email> <password>');
         process.exit(1);
     }
 
