@@ -119,14 +119,14 @@ erDiagram
 ## Screenshots
 
 ### User Dashboard
-| Dashboard | Notes | Friends |
+| Dashboard | Notes | Settings |
 | :---: | :---: | :---: |
-| ![](docs/User%20Panel%20%7C%20Dashboard.png) | ![](docs/User%20Panel%20%7C%20Notes.png) | ![](docs/User%20Panel%20%7C%20Friends.png) |
+| ![](docs/visuals/screenshots/ui_04_dashboard_empty.png) | ![](docs/visuals/screenshots/ui_05_note.png) | ![](docs/visuals/screenshots/ui_06_settings.png) |
 
 ### Admin View
 | Overview | Users | Logs |
 | :---: | :---: | :---: |
-| ![](docs/Admin%20Panel%20%7C%20Overview.png) | ![](docs/Admin%20Panel%20%7C%20Users.png) | ![](docs/Admin%20Panel%20%7C%20Security%20Logs.png) |
+| ![](docs/visuals/screenshots/admin_01_stats.png) | ![](docs/visuals/screenshots/admin_02_users.png) | ![](docs/visuals/screenshots/admin_03_logs.png) |
 
 ---
 
@@ -164,8 +164,8 @@ docker compose up --build
 **Creating an Admin User**
 Once the app is running (and the database is up), you can create a superadmin account by running this script in your terminal:
 ```bash
-node scripts/db/create-superadmin.js <username> <email> <password>
-# Example: node scripts/db/create-superadmin.js admin admin@example.com mysecretpass
+node scripts/database/create-superadmin.js <username> <email> <password>
+# Example: node scripts/database/create-superadmin.js admin admin@example.com mysecretpass
 ```
 
 **Manual Dev Mode**
