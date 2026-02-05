@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 // Load environment variables from the project root .env file
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const connectDB = async () => {
     let MONGO_URI = process.env.MONGO_URI;

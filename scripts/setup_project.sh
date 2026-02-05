@@ -80,13 +80,7 @@ update_env_file() {
     fi
 }
 
-# copy and update backend env
-if [ ! -f "backend/.env" ]; then
-    cp backend/.env.example backend/.env
-fi
-update_env_file "backend/.env"
-
-# copy and update root env (for docker)
+# copy and update root env (for docker and local backend)
 if [ ! -f ".env" ]; then
     cp backend/.env.example .env
 fi
