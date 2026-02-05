@@ -67,3 +67,6 @@ backend/uploads/*
 # OS
 .DS_Store
 Thumbs.db
+
+# academic reports assets
+docs/reports/academic/assets/
