@@ -1,23 +1,16 @@
-// note related types
 export interface Note {
     _id: string;
     title: string;
     content: string;
-    tags: string[];
-    createdBy: string;
-    sharedWith: string[];
+    format: 'plain' | 'markdown';
+    encrypted: boolean;
+    owner: string | { _id: string; username: string };
     createdAt: string;
-    updatedAt: string;
-}
-
-export interface CreateNoteData {
-    title: string;
-    content: string;
-    tags?: string[];
-}
-
-export interface UpdateNoteData {
-    title?: string;
-    content?: string;
-    tags?: string[];
+    sharedWith: {
+        user: { _id: string; username: string };
+        permission: 'viewer' | 'editor';
+        encryptedContent?: string;
+    }[];
+    tags: string[];
+    isPinned: boolean;
 }
