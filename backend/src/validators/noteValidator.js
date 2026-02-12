@@ -48,10 +48,21 @@ exports.updateNoteValidation = [
 
 // validation rules for sharing a note
 exports.shareNoteValidation = [
-    body('userIds')
-        .isArray({ min: 1 })
-        .withMessage('userIds must be a non-empty array'),
-    body('userIds.*')
-        .isMongoId()
-        .withMessage('each userId must be a valid mongo id'),
+    body('target').notEmpty().withMessage('Friend username or email is required'),
+    body('permission').optional().isIn(['viewer', 'editor']).withMessage('Permission must be either viewer or editor'),
+];
+
+// validation for unsharng
+exports.unshareNoteValidation = [
+    body('noteId').notEmpty().withMessage('Note ID is required'),
+    body('targetUserId').notEmpty().withMessage('Target user ID is required'),
+];
+
+// validation for export format
+const { query } = require('express-validator');
+exports.exportNoteValidation = [
+    query('format')
+        .optional()
+        .isIn(['plain', 'markdown', 'pdf'])
+        .withMessage('Format must be "plain", "markdown", or "pdf"'),
 ];
