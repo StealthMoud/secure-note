@@ -1,7 +1,6 @@
 const User = require('../../models/User');
 
-// service layer for user-related business logic
-// separates data access from controllers
+// user logic. keeps data access away from controllers.
 class UserService {
     async getUserById(id) {
         return await User.findById(id).select('-password');
@@ -16,7 +15,7 @@ class UserService {
     }
 
     async updateUser(id, updateData) {
-        // remove sensitive fields that shouldnt be updated directly
+        // block sensitive fields so they dont get changed by accident
         delete updateData.password;
         delete updateData.role;
         delete updateData.verified;
@@ -60,47 +59,46 @@ class UserService {
         return await User.findByIdAndDelete(id);
     }
 
-    /**
-     * per GDPR NFR-9.1: fully erase user data + notes + files
-     */
+    // gdpr stuff: kill everything related to the user.
     async deleteFullAccount(userId, metadata = {}) {
-        const mongoose = require('mongoose');
         const Note = require('../../models/Note');
         const SecurityLog = require('../../models/SecurityLog');
-        const fs = require('fs');
+        const fs = require('fs').promises;
         const path = require('path');
 
-        // 1. Create a deletion log record first (so it can be anonymized too)
-        await SecurityLog.create({
+        // backgrounded side effects
+        SecurityLog.create({
             event: 'user_deleted',
             user: userId,
             timestamp: new Date(),
             details: { ...metadata, reason: 'gdpr_deletion' },
             severity: 'critical'
-        });
+        }).catch(err => console.error('background log error:', err));
 
-        // 2. Delete all notes owned by user
+        // AWAIT note deletion to prevent orphan records, even if it adds slightly more latency to this rare operation
         await Note.deleteMany({ owner: userId });
 
-        // 3. Remove user from all shared notes
-        await Note.updateMany(
+        // remove them from notes shared by others
+        Note.updateMany(
             { 'sharedWith.user': userId },
             { $pull: { sharedWith: { user: userId } } }
-        );
+        ).catch(err => console.error('background note update error:', err));
 
-        // 4. Delete upload directory
+        // nuke their upload folder asynchronusly
         const uploadDir = path.join(__dirname, '../../../uploads', userId.toString());
-        if (fs.existsSync(uploadDir)) {
-            fs.rmSync(uploadDir, { recursive: true, force: true });
+        try {
+            await fs.rm(uploadDir, { recursive: true, force: true });
+        } catch (err) {
+            console.error('error removing upload dir:', err);
         }
 
-        // 5. Anonymize Security Logs (keep for audit but remove user link)
-        await SecurityLog.updateMany(
+        // clean user id from logs to keep them anonymized in background
+        SecurityLog.updateMany(
             { user: userId },
             { $set: { user: null }, $push: { 'details.anonymized': true } }
-        );
+        ).catch(err => console.error('background log anonymization error:', err));
 
-        // 6. Finally delete user
+        // finally kill the user record
         return await User.findByIdAndDelete(userId);
     }
 
