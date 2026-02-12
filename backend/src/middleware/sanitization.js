@@ -16,7 +16,7 @@ const handleValidationErrors = (req, res, next) => {
                 method: req.method,
                 ip: req.ip,
             },
-        });
+        }).catch(err => console.error('background log error:', err));
 
         return res.status(400).json({
             error: 'Validation failed',
