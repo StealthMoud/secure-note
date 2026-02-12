@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getFriends, sendFriendRequest, respondToFriendRequest } from '@/services/users';
 import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { useNotificationContext } from '@/context/NotificationContext';
 
 interface Friend {
     _id: string;
@@ -20,6 +21,7 @@ interface FriendRequest {
 
 export const useFriendsLogic = () => {
     const { user } = useDashboardSharedContext();
+    const { refreshNotifications } = useNotificationContext();
     const [friends, setFriends] = useState<Friend[]>([]);
     const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
     const [friendRequestUsername, setFriendRequestUsername] = useState('');
