@@ -1,40 +1,7 @@
 import api from './api';
 
-// user interface with all posible user fields
-export interface User {
-    _id: string;
-    username: string;
-    email: string;
-    role: 'superadmin' | 'admin' | 'user';
-    verified?: boolean;
-    verificationPending?: boolean;
-    verificationRejected?: boolean;
-    verificationToken?: string;
-    githubId?: string;
-    isTotpEnabled?: boolean;
-    isActive?: boolean;
-    avatar?: string;
-    header?: string;
-    firstName?: string;
-    lastName?: string;
-    nickname?: string;
-    birthday?: string;
-    country?: string;
-    bio?: string;
-    gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
-    createdAt?: string;
-    updatedAt?: string;
-    publicKey?: string;
-    friends?: { user: string }[];
-    friendRequests?: {
-        sender: string;
-        receiver: string;
-        status: 'pending' | 'accepted' | 'rejected';
-        createdAt: string;
-        updatedAt: string;
-        requestId: string;
-    }[];
-}
+import { User } from '@/types/user';
+export type { User } from '@/types/user';
 
 interface LoginResponse { token?: string; requires2FA?: boolean; tempToken?: string; user: User; }
 interface RegisterResponse { message: string; }
