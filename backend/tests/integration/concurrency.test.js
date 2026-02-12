@@ -5,7 +5,7 @@ const noteController = require('../../src/controllers/noteController');
 const Note = require('../../src/models/Note');
 const User = require('../../src/models/User');
 
-// Mock dependencies
+// mock dependencies
 jest.mock('../../src/models/Note');
 jest.mock('../../src/models/User');
 jest.mock('../../src/utils/logger', () => ({
@@ -13,18 +13,18 @@ jest.mock('../../src/utils/logger', () => ({
     logUserEvent: jest.fn()
 }));
 jest.mock('../../src/utils/encryption', () => ({
-    encryptText: jest.fn().mockReturnValue('mock-encrypted-key'),
-    decryptText: jest.fn().mockReturnValue('mock-symmetric-key'),
-    encryptSymmetric: jest.fn().mockReturnValue('mock-iv:mock-tag:mock-data'),
-    decryptSymmetric: jest.fn().mockReturnValue(JSON.stringify({ title: 'Mock Title', content: 'Mock Content' })),
+    rsaEncrypt: jest.fn().mockReturnValue('mock-encrypted-key'),
+    rsaDecrypt: jest.fn().mockReturnValue('mock-symmetric-key'),
+    aesEncrypt: jest.fn().mockReturnValue('mock-iv:mock-tag:mock-data'),
+    aesDecrypt: jest.fn().mockReturnValue(JSON.stringify({ title: 'Mock Title', content: 'Mock Content' })),
     generateSymmetricKey: jest.fn().mockReturnValue('mock-key')
 }));
 
-// Create a simple express app for testing the controller directly
+// create a simple express app for testing the controller directly
 const app = express();
 app.use(bodyParser.json());
 
-// Mock Auth Middleware
+// mock auth middleware
 app.use((req, res, next) => {
     req.user = { id: 'user123' };
     next();
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 app.put('/notes/:noteId', noteController.updateNote);
 
-// Handle business errors (like Conflict) for testing
+// handle business errors (like conflict) for testing
 app.use((err, req, res, next) => {
     if (err.message && err.message.includes('Conflict')) {
         return res.status(409).json({ error: err.message });
@@ -43,7 +43,7 @@ app.use((err, req, res, next) => {
 describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        // Setup default mock for Note.findById
+        // setup default mock for note.findById
         const mockNote = {
             _id: 'note123',
             owner: 'user123',
@@ -65,26 +65,24 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
         console.log('   User A updates successfully → version becomes 3');
         console.log('   User B tries to update with stale version 2...\n');
 
-        // Setup: User exists and is verified
+        // setup: user exists and is verified
         User.findById.mockResolvedValue({ _id: 'user123', verified: true, privateKey: 'key' });
 
-        // Setup: First findOne (with version) returns null, second one (just ID) returns note
-        Note.findOne
-            .mockResolvedValueOnce(null)
-            .mockResolvedValueOnce({ _id: 'note123', owner: 'user123', __v: 5, sharedWith: [] });
-
-        // Setup: findById should return note for population with correct version
+        // setup: findById returns the note at the START of the update (with version 5, mockin a clash)
         Note.findById.mockResolvedValue({
             _id: 'note123', owner: 'user123', __v: 5, sharedWith: [],
             populate: jest.fn().mockReturnThis(),
             toObject: jest.fn().mockReturnThis()
         });
 
+        // setup: findOneAndUpdate returns null because version 2 doesn't match DB v5
+        Note.findOneAndUpdate.mockResolvedValue(null);
+
         const res = await request(app)
             .put('/notes/note123')
             .send({
                 title: 'User B Edit',
-                version: 2 // Stale version
+                version: 2 // Stale version (compared to DB v5)
             });
 
         expect(res.status).toBe(409);
@@ -98,22 +96,19 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
     it('should ACCEPT update when version matches (200 OK)', async () => {
         console.log('\n   Scenario: User updates note with correct version\n');
 
-        // Setup: User exists
+        // setup: user exists
         User.findById.mockResolvedValue({ _id: 'user123', verified: true, privateKey: 'key' });
 
-        // Setup: findOne returns note
-        Note.findOne.mockResolvedValue({ _id: 'note123', owner: 'user123', __v: 2, sharedWith: [] });
-
-        // Setup: Update succeeds
-        const updatedNote = { _id: 'note123', title: 'Updated Title', __v: 3 };
-        Note.findOneAndUpdate.mockResolvedValue(updatedNote);
-
-        // Setup: Note.findById should return the version we expect at the START (2)
+        // setup: Note.findById returns the version at the START (v2)
         Note.findById.mockResolvedValue({
             _id: 'note123', owner: 'user123', __v: 2, sharedWith: [],
             populate: jest.fn().mockReturnThis(),
             toObject: jest.fn().mockReturnThis()
         });
+
+        // setup: findOneAndUpdate returns the note with incremented version (v3)
+        const updatedNote = { _id: 'note123', title: 'Updated Title', __v: 3 };
+        Note.findOneAndUpdate.mockResolvedValue(updatedNote);
 
         const res = await request(app)
             .put('/notes/note123')
@@ -129,7 +124,7 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
         console.log('   New Version:', res.body.note.__v);
         console.log('   Optimistic Lock: SUCCESSFUL\n');
 
-        // Verify correct query was used
+        // verify correct query was used
         expect(Note.findOneAndUpdate).toHaveBeenCalledWith(
             expect.objectContaining({ _id: 'note123', __v: 2 }),
             expect.any(Object),
@@ -142,18 +137,16 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
 
         User.findById.mockResolvedValue({ _id: 'user123', verified: true, privateKey: 'key' });
 
-        // Setup: findOne returns note
-        Note.findOne.mockResolvedValue({ _id: 'note123', owner: 'user123', __v: 9, sharedWith: [] });
-
-        const updatedNote = { _id: 'note123', title: 'Test', __v: 10 };
-        Note.findOneAndUpdate.mockResolvedValue(updatedNote);
-
-        // Setup: Note.findById should return the version we expect at the START (9)
+        // setup: Note.findById returns the version at the START (v9)
         Note.findById.mockResolvedValue({
             _id: 'note123', owner: 'user123', __v: 9, sharedWith: [],
             populate: jest.fn().mockReturnThis(),
             toObject: jest.fn().mockReturnThis()
         });
+
+        // setup: findOneUpdate returns the note with incremented version (v10)
+        const updatedNote = { _id: 'note123', title: 'Test', __v: 10 };
+        Note.findOneAndUpdate.mockResolvedValue(updatedNote);
 
         const res = await request(app)
             .put('/notes/note123')
@@ -165,7 +158,7 @@ describe('NFR-1.4: Concurrency Control (Optimistic Locking)', () => {
         console.log('   Version After:', res.body.note.__v);
         console.log('   Increment Applied: YES\n');
 
-        // Verify $inc was called
+        // verify $inc was called
         expect(Note.findOneAndUpdate).toHaveBeenCalledWith(
             expect.any(Object),
             expect.objectContaining({ $inc: { __v: 1 } }),
