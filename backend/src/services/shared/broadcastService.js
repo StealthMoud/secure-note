@@ -1,6 +1,6 @@
 const Broadcast = require('../../models/Broadcast');
 
-// service layer for broadcast-related business logic
+// broadcast logic for global messages
 class BroadcastService {
     async createBroadcast(broadcastData) {
         const broadcast = new Broadcast(broadcastData);
