@@ -6,7 +6,6 @@ import { AdminDashboardProvider } from '@/context/AdminDashboardContext';
 import {
     ChartBarIcon,
     UserIcon,
-    DocumentTextIcon,
     ShieldCheckIcon,
     Bars3Icon,
     XMarkIcon,
