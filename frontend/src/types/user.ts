@@ -4,15 +4,34 @@ export interface User {
     username: string;
     email: string;
     verified: boolean;
-    role: 'user' | 'admin';
+    verificationPending?: boolean;
+    verificationRejected?: boolean;
+    verificationToken?: string;
+    isTotpEnabled?: boolean;
+    isActive?: boolean;
+    role: 'user' | 'admin' | 'superadmin';
+    githubId?: string;
     avatar?: string;
     header?: string;
+    firstName?: string;
+    lastName?: string;
     nickname?: string;
+    birthday?: string;
     bio?: string;
-    gender?: string;
+    gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
     country?: string;
     createdAt: string;
     updatedAt: string;
+    publicKey?: string;
+    friends?: { user: string }[];
+    friendRequests?: {
+        sender: string;
+        receiver: string;
+        status: 'pending' | 'accepted' | 'rejected';
+        createdAt: string;
+        updatedAt: string;
+        requestId: string;
+    }[];
 }
 
 // auth response types
