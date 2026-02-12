@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, authorizeAdmin } = require('../middleware/auth');
+const { authenticate, authorizeRole } = require('../middleware/auth');
 const {
     getUsers,
     verifyUser,
@@ -21,7 +21,7 @@ const {
 
 // all routes requir admin authentcation
 router.use(authenticate);
-router.use(authorizeAdmin);
+router.use(authorizeRole('admin'));
 
 router.get('/users', getUsers);
 router.put('/users/:id/role', updateUserRole);
