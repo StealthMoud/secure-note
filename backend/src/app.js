@@ -32,7 +32,7 @@ app.use(express.json({ limit: '10mb' })); // limit request body size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// input sanitization - must come after body parsing
+// input sanitization
 app.use(sanitizeInputs);
 
 // passport initialization
@@ -48,7 +48,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/notes', require('./routes/notes'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/totp', require('./routes/totp'));
 app.use('/api/sharing', require('./routes/sharing'));
 app.use('/api/export', require('./routes/export'));
 
