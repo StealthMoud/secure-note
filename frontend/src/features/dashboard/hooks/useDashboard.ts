@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { requestVerification } from '@/services/auth';
 import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { useNotificationContext } from '@/context/NotificationContext';
 
 export const useDashboardLogic = () => {
     const { user, setUser } = useDashboardSharedContext();
@@ -36,7 +37,7 @@ export const useDashboardLogic = () => {
         error,
         loading,
         handleRequestVerification,
-        noteCount: useDashboardSharedContext().noteCount,
-        friendsCount: useDashboardSharedContext().friendsCount,
+        noteCount: useNotificationContext().noteCount,
+        friendsCount: useNotificationContext().friendsCount,
     };
 };
