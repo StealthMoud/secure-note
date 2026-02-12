@@ -1,32 +1,6 @@
 import api from './api';
-
-interface User {
-    _id: string;
-    username: string;
-    email: string;
-    role: 'superadmin' | 'admin' | 'user';
-    verified: boolean;
-    createdAt: string;
-    verificationPending: boolean;
-}
-
-// ... existing interfaces ...
-
-// update user role
-export const updateUserRole = async (userId: string, role: string) => {
-    const response = await api.put<{ message: string; user: User }>(`/admin/users/${userId}/role`, { role });
-    return response.data;
-};
-
-// ... existing functions ...
-
-interface Activity {
-    notesCreated: number;
-    friendsAdded: number;
-    sharedWith: string[];
-    adminActions?: number;
-    broadcastsSent?: number;
-}
+import { User } from '@/types/user';
+import { Activity } from '@/types/admin';
 
 // create new user or admin acount from admin panel
 export const createUser = async (data: { username: string; email: string; password: string; role: 'user' | 'admin' }) => {
@@ -34,8 +8,14 @@ export const createUser = async (data: { username: string; email: string; passwo
     return response.data;
 };
 
+// update user role
+export const updateUserRole = async (userId: string, role: string) => {
+    const response = await api.put<{ message: string; user: User }>(`/admin/users/${userId}/role`, { role });
+    return response.data;
+};
+
 // get all users with optional filtering
-export const getUsers = async (params?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; filter?: string }) => {
+export const getUsers = async (params?: { page?: number; limit?: number; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc'; filter?: string; pendingOnly?: boolean }) => {
     const response = await api.get<{ message: string; users: User[]; total: number; pages: number; currentPage: number }>('/admin/users', { params });
     return response.data;
 };
@@ -50,6 +30,11 @@ export const verifyUser = async (userId: string) => {
     return response.data;
 };
 
+export const deleteUser = async (userId: string) => {
+    const response = await api.delete<{ message: string }>(`/admin/users/${userId}`);
+    return response.data;
+};
+
 // get user activity stats for admin monitoring
 export const getUserActivity = async (userId: string) => {
     const response = await api.get<{ message: string; activity: Activity }>(`/admin/users/${userId}/activity`);
@@ -60,6 +45,14 @@ export const getUserActivity = async (userId: string) => {
 export const bulkUserAction = async (userIds: string[], action: 'verify' | 'delete' | 'unverify') => {
     const response = await api.post<{ message: string }>('/admin/bulk-action', { userIds, action });
     return response.data;
+};
+
+export const bulkDeleteUsers = async (userIds: string[]) => {
+    return bulkUserAction(userIds, 'delete');
+};
+
+export const bulkVerifyUsers = async (userIds: string[]) => {
+    return bulkUserAction(userIds, 'verify');
 };
 
 // get system stats for overview
@@ -80,7 +73,6 @@ export const getNoteStats = async () => {
     return response.data;
 };
 
-// get all broadcasts history
 // get security logs
 export const getSecurityLogs = async (params: { page?: number; limit?: number; severity?: string; userId?: string }) => {
     const response = await api.get<{ message: string; logs: any[]; total: number }>('/admin/logs', { params });
