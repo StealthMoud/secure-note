@@ -1,4 +1,4 @@
-const { encryptText, decryptText, generateSymmetricKey, encryptSymmetric, decryptSymmetric } = require('../../src/utils/encryption');
+const { rsaEncrypt, rsaDecrypt, generateSymmetricKey, aesEncrypt, aesDecrypt } = require('../../src/utils/encryption');
 const crypto = require('crypto');
 
 describe('Encryption Unit Tests', () => {
@@ -18,14 +18,14 @@ describe('Encryption Unit Tests', () => {
     describe('RSA Encryption', () => {
         test('should encrypt and decrypt text correctly', () => {
             const originalText = 'Hello World';
-            const encrypted = encryptText(originalText, publicKey);
-            const decrypted = decryptText(encrypted, privateKey);
+            const encrypted = rsaEncrypt(originalText, publicKey);
+            const decrypted = rsaDecrypt(encrypted, privateKey);
             expect(decrypted).toBe(originalText);
         });
 
         test('should throw error for content > 200 bytes', () => {
             const largeText = 'a'.repeat(201);
-            expect(() => encryptText(largeText, publicKey)).toThrow('content too large');
+            expect(() => rsaEncrypt(largeText, publicKey)).toThrow('content too large');
         });
     });
 
@@ -33,8 +33,8 @@ describe('Encryption Unit Tests', () => {
         test('should encrypt and decrypt symmetrically', () => {
             const key = generateSymmetricKey();
             const text = 'Secret message';
-            const encrypted = encryptSymmetric(text, key);
-            const decrypted = decryptSymmetric(encrypted, key);
+            const encrypted = aesEncrypt(text, key);
+            const decrypted = aesDecrypt(encrypted, key);
             expect(decrypted).toBe(text);
         });
 
@@ -42,8 +42,8 @@ describe('Encryption Unit Tests', () => {
             const key1 = generateSymmetricKey();
             const key2 = generateSymmetricKey();
             const text = 'Secret message';
-            const encrypted = encryptSymmetric(text, key1);
-            expect(() => decryptSymmetric(encrypted, key2)).toThrow();
+            const encrypted = aesEncrypt(text, key1);
+            expect(() => aesDecrypt(encrypted, key2)).toThrow();
         });
     });
 });
