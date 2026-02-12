@@ -1,13 +1,8 @@
 const { validationResult } = require('express-validator');
 
-/**
- * middleware to validate request using express-validator
- * eliminates duplicate validation error checking in controllers
- * 
- * @param {Object} req - express request
- * @param {Object} res - express response
- * @param {Function} next - next middleware
- */
+// this is like a security guard at the door. 
+// it checks if the input follows the rules we set in the routes.
+// helps keep controllers skinny so we dont copy paste error checks everywhere.
 const validateRequest = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
