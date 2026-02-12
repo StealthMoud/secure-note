@@ -1,13 +1,24 @@
-// async handler wrapper to eliminate try-catch boilerplate in controllers
-// wraps async route handlers and automatically catches errors, passing them to express error handler
+// stops us from writing try-catch every two lines. 
+// just wraps the route handler and sends errors to express.
+// 'fn' stands for 'function'
+/*
+  Without this, every controller looks like this:
+  exports.doStuff = async (req, res, next) => {
+      try {
+          await model.save();
+          res.send('ok');
+      } catch (err) {
+          next(err); // tedious!
+      }
+  };
 
-/**
- * wraps an async function to catch any errors and pass them to next()
- * eliminates need for try-catch blocks in every controller
- * 
- * @param {Function} fn - async controller function
- * @returns {Function} wrapped function with error handling
- */
+  With this, it's just:
+  exports.doStuff = asyncHandler(async (req, res) => {
+      await model.save();
+      res.send('ok'); // handler catches errors automatically
+  });
+*/
+
 const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
