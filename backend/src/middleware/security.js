@@ -1,6 +1,3 @@
-// security headers configuration middleware
-// implements zero trust principles for http security
-
 const securityHeaders = (req, res, next) => {
     // prevent clickjacking
     res.setHeader('X-Frame-Options', 'DENY');
