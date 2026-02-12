@@ -15,11 +15,12 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { DashboardProvider, useDashboardContext } from '@/context/DashboardContext';
 import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { useNotificationContext } from '@/context/NotificationContext';
 import DashboardSection from './DashboardSection';
 import NotesSection from '../notes/NotesSection';
 import FriendsSection from '../friends/FriendsSection';
 import ProfileSection from '../profile/ProfileSection';
-import AccountSettingsSection from '../account-settings/AccountSettingsSection';
+import AccountSettingsSection from '@/features/settings/components/AccountSettingsSection';
 import NotificationsSection from '../notifications/NotificationsSection';
 
 const sectionMap: { [key: string]: React.ComponentType } = {
@@ -58,7 +59,8 @@ function DashboardInner({ defaultTab, isSidebarOpen, setIsSidebarOpen }: {
     setIsSidebarOpen: (open: boolean) => void
 }) {
     const { activeTab, setActiveTab, navigateToTab } = useDashboardContext();
-    const { user, notificationCount, refreshNotifications, activeBroadcast } = useDashboardSharedContext();
+    const { user } = useDashboardSharedContext();
+    const { notificationCount, refreshNotifications, activeBroadcast } = useNotificationContext();
     const pathname = usePathname();
     const router = useRouter();
     const [dismissedBroadcastId, setDismissedBroadcastId] = useState<string | null>(null);
