@@ -12,16 +12,7 @@ export interface PaginatedResponse<T> {
     limit: number;
 }
 
-// broadcast types
-export interface Broadcast {
-    _id: string;
-    message: string;
-    type: 'info' | 'warning' | 'alert';
-    active: boolean;
-    createdBy: string;
-    createdAt: string;
-    expiresAt?: string;
-}
+
 
 export interface ErrorResponse {
     error: string;
