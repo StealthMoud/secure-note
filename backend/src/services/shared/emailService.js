@@ -1,16 +1,14 @@
 const nodemailer = require('nodemailer');
 
-/**
- * email service for centralized email operations
- * eliminates duplicate transporter configuration and email logic
- */
+// email service to handle all our sent mail.
+// stops us from setupin the transporter a million times.
 class EmailService {
     constructor() {
         this._transporter = null;
         this.from = `"Secure Note" <${process.env.EMAIL_USER || 'noreply@securenote.com'}>`;
     }
 
-    // lazy load transporter to avoid initialization errors in tests
+    // lazy load transport so tests dont blow up if email is down
     get transporter() {
         if (!this._transporter) {
             this._transporter = nodemailer.createTransport({
@@ -26,10 +24,7 @@ class EmailService {
         return this._transporter;
     }
 
-    /**
-     * send verification request received email
-     * @param {Object} user - user document
-     */
+    // tell user we got their verification request
     async sendVerificationRequestEmail(user) {
         await this.transporter.sendMail({
             from: this.from,
@@ -39,11 +34,7 @@ class EmailService {
         });
     }
 
-    /**
-     * send verification approval email with token
-     * @param {Object} user - user document
-     * @param {string} verificationUrl - verification url with token
-     */
+    // send link to verify once admin approves
     async sendVerificationApprovalEmail(user, verificationUrl) {
         await this.transporter.sendMail({
             from: this.from,
@@ -53,10 +44,7 @@ class EmailService {
         });
     }
 
-    /**
-     * send verification rejection email
-     * @param {Object} user - user document
-     */
+    // send rejection mail if admin says no
     async sendVerificationRejectionEmail(user) {
         await this.transporter.sendMail({
             from: this.from,
@@ -66,11 +54,7 @@ class EmailService {
         });
     }
 
-    /**
-     * send password reset email
-     * @param {Object} user - user document
-     * @param {string} resetURL - password reset url with token
-     */
+    // send reset link if they forgot password
     async sendPasswordResetEmail(user, resetURL) {
         await this.transporter.sendMail({
             from: this.from,
@@ -80,13 +64,7 @@ class EmailService {
         });
     }
 
-    /**
-     * send generic email
-     * @param {string} to - recipient email
-     * @param {string} subject - email subject
-     * @param {string} text - plain text content
-     * @param {string} html - html content (optional)
-     */
+    // catch-all for any other emails we need to send
     async sendEmail(to, subject, text, html = null) {
         const mailOptions = {
             from: this.from,
@@ -103,5 +81,4 @@ class EmailService {
     }
 }
 
-// export singleton instance
 module.exports = new EmailService();
