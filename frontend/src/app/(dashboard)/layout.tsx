@@ -14,6 +14,7 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { DashboardProvider, useDashboardContext } from '@/context/DashboardContext';
 import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { NotificationProvider, useNotificationContext } from '@/context/NotificationContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 const titleMap: { [key: string]: string } = {
@@ -26,15 +27,17 @@ const titleMap: { [key: string]: string } = {
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { loading, isSidebarOpen, setIsSidebarOpen } = useDashboardSharedContext();
+    const { loading, isSidebarOpen, setIsSidebarOpen, user } = useDashboardSharedContext();
 
     if (loading) return <div className="text-center mt-10">Loading...</div>;
 
     return (
         <DashboardProvider>
-            <DashboardShell isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}>
-                {children}
-            </DashboardShell>
+            <NotificationProvider user={user}>
+                <DashboardShell isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}>
+                    {children}
+                </DashboardShell>
+            </NotificationProvider>
         </DashboardProvider>
     );
 }
@@ -45,7 +48,8 @@ function DashboardShell({ children, isSidebarOpen, setIsSidebarOpen }: {
     setIsSidebarOpen: (open: boolean) => void
 }) {
     const { activeTab, setActiveTab, navigateToTab } = useDashboardContext();
-    const { user, notificationCount, refreshNotifications, activeBroadcast } = useDashboardSharedContext();
+    const { user } = useDashboardSharedContext();
+    const { notificationCount, refreshNotifications, activeBroadcast } = useNotificationContext();
     const pathname = usePathname();
     const router = useRouter();
     const [dismissedBroadcastId, setDismissedBroadcastId] = useState<string | null>(null);
