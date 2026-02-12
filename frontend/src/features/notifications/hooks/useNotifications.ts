@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useDashboardSharedContext } from '@/context/DashboardSharedContext';
+import { useNotificationContext } from '@/context/NotificationContext';
 import { getFriends, respondToFriendRequest } from '@/services/users';
 import { getNotes } from '@/services/notes';
 
@@ -35,9 +36,10 @@ interface Note {
 }
 
 export const useNotificationsLogic = () => {
-    const { user, refreshNotifications, notificationsData } = useDashboardSharedContext();
+    const { user } = useDashboardSharedContext();
+    const { notificationsData, refreshNotifications } = useNotificationContext();
     const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
-    const [sharedNotes, setSharedNotes] = useState<Note[]>([]);
+    const [sharedNotes, setSharedNotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
