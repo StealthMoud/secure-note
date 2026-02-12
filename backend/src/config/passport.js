@@ -14,6 +14,9 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+const { promisify } = require('util');
+const generateKeyPair = promisify(crypto.generateKeyPair);
+
 passport.use(new GoogleStrategy({
     clientID: process.env.OAUTH_GOOGLE_CLIENT_ID,
     clientSecret: process.env.OAUTH_GOOGLE_CLIENT_SECRET,
@@ -22,7 +25,7 @@ passport.use(new GoogleStrategy({
     try {
         let user = await User.findOne({ email: profile.emails[0].value });
         if (!user) {
-            const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+            const { publicKey, privateKey } = await generateKeyPair('rsa', {
                 modulusLength: 2048,
                 publicKeyEncoding: { type: 'spki', format: 'pem' },
                 privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
@@ -61,7 +64,7 @@ passport.use(new GitHubStrategy({
 
         let user = email ? await User.findOne({ email }) : await User.findOne({ githubId });
         if (!user) {
-            const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+            const { publicKey, privateKey } = await generateKeyPair('rsa', {
                 modulusLength: 2048,
                 publicKeyEncoding: { type: 'spki', format: 'pem' },
                 privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
