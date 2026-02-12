@@ -1,5 +1,5 @@
 'use client';
-import AccountSettingsSection from '@/src/app/(dashboard)/account-settings/AccountSettingsSection';
+import AccountSettingsSection from '@/features/settings/components/AccountSettingsSection';
 
 export default function AdminSettingsPage() {
     return (
