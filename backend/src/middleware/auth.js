@@ -12,7 +12,7 @@ const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        await logSecurityEvent({
+        logSecurityEvent({
             event: 'authentication_failed',
             user: null,
             details: {
@@ -21,7 +21,7 @@ const authenticate = async (req, res, next) => {
                 userAgent: req.headers['user-agent'],
                 path: req.path,
             },
-        });
+        }).catch(err => console.error('background log error:', err));
         return res.status(401).json({ error: 'Authorization header missing or malformed' });
     }
 
@@ -34,7 +34,7 @@ const authenticate = async (req, res, next) => {
         const user = await User.findById(decoded.id).select('-password -privateKey -totpSecret');
 
         if (!user) {
-            await logSecurityEvent({
+            logSecurityEvent({
                 event: 'authentication_failed',
                 user: decoded.id,
                 details: {
@@ -43,13 +43,13 @@ const authenticate = async (req, res, next) => {
                     userAgent: req.headers['user-agent'],
                     path: req.path,
                 },
-            });
+            }).catch(err => console.error('background log error:', err));
             return res.status(401).json({ error: 'User not found' });
         }
 
         // check if token version matches user version (global logout support)
         if (typeof decoded.tokenVersion !== 'undefined' && decoded.tokenVersion !== user.tokenVersion) {
-            await logSecurityEvent({
+            logSecurityEvent({
                 event: 'authentication_failed',
                 user: user._id,
                 details: {
@@ -57,14 +57,14 @@ const authenticate = async (req, res, next) => {
                     ip: req.ip,
                     userAgent: req.headers['user-agent']
                 }
-            });
+            }).catch(err => console.error('background log error:', err));
             return res.status(401).json({ error: 'Session expired (password changed). Please log in again.' });
         }
 
         // attach full user context for authorization checks
         req.user = {
             id: user._id,
-            _id: user._id, // for compatibility
+            _id: user._id, // i add both id and _id so nothing breaks if code uses the other one
             role: user.role || 'user',
             verified: user.verified,
             email: user.email,
@@ -73,7 +73,7 @@ const authenticate = async (req, res, next) => {
 
         next();
     } catch (err) {
-        await logSecurityEvent({
+        logSecurityEvent({
             event: 'authentication_failed',
             user: null,
             details: {
@@ -83,7 +83,7 @@ const authenticate = async (req, res, next) => {
                 path: req.path,
                 error: err.message,
             },
-        });
+        }).catch(error => console.error('background log error:', error));
 
         if (err.name === 'TokenExpiredError') {
             return res.status(401).json({ error: 'Token has expired, please log in again' });
@@ -93,8 +93,8 @@ const authenticate = async (req, res, next) => {
 };
 
 const ROLE_HIERARCHY = {
-    'superadmin': 3,
-    'admin': 2,
+    'superadmin': 2,
+    'admin': 1,
     'user': 0
 };
 
@@ -127,8 +127,9 @@ const authorizeRole = (minRole) => {
     };
 };
 
-// backward compatibility wrapper
-const authorizeAdmin = authorizeRole('admin');
+// role levels: 0=user, 1=admin, 2=superadmin. minRole checks if your level is >= that.
+const authorizeAdmin = authorizeRole('admin'); // keepin this for now to avoid breakin too many imports, but i should use authorizeRole directly
+const authorizeSuperAdmin = authorizeRole('superadmin');
 
 // resource ownership verification middleware
 const authorizeResourceOwner = (resourceType) => {
@@ -151,11 +152,11 @@ const authorizeResourceOwner = (resourceType) => {
                     Model = require('../models/Note');
                     break;
                 case 'user':
-                    // for user resources, check if accessing own profile
+                    // let people look at their own profile. if its someone else, we block n log it.
                     if (resourceId === req.user.id.toString()) {
                         return next();
                     }
-                    await logSecurityEvent({
+                    logSecurityEvent({
                         event: 'authorization_failed',
                         user: req.user.id,
                         details: {
@@ -164,7 +165,7 @@ const authorizeResourceOwner = (resourceType) => {
                             resource_id: resourceId,
                             ip: req.ip,
                         },
-                    });
+                    }).catch(err => console.error('background log error:', err));
                     return res.status(403).json({ error: 'Access forbidden: not authorized to access this resource' });
                 default:
                     return res.status(500).json({ error: 'Invalid resource type' });
@@ -184,7 +185,7 @@ const authorizeResourceOwner = (resourceType) => {
                 );
 
                 if (!isOwner && !hasSharedAccess) {
-                    await logSecurityEvent({
+                    logSecurityEvent({
                         event: 'authorization_failed',
                         user: req.user.id,
                         details: {
@@ -193,7 +194,7 @@ const authorizeResourceOwner = (resourceType) => {
                             resource_id: resourceId,
                             ip: req.ip,
                         },
-                    });
+                    }).catch(err => console.error('background log error:', err));
                     return res.status(403).json({ error: 'Access forbidden: not authorized to access this resource' });
                 }
             }
@@ -221,8 +222,9 @@ const requireVerified = (req, res, next) => {
 
 module.exports = {
     authenticate,
-    authorizeAdmin,
     authorizeRole,
+    authorizeAdmin,
+    authorizeSuperAdmin,
     authorizeResourceOwner,
     requireVerified,
 };
