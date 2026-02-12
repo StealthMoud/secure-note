@@ -53,3 +53,9 @@ exports.updatePasswordValidation = [
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
         .withMessage('password must contain uppercase, lowercase, and number'),
 ];
+
+// validation for personalizing profile
+exports.updatePersonalizationValidation = [
+    body('bio').optional().trim().isLength({ max: 500 }).withMessage('Bio cannot exceed 500 characters'),
+    body('gender').optional().isIn(['male', 'female', 'other', 'prefer-not-to-say']).withMessage('Invalid gender'),
+];
