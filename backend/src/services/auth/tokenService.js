@@ -1,15 +1,9 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * token service for centralized jwt token management
- * eliminates duplicate token generation logic across controllers
- */
+// token service for managin all our jwts.
+// keeps generation logic in one place so controllers stay clean.
 
-/**
- * generate access token for authenticated user
- * @param {Object} user - user document with _id, role, tokenVersion
- * @returns {string} signed jwt access token
- */
+// creates short lived access tokens for normal api calls
 const generateAccessToken = (user) => {
     return jwt.sign(
         {
@@ -22,11 +16,7 @@ const generateAccessToken = (user) => {
     );
 };
 
-/**
- * generate refresh token for user session
- * @param {Object} user - user document with _id
- * @returns {string} signed jwt refresh token
- */
+// creates long lived refresh tokens to keep users logged in
 const generateRefreshToken = (user) => {
     return jwt.sign(
         { id: user._id },
@@ -35,21 +25,13 @@ const generateRefreshToken = (user) => {
     );
 };
 
-/**
- * generate both access and refresh tokens
- * @param {Object} user - user document
- * @returns {Object} object with accessToken and refreshToken
- */
+// helper to get both tokens at once
 const generateTokenPair = (user) => ({
     accessToken: generateAccessToken(user),
     refreshToken: generateRefreshToken(user)
 });
 
-/**
- * generate temporary token for 2fa flow
- * @param {Object} user - user document
- * @returns {string} temporary token valid for 5 minutes
- */
+// temp token for 2fa flow. expires fast so they gotta be quick.
 const generateTempToken = (user) => {
     return jwt.sign(
         { id: user._id },
@@ -58,11 +40,7 @@ const generateTempToken = (user) => {
     );
 };
 
-/**
- * set refresh token as httponly cookie
- * @param {Object} res - express response object
- * @param {string} refreshToken - jwt refresh token
- */
+// saves refresh token in an httponly cookie for security
 const setRefreshTokenCookie = (res, refreshToken) => {
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -72,12 +50,7 @@ const setRefreshTokenCookie = (res, refreshToken) => {
     });
 };
 
-/**
- * verify and decode jwt token
- * @param {string} token - jwt token to verify
- * @returns {Object} decoded token payload
- * @throws {Error} if token is invalid or expired
- */
+// verify n decode token or throw error if its bad
 const verifyToken = (token) => {
     return jwt.verify(token, process.env.JWT_SECRET);
 };
