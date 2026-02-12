@@ -51,3 +51,24 @@ exports.resetPasswordValidation = [
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
         .withMessage('password must contain uppercase, lowercase, and number'),
 ];
+
+// validation for joining 2fa token and code
+exports.verifyTotpValidation = [
+    body('tempToken').notEmpty().withMessage('Temporary token is required'),
+    body('totpCode').notEmpty().withMessage('2FA code is required'),
+];
+
+// validation for verifyin a totp token
+exports.totpVerifyValidation = [
+    body('token').notEmpty().withMessage('TOTP code is required'),
+];
+
+// validation for turnin off totp
+exports.totpDisableValidation = [
+    body('token').optional().notEmpty().withMessage('TOTP code is required if provided'),
+];
+
+// validation for rejectin a user verification
+exports.rejectVerificationValidation = [
+    body('userId').notEmpty().withMessage('User ID is required'),
+];
