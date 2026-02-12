@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useAuthSettings } from '@/hooks/useAuthSettings';
-import { useUserSettings } from '@/hooks/useUserSettings';
+import { useAuthSettings } from './useAuthSettings';
+import { useUserSettings } from './useUserSettings';
 
 export const useAccountSettingsLogic = () => {
     const authSettings = useAuthSettings();
