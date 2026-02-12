@@ -1,13 +1,7 @@
-// general helper functions
-
-/**
- * create a delay promise for async operations
- */
+// bits and bobs to help out
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-/**
- * safely parse json without throwing
- */
+// try to parse json but dont crash if it fails
 const safeJsonParse = (str, fallback = null) => {
     try {
         return JSON.parse(str);
@@ -16,9 +10,7 @@ const safeJsonParse = (str, fallback = null) => {
     }
 };
 
-/**
- * generate random string for tokens
- */
+// make a random string. usually for tokens.
 const generateRandomString = (length = 32) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -28,23 +20,17 @@ const generateRandomString = (length = 32) => {
     return result;
 };
 
-/**
- * format date to iso string
- */
+// get that iso format
 const formatDate = (date) => {
     return new Date(date).toISOString();
 };
 
-/**
- * check if object is empty
- */
+// just check if there is anything inside
 const isEmpty = (obj) => {
     return Object.keys(obj).length === 0;
 };
 
-/**
- * deep clone object
- */
+// quick and dirty deep clone
 const deepClone = (obj) => {
     return JSON.parse(JSON.stringify(obj));
 };
